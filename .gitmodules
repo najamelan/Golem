@@ -1,0 +1,9 @@
+[submodule "lib/log4php"]
+	path = lib/log4php
+	url = git@github.com:apache/logging-log4php.git
+[submodule "lib/htmlpurifier"]
+	path = lib/htmlpurifier
+	url = git@github.com:ezyang/htmlpurifier.git
+[submodule "lib/sfYaml"]
+	path = lib/sfYaml
+	url = git@github.com:symfony/Yaml.git
