@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="test/bootstrap.php" colors="true">
+
+	<testsuites>
+
+		<testsuite name="Reference">
+
+			<directory>test/Reference</directory>
+
+		</testsuite>
+
+
+		<testsuite name="Traits">
+
+			<directory>test/Traits</directory>
+
+		</testsuite>
+
+
+	</testsuites>
+
+
+	<filter>
+
+	  <whitelist processUncoveredFilesFromWhitelist="true" addUncoveredFilesFromWhitelist="true">
+
+	    <directory suffix=".php">src</directory>
+
+	  </whitelist>
+
+	</filter>
+
+
+</phpunit>

@@ -1,0 +1,33 @@
+<?php
+
+namespace Golem\Reference;
+
+use
+
+	  Golem\iFace\Factory as iFactory
+	, Golem\iFace\Factory as iLogOptions
+
+	, Golem\Reference\Data\LogOptions
+	, Golem\Reference\Data\Logger
+
+	, \Exception
+;
+
+
+
+class      Factory
+implements iFactory
+{
+	private $options;
+
+
+	public
+	function __construct( $golem )
+	{
+		$this->golem   = $golem;
+		$this->options = $golem->options();
+	}
+
+
+
+}
