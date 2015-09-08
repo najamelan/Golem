@@ -19,12 +19,6 @@ use
  */
 trait Seal
 {
-	/** @var bool Whether the object is sealed.
-	 */
-	private $sealed = false;
-
-
-
 	/**
 	 * Seal the current options object so it cannot be changed anymore.
 	 *

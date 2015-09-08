@@ -21,8 +21,13 @@ implements \Golem\iFace\Data\Options
 	use \Golem\Traits\Seal;
 	use \Golem\Traits\ArrayAccess;
 
-	protected $parsed   = [];
-	protected $defaults = [];
+
+	/** @var bool Whether the object is sealed.
+	 */
+	private   $sealed   = false ;
+
+	protected $parsed   = []    ;
+	protected $defaults = []    ;
 
 
 
