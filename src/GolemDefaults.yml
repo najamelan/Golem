@@ -3,7 +3,7 @@ log:
    prefix   : Golem
    name     : General
    output   : [ file ]
-   logfile  : &logfile [ /var/log/golem/security.log ]
+   logfile  : [ /var/log/golem/security.log ]
    level    : ALL
    type     : SECURITY
    msgPrefix: '{type}:{level} - '
@@ -26,7 +26,7 @@ log4php:
    availableAppenders:
 
       echo: &echoAppender { class: LoggerAppenderEcho, layout: *defaultLayout }
-      file: &fileAppender { class: LoggerAppenderFile, filename: *logfile, layout: *defaultLayout }
+      file: &fileAppender { class: LoggerAppenderFile, layout: *defaultLayout }
 
 
 

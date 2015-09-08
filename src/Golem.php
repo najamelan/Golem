@@ -59,35 +59,39 @@ class Golem
 	 * You can seal this object to prevent changes to security configuration
 	 * to made by code included later in your application.
 	 *
+	 * @param array|string|Golem\iFace\Data\Options $options Filename for an options
+	 *        file or array or Golem\iFace\Data\Options with values to override defaults.
+	 *
+	 * @throws \Exception When the input parameter is of wrong type.
+	 * @throws \Exception When the filename passed is no existing file.
+	 * @throws \Exception When the file passed does not parse correctly.
+	 *
 	 */
 	public
-	function __construct( $options = null )
+	function __construct( $options = [] )
 	{
+		// TODO: Defaults should be moved to options class, which already supports it btw.
+
 		$optionFile = new File( self::DEFAULT_OPTIONS_FILE );
 
 		$this->defaultOptions = new GolemOptions( $optionFile->parse() );
 		$this->options        = clone $this->defaultOptions;
 
 
-		if( $options instanceof Reference\Data\Options )
+		switch( Util::getType( $options ) )
 		{
-			$this->userOptions = $options;
-			$this->options->override( $this->userOptions );
+			case 'string'                           : $options = ( new File( $options ) )->parse();
+			case 'array'                            : // fallthrough
+			case 'Golem\Golem'                      : // fallthrough
+			case 'Golem\Reference\Data\Options'     : $options = new GolemOptions( $options );
+
+			case 'Golem\Reference\Data\GolemOptions': $this->clientOptions = $options;
+			                                          $this->options->override( $this->clientOptions );
+			                                          return;
+
+
+			default: throw new Exception( "Cannot get valid options from a: " . Util::getType( $options ) );
 		}
-
-
-		elseif( is_string( $options )  &&  file_exists( $options ) )
-		{
-			$optionFile = new File( $options );
-			$this->userOptions = new GolemOptions( $optionFile->parse() );
-
-			$this->options->override( $this->userOptions );
-		}
-
-
-		elseif( !is_null( $options ) )
-
-			throw "Cannot get valid options file from . $options";
 	}
 
 
@@ -112,7 +116,7 @@ class Golem
 
 		if( ! $options instanceof iLogOptions )
 
-			throw new Exception( "Invalid parameter type given to Golem::logger(). Got: " . get_class( $options ) );
+			throw new Exception( "Invalid parameter type given to Golem::logger(). Got: " . Util::getType( $options ) );
 
 
 		return new Logger( $options );

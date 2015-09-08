@@ -11,6 +11,12 @@
 
 namespace Golem\Reference\Data;
 
+use
+
+	Golem\Golem
+
+;
+
 
 
 class      GolemOptions
@@ -18,4 +24,13 @@ extends    Options
 implements \Golem\iFace\Data\Options
 {
 
+	public
+	function __construct( $options = [], $defaults = [] )
+	{
+		if( $options instanceof Golem )
+
+			$options = $options->options();
+
+		parent::__construct( $options, $defaults );
+	}
 }

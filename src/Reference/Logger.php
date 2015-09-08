@@ -12,6 +12,7 @@ use
 	, Golem\Traits\Seal
 
 	, \Logger as AppacheLogger
+	, \Exception
 ;
 
 
@@ -399,6 +400,25 @@ implements iLogger
 
 
 			case 'file':
+
+				$appConfig = $this->options[ 'availableAppenders' ][ $type ];
+
+				$app    = new $appConfig[ 'class' ];
+				$layout = $this->layout( $appConfig[ 'layout' ] );
+
+				$app->setLayout( $layout );
+				$app->setAppend( true    );
+
+				// TODO: since this accepts an array of filenames, we should either
+				// return an array of appenders, or this method should be called several times.
+				//
+				$app->setFile  ( $this->options[ 'logfile' ][ 0 ] );
+				$app->activateOptions();
+
+				// TODO: we should call $app->close() to release file handles either when it gets
+				// detached, or in the destructor of this logger...
+
+				return $app;
 
 
 			default:
