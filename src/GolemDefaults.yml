@@ -1,32 +1,29 @@
-log:
+logger:
 
-   prefix   : Golem
-   name     : General
-   output   : [ file ]
-   logfile  : [ /var/log/golem/security.log ]
-   level    : ALL
-   type     : SECURITY
-   msgPrefix: '{type}:{level} - '
+   additivity  : false
+   backend     : log4php
+   level       : ALL
+   msgPrefix   : '{type}:{level} - '
+   name        : General
+   prefix      : Golem
+   type        : SECURITY
+   appenderHash: sha256
 
+   appenders :
 
+      default:
 
-log4php:
-
-   additivity: false
-
-
-   layouts:
-
-      default: &defaultLayout
-
-         class            : LoggerLayoutPattern
+         name             : defaultFile
+         logfile          : /var/log/golem/security.log
          conversionPattern: "%date{Y-m-d H:i:s} [%logger] %message %newline---%newline"
 
 
-   availableAppenders:
+   log4php  :
 
-      echo: &echoAppender { class: LoggerAppenderEcho, layout: *defaultLayout }
-      file: &fileAppender { class: LoggerAppenderFile, layout: *defaultLayout }
+      appenders:
+
+         defaultEcho: { class: LoggerAppenderEcho, layout: LoggerLayoutPattern }
+         defaultFile: { class: LoggerAppenderFile, layout: LoggerLayoutPattern }
 
 
 

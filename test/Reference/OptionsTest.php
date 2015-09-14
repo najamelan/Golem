@@ -134,10 +134,18 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
 		// Combine defaults with options
 		//
 		$opt = new Options( [ 'name' => 'John' ], [ 'name' => 'Will', 'date' => '2015' ] );
-		$this->assertEquals( $opt[ 'date' ], '2015' );
-		$this->assertEquals( $opt[ 'name' ], 'John' );
+		$this->assertEquals( $opt->defaults(), [ 'name' => 'Will', 'date' => '2015' ] );
+		$this->assertEquals( $opt->toArray (), [ 'name' => 'John', 'date' => '2015' ] );
+		$this->assertEquals( $opt->userSet (), [ 'name' => 'John'                   ] );
 
 		// Add a new property not present in defaults
+		//
+		$opt = new Options( [ 'name' => 'Will', 'date' => '2015' ], [ 'name' => 'John' ] );
+		$this->assertEquals( $opt->defaults(), [ 'name' => 'John' ] );
+		$this->assertEquals( $opt->toArray (), [ 'name' => 'Will', 'date' => '2015' ] );
+		$this->assertEquals( $opt->userSet (), [ 'name' => 'Will', 'date' => '2015' ] );
+
+		// Use
 		//
 		$opt = new Options( [ 'name' => 'Will', 'date' => '2015' ], [ 'name' => 'John' ] );
 		$this->assertEquals( $opt[ 'date' ], '2015' );
@@ -183,8 +191,10 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
 		//
 		$opt = new Options( [ 'name' => 'John', 'date' => '2015' ] );
 		$opt->override( [ 'name' => 'Will' ] );
-		$this->assertEquals( $opt[ 'name' ], 'Will' );
-		$this->assertEquals( $opt[ 'date' ], '2015' );
+		$this->assertEquals( $opt->defaults(), [] );
+		$this->assertEquals( $opt->toArray (), [ 'name' => 'Will', 'date' => '2015' ] );
+		$this->assertEquals( $opt->userSet (), [ 'name' => 'Will', 'date' => '2015' ] );
+
 
 		// Override a property, save another with Options object
 		//

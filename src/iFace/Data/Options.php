@@ -17,7 +17,6 @@ use \ArrayAccess, mixed;
  *
  */
 interface Options
-extends   ArrayAccess
 {
 
 	/**
@@ -60,6 +59,43 @@ extends   ArrayAccess
 	 *
 	 */
 	public function override( $options );
+
+
+
+	/**
+	 * Get a readonly array representation of the currently active options.
+	 *
+	 * @return array The parsed options.
+	 *
+	 * @api
+	 *
+	 */
+	public function toArray();
+
+
+
+	/**
+	 * Get the set of values that where the defaults for this class.
+	 *
+	 * @return array The default options.
+	 *
+	 * @api
+	 *
+	 */
+	public function defaults();
+
+
+
+	/**
+	 * Get those values that have been overridden or set by the client.
+	 *
+	 * @return array The user set options.
+	 *
+	 * @api
+	 *
+	 */
+	public function userset();
+
 
 
 	/**

@@ -19,8 +19,10 @@ require_once __DIR__ . '/../../../lib/sfYaml/Parser.php';
 require_once __DIR__ . '/../../../lib/sfYaml/Unescaper.php';
 
 
-use   Symfony\Component\Yaml\Parser
-    , Symfony\Component\Yaml\Exception\ParseException
+use
+
+	Symfony\Component\Yaml\Parser
+
 ;
 
 
@@ -29,29 +31,20 @@ implements \Golem\iFace\Codec
 {
 
 	public
-	function
-	decode( $data )
+	function	decode( $data )
 	{
 		$parser = new Parser();
+		$parsed = $parser->parse( $data );
 
-		try
-		{
-		    $parsed = $parser->parse( $data );
-		}
-
-		catch( ParseException $e )
-		{
-		    printf("Unable to parse the YAML string: %s", $e->getMessage());
-		}
 
 		return $parsed;
 	}
 
 
-
-	public
-	function
-	encode( $data )
+	/**
+	 * @codeCoverageIgnore
+	 */
+	public function encode( $data )
 	{
 	}
 }

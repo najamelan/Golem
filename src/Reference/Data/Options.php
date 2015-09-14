@@ -2,7 +2,20 @@
 
 
 namespace Golem\Reference\Data;
-use \ArrayAccess, \Exception;
+
+use
+
+	  \Golem\iFace\Data\Options as iOptions
+
+	, \Golem\Traits\Seal
+	, \Golem\Traits\ArrayAccess as ArrAccess
+	, \Golem\Traits\Subject
+
+	, \ArrayAccess
+	, \Exception
+	, \SplSubject
+
+;
 
 
 /**
@@ -15,19 +28,20 @@ use \ArrayAccess, \Exception;
  * @package Configuration
  *
  */
-class      Options
-implements \Golem\iFace\Data\Options
+class        Options
+implements   iOptions, SplSubject, ArrayAccess
 {
-	use \Golem\Traits\Seal;
-	use \Golem\Traits\ArrayAccess;
+
+	use Seal, ArrAccess, Subject;
 
 
 	/** @var bool Whether the object is sealed.
 	 */
-	private   $sealed   = false ;
+	private   $sealed    = false ;
 
-	protected $parsed   = []    ;
-	protected $defaults = []    ;
+	protected $options   = []    ;
+	protected $defaults  = []    ;
+	protected $userset   = []    ;
 
 
 
@@ -56,10 +70,29 @@ implements \Golem\iFace\Data\Options
 	 */
 	public function __construct( $options = [], $defaults = [] )
 	{
+		// This will set $this->options and $this->userset only if it's an array
+		//
 		$this->override( $defaults );
 
-		$this->defaults = $this->parsed;
 
+		// If it's an array, override() will not consider it as defaults,
+		// so make up for that. If it was an options object override will
+		// correctly keep user userset and defaults separate.
+		//
+		if( is_array( $defaults ) )
+		{
+			// Copy into defaults
+			//
+			$this->defaults = $this->options;
+
+			// We don't want to have the defaults in here, so unset
+			//
+			$this->userset = [];
+		}
+
+
+		// Now set the user set values
+		//
 		$this->override( $options  );
 	}
 
@@ -68,7 +101,7 @@ implements \Golem\iFace\Data\Options
 	/**
 	 * Override options stored in the options object.
 	 *
-	 * @param  mixed options The new options. Can either be a Golem\iFace\Data\Option or an array.
+	 * @param  array|\Golem\iFace\Data\Options $new The new options.
 	 *
 	 * @throws Exception when trying to change a sealed object.
 	 * @throws If parameter is not of the right type.
@@ -79,36 +112,84 @@ implements \Golem\iFace\Data\Options
 	 *
 	 */
 	public
-	function override( $Options )
+	function override( $new )
 	{
 		if( $this->sealed )
 
 			throw new Exception( "Cannot change sealed options object." );
 
 
-		if( $Options instanceof \Golem\iFace\Data\Options )
+		// Keep the distinction between what the client set and what are default values
+		//
+		if( $new instanceof \Golem\iFace\Data\Options )
+		{
+			$this->defaults = array_replace_recursive( $this->defaults, $new->defaults );
+			$this->userset  = array_replace_recursive( $this->userset , $new->userset  );
 
-			$this->overrideArray( $Options->parsed );
+			$this->options  = array_replace_recursive( $this->options , $this->defaults, $this->userset );
+		}
 
 
-		elseif( is_array( $Options ) )
-
-			$this->overrideArray( $Options );
+		// If it's an array, assume there are no defaults
+		//
+		elseif( is_array( $new ) )
+		{
+			$this->options = array_replace_recursive( $this->options, $new );
+			$this->userset = array_replace_recursive( $this->userset, $new );
+		}
 
 
 		else
 
-			throw new Exception( 'Options::override only accepts parameter of type array and Golem\Interface\Options. Got: ' . gettype( $Options ) . ' Dump: ' . print_r( $Options, true ) );
+			throw new Exception( 'Options::override only accepts parameter of type array and Golem\Interface\Options. Got: ' . gettype( $new ) . ' Dump: ' . print_r( $new, true ) );
 
 
+		$this->notify( 'Options changed' );
 		return $this;
 	}
 
 
 
-	private
-	function overrideArray( $override )
+	/**
+	 * Get a readonly array representation of the currently active options.
+	 *
+	 * @return array The parsed options.
+	 *
+	 * @api
+	 *
+	 */
+	public function toArray()
 	{
-		$this->parsed = array_replace_recursive( $this->parsed, $override );
+		return $this->options;
+	}
+
+
+
+	/**
+	 * Get the set of values that where the defaults for this class.
+	 *
+	 * @return array The default options.
+	 *
+	 * @api
+	 *
+	 */
+	public function defaults()
+	{
+		return $this->defaults;
+	}
+
+
+
+	/**
+	 * Get those values that have been userset or set by the client.
+	 *
+	 * @return array The user set options.
+	 *
+	 * @api
+	 *
+	 */
+	public function userset()
+	{
+		return $this->userset;
 	}
 }

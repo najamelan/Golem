@@ -42,14 +42,18 @@ define( 'PHPDOCBUG', __DIR__ . '/GolemDefaults.yml' );
  */
 class Golem
 {
-	use Traits\Seal;
+	use
+
+		  Traits\Seal
+		, Traits\HasOptions
+
+	;
+
 
 	const DEFAULT_OPTIONS_FILE = PHPDOCBUG;
 
 
-	private $defaultOptions;
-	private $clientOptions;
-	private $options;
+	protected $loggers = [];
 
 
 	/**
@@ -70,23 +74,18 @@ class Golem
 	public
 	function __construct( $options = [] )
 	{
-		// TODO: Defaults should be moved to options class, which already supports it btw.
+		// TODO: $defaultOptions should be moved to options class, which already supports it btw.
 
-		$optionFile = new File( self::DEFAULT_OPTIONS_FILE );
-
-		$this->defaultOptions = new GolemOptions( $optionFile->parse() );
-		$this->options        = clone $this->defaultOptions;
-
+		$defaultsFile = new File( self::DEFAULT_OPTIONS_FILE );
+		$defaults     = $defaultsFile->parse();
 
 		switch( Util::getType( $options ) )
 		{
 			case 'string'                           : $options = ( new File( $options ) )->parse();
 			case 'array'                            : // fallthrough
 			case 'Golem\Golem'                      : // fallthrough
-			case 'Golem\Reference\Data\Options'     : $options = new GolemOptions( $options );
-
-			case 'Golem\Reference\Data\GolemOptions': $this->clientOptions = $options;
-			                                          $this->options->override( $this->clientOptions );
+			case 'Golem\Reference\Data\Options'     : // fallthrough
+			case 'Golem\Reference\Data\GolemOptions': $this->options = new GolemOptions( $options, $defaults );
 			                                          return;
 
 
@@ -97,11 +96,18 @@ class Golem
 
 
 	/**
-	 * Create a logger object.
+	 * Get a logger object. If a logger with this name does not already exist it will be created. All loggers
+	 * managed by Golem will have "Golem." prefixed to their name. All loggers made outside of Golem (instantiate
+	 * Golem\Reference\Logger directly) should be in a different namespace. Note that if you pass options for an existing
+	 * logger, these will override prior options, which might be unexpected. It is good practice to name loggers in a
+	 * fine-grained fashion (eg. use __CLASS__ as name) in order not to step on other code's toes.
 	 *
-	 * @param array|Golem\iFace\Data\Options $options to override the defaults
+	 * @param string|array|Golem\iFace\Data\LogOptions $options to override the defaults. If a string is given
+	 *        it will be assumed to be the name. It will still be prefixed with the default prefix (eg. when calling
+	 *        logger( 'somename' ) you will get a logger named 'Golem.somename')
 	 *
-	 * @throws \Exceptions On wrong parameter type
+	 * @throws \Exception On wrong parameter type.
+	 * @throws \Exception When trying to override options on a sealed logger.
 	 *
 	 * @return Reference\Logger
 	 *
@@ -109,6 +115,11 @@ class Golem
 	public
 	function logger( $options = [] )
 	{
+		if( is_string( $options ) )
+
+			$options = [ 'name' => $options ];
+
+
 		if( is_array( $options ) )
 
 			$options = new LogOptions( $this, $options );
@@ -119,23 +130,16 @@ class Golem
 			throw new Exception( "Invalid parameter type given to Golem::logger(). Got: " . Util::getType( $options ) );
 
 
-		return new Logger( $options );
-	}
+		if( !isset( $this->loggers[ $options->name() ] ) )
+
+			$this->loggers[ $options->name() ] = new Logger( $options );
 
 
+		else
 
-	/**
-	 * Provides a read only copy of the options object for the library.
-	 *
-	 * @return iFace\Data\Options The currently loaded library configuration.
-	 *
-	 */
-	public
-	function options()
-	{
-		$value = clone $this->options;
-		$value->seal();
+			$this->loggers[ $options->name() ]->override( $options );
 
-		return $value;
+
+		return $this->loggers[ $options->name() ];
 	}
 }

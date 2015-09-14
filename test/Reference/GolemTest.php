@@ -33,17 +33,17 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 		// Create default library
 		//
 		$golem = new Golem;
-		$this->assertTrue( isset( $golem->options()[ 'log' ][ 'prefix' ] ) );
+		$this->assertTrue( isset( $golem->options()[ 'logger' ][ 'prefix' ] ) );
 
 
 		$overrides =
 		[
 			  __DIR__ . '/../TestData/testGolem.yml'                   // filename
 
-			,                   [ 'log' => [ 'prefix' => 'Olé' ] ]     // array
-			, new Options     ( [ 'log' => [ 'prefix' => 'Olé' ] ] )   // Options
-			, new GolemOptions( [ 'log' => [ 'prefix' => 'Olé' ] ] )   // GolemOptions
-			, new Golem       ( [ 'log' => [ 'prefix' => 'Olé' ] ] )   // Golem
+			,                   [ 'logger' => [ 'prefix' => 'Olé' ] ]     // array
+			, new Options     ( [ 'logger' => [ 'prefix' => 'Olé' ] ] )   // Options
+			, new GolemOptions( [ 'logger' => [ 'prefix' => 'Olé' ] ] )   // GolemOptions
+			, new Golem       ( [ 'logger' => [ 'prefix' => 'Olé' ] ] )   // Golem
 		];
 
 
@@ -53,11 +53,13 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 
 			// Make sure it overrides
 			//
-			$this->assertTrue( $golem->options()[ 'log' ][ 'prefix' ] === 'Olé'     );
+			$this->assertTrue( $golem->options()            [ 'logger' ][ 'prefix' ] === 'Olé'   );
+			$this->assertTrue( $golem->options()->userSet ()[ 'logger' ][ 'prefix' ] === 'Olé'   );
+			$this->assertTrue( $golem->options()->defaults()[ 'logger' ][ 'prefix' ] === 'Golem' );
 
 			// Make sure they are merged correctly
 			//
-			$this->assertTrue( $golem->options()[ 'log' ][ 'name'   ] === 'General' );
+			$this->assertTrue( $golem->options()[ 'logger' ][ 'name'   ] === 'General' );
 		}
 	}
 

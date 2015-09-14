@@ -8,6 +8,12 @@ use
 
 ;
 
+
+/**
+ * Implemetation of the ArrayAccess interface. This assumes that classes using this trait
+ * also implement SplSubject, since changing values will trigger $this->notify.
+ *
+ */
 trait ArrayAccess
 {
 	/**
@@ -17,7 +23,7 @@ trait ArrayAccess
 	public
 	function offsetExists( $i )
 	{
-		return isset( $this->parsed[ $i ] );
+		return isset( $this->options[ $i ] );
 	}
 
 
@@ -29,7 +35,7 @@ trait ArrayAccess
 	public
 	function offsetGet( $i )
 	{
-		return isset( $this->parsed[ $i ] ) ? $this->parsed[ $i ] : null;
+		return isset( $this->options[ $i ] ) ? $this->options[ $i ] : null;
 	}
 
 
@@ -48,11 +54,14 @@ trait ArrayAccess
 
 		if( is_null( $i ) )
 
-			$this->parsed[]     = $value;
+			$this->options[]     = $value;
 
 		else
 
-			$this->parsed[ $i ] = $value;
+			$this->options[ $i ] = $value;
+
+
+		$this->notify( $i . ' changed' );
 	}
 
 
@@ -68,6 +77,9 @@ trait ArrayAccess
 			throw new Exception( "Cannot change sealed options object." );
 
 
-		unset( $this->parsed[ $i ] );
+		unset( $this->options[ $i ] );
+
+
+		$this->notify( $i . ' changed' );
 	}
 }

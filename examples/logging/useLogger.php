@@ -41,8 +41,8 @@ $golem->seal();
 //
 $log = $golem->logger
 ([
-	  'name'   => "Examples"
-	, 'output' => "echo"
+	  'name'      => 'Examples'
+	, 'appenders' => [ 'default' => [ 'name' => 'defaultEcho' ] ]
 ]);
 
 

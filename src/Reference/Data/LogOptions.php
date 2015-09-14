@@ -3,10 +3,6 @@
 /**
  * This is the Options object for the Log4php class.
  *
- * The data for the Options object should ideally come from
- * a place that is outside the document root, is readable but not
- * writable by the web server process.
- *
  */
 namespace Golem\Reference\Data;
 
@@ -17,6 +13,7 @@ use
 	  Golem\iFace\Logger as iLogger
 
 	, \LoggerLevel
+	, \Exception
 ;
 
 
@@ -31,7 +28,7 @@ implements \Golem\iFace\Data\LogOptions
 	{
 		$this->golem = $golem;
 
-		$defaults = array_merge_recursive( $golem->options()[ 'log' ], $golem->options()[ 'log4php' ] );
+		$defaults = $golem->options()[ 'logger' ];
 
 		parent::__construct( $options, $defaults );
 	}
@@ -47,8 +44,13 @@ implements \Golem\iFace\Data\LogOptions
 
 
 	public
-	function additivity()
+	function additivity( $new = null )
 	{
+		if( $new !== null )
+
+			$this[ 'additivity' ] = (bool) $new;
+
+
 		return $this[ 'additivity' ];
 	}
 
@@ -66,17 +68,33 @@ implements \Golem\iFace\Data\LogOptions
 	public
 	function level( $value = null )
 	{
+		// Setter part
+		//
 		if( $value !== null )
 		{
-			if( $this->sealed )
+			if( $this->sealed() )
 
 				throw new Exception( "Cannot changes sealed options object." );
 
 
-			$this->parsed[ 'level' ] = $value;
+			else
+
+				$this[ 'level' ] = $value;
 		}
 
-		return $this[ 'level' ];
+
+		// Getter part
+		//
+		$value = $this[ 'level' ];
+
+		// Always return as constant, not string
+		//
+		if( is_string( $value ) )
+
+			$value = self::string2level( $value );
+
+
+		return $value;
 	}
 
 
@@ -98,16 +116,16 @@ implements \Golem\iFace\Data\LogOptions
 	 */
 	public
 	static
-	function level2Log4php( $level )
+	function level2log4php( $level )
 	{
-		if( is_string( $level )  &&  defined( 'iLogger::' . $level ) )
+		if( is_string( $level ) )
 
-			$level = constant( 'iLogger::' . $level );
+			$level = self::string2level( $level );
 
 
 		if( !is_int( $level ) )
 
-			throw new Exception( "Invalid logging level Value was: {$level}" );
+			throw new Exception( "Invalid logging level Value was: ". print_r( $level, true ) . "." );
 
 
 		switch( $level )
@@ -124,7 +142,7 @@ implements \Golem\iFace\Data\LogOptions
 			case iLogger::OFF       : return LoggerLevel::getLevelOff  ();
 
 
-			default:	throw new Exception( "Invalid logging level Value was: {$level}" );
+			default:	throw new Exception( "Invalid logging level Value was: ". print_r( $level, true ) . "." );
 		}
 
 	}
@@ -133,17 +151,15 @@ implements \Golem\iFace\Data\LogOptions
 	/**
 	 * Converts a logging level to a string.
 	 *
-	 * Converts the Golem logging level (a number) or level defined in the Golem
-	 * properties file (a string) into the levels used by Apache's log4php. Note
-	 * that log4php does not define all of the levels we use. Closest equivalents
-	 * will be used.
-	 *
 	 * @param int $level The logging level to convert.
 	 *
-	 * @throws Exception if the supplied level doesn't match a level currently
-	 *                   defined.
+	 * @throws Exception when the supplied parameter is not an integer.
+	 * @throws Exception when the supplied level doesn't match a level currently defined.
 	 *
 	 * @return string The logging Level as a string.
+	 *
+	 * @api
+	 *
 	 */
 	public
 	static
@@ -151,7 +167,7 @@ implements \Golem\iFace\Data\LogOptions
 	{
 		if( !is_int( $level ) )
 
-			throw new Exception( "Invalid logging level Value was: {$level}. Should be an integer." );
+			throw new Exception( "Invalid logging level Value was: ". print_r( $level, true ) . ". Should be an integer." );
 
 
 		switch( $level )
@@ -168,7 +184,50 @@ implements \Golem\iFace\Data\LogOptions
 			case iLogger::OFF       : return 'OFF'       ;
 
 
-			default:	throw new Exception( "Invalid logging level Value was: {$level}" );
+			default:	throw new Exception( "Invalid logging level Value was: ". print_r( $level, true ) . "." );
+		}
+
+	}
+
+
+
+	/**
+	 * Converts a logging level from a string to a constant of \Golem\iFace\Logger.
+	 *
+	 * @param string $level The logging level to convert.
+	 *
+	 * @throws Exception when the supplied parameter is not a string.
+	 * @throws Exception when the supplied level doesn't match a level currently defined.
+	 *
+	 * @return string The logging Level as a string.
+	 *
+	 * @api
+	 *
+	 */
+	public
+	static
+	function string2level( $level )
+	{
+		if( !is_string( $level ) )
+
+			throw new Exception( "Invalid logging level Value was: ". print_r( $level, true ) . ". Should be a string." );
+
+
+		switch( $level )
+		{
+			case 'ALL'        : return iLogger::ALL      ;
+			case 'DEBUG'      : return iLogger::DEBUG    ;
+			case 'INFO'       : return iLogger::INFO     ;
+			case 'NOTICE'     : return iLogger::NOTICE   ;
+			case 'WARNING'    : return iLogger::WARNING  ;
+			case 'ERROR'      : return iLogger::ERROR    ;
+			case 'CRITICAL'   : return iLogger::CRITICAL ;
+			case 'ALERT'      : return iLogger::ALERT    ;
+			case 'EMERGENCY'  : return iLogger::EMERGENCY;
+			case 'OFF'        : return iLogger::OFF      ;
+
+
+			default:	throw new Exception( "Invalid logging level Value was: ". print_r( $level, true ) . "." );
 		}
 
 	}

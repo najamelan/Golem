@@ -23,33 +23,51 @@ use
 class      File
 //implements \Golem\iFace\Data\File
 {
-	private $fileName;
-	private $fileContents;
+	private $filename;
 
 
 
 	public
-	function __construct( $fileName )
+	function __construct( $filename )
 	{
-		$this->fileName = $fileName;
-
-		$this->readFile();
+		$this->filename = $filename;
 	}
 
 
 	/**
-	 * Stores the file contents in $this->fileContents
+	 * Returns the filename.
+	 *
+	 * @return string The filename passed to the constructor
+	 *
+	 * @api
 	 *
 	 */
-	private
+	public
+	function filename()
+	{
+		return $this->filename;
+	}
+
+
+	/**
+	 * Returns the contents of the file.
+	 *
+	 * @return string|boolean The contents as a string or false on failure.
+	 *
+	 * @throws Exception When the file does not exist.
+	 *
+	 * @api
+	 *
+	 */
+	public
 	function readFile()
 	{
-		if( ! file_exists( $this->fileName ) )
+		if( ! file_exists( $this->filename ) )
 
-			throw new Exception( "Cannot find file: {$this->fileName}" );
+			throw new Exception( "Cannot find file: {$this->filename}" );
 
 
-		$this->fileContents = file_get_contents( $this->fileName );
+		return file_get_contents( $this->filename );
 	}
 
 
@@ -60,37 +78,44 @@ class      File
 	public
 	function parse()
 	{
-		return $this->parser()->decode( $this->fileContents );
+		return $this->parser()->decode( $this->readFile() );
 	}
 
 
 
 
-	public
+	protected
 	function parser()
 	{
-		$finfo = new finfo; // return mime type ala mimetype extension
+		// Reading it in before using finfo also means we throw an Exception if the file does not exist.
+		//
+		$contents = $this->readFile();
+		$finfo    = new finfo;
 
-		$mime = $finfo->file( $this->fileName, FILEINFO_MIME_TYPE );
+		$mime     = $finfo->file( $this->filename, FILEINFO_MIME_TYPE );
+
+
+		if( $mime === 'text/plain' )
+
+			$mime = $this->extension2mime();
+
 
 
 		switch( $mime )
 		{
-			case 'text/plain' : $mime = $this->getMimeFromExtension();
-			                    /* fallthrough */
+			case 'text/x-yaml': return new ParseYAML( $contents );
 
-			case 'text/x-yaml': return new ParseYAML( $this->fileContents );
-
-			default           : throw new Exception( "Unsupported mime type of file: '{$this->fileName}'. Detected type: '$mime'." );
-			                    break;
+			default           : throw  new Exception( "Unsupported mime type of file: '{$this->filename}'. Detected type: '$mime'." );
 		}
 	}
 
 
-	private
-	function  getMimeFromExtension()
+	protected
+	function  extension2mime( $extension = null )
 	{
-		$extension = pathinfo( $this->fileName, PATHINFO_EXTENSION );
+		if( $extension === null )
+
+			$extension = pathinfo( $this->filename, PATHINFO_EXTENSION );
 
 
 		switch( $extension )

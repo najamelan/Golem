@@ -10,9 +10,12 @@ use
 	, Golem\Reference\Data\LogOptions
 
 	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
 
 	, \Logger as AppacheLogger
 	, \Exception
+	, \SplObserver
+	, \SplSubject
 ;
 
 
@@ -23,21 +26,22 @@ require_once __DIR__ . '/../../lib/log4php/src/main/php/Logger.php';
 
 
 class      Logger
-implements iLogger
+implements iLogger, \SplObserver
 {
-	use Seal;
+	use Seal, HasOptions;
 
 
-	private $options;
+	protected $activeAppenders = [];
+
 
 
 	public function __construct( LogOptions $options )
 	{
 		$this->options = $options;
 
-		// Golem does not allow getting unnamed loggers, to avoid polluting the rootLogger
-		//
+
 		$this->backend = AppacheLogger::getLogger( $this->name() );
+
 
 		// Additivity allows the logger to inherit appenders from the root logger
 		// or others in the hierarchy. Since this can be a security risk, we disable it.
@@ -45,9 +49,14 @@ implements iLogger
 		$this->backend->setAdditivity( $this->options->additivity() );
 
 
-		foreach( (array) $this->options[ 'output' ] as $output )
+		// Add all appenders from the configuration to the backend
+		//
+		$this->updateAppenders( $options );
 
-			$this->backend->addAppender( $this->appender( $output ) );
+
+		// Observe changes to the options in order to update the backend
+		//
+		$this->options->attach( $this );
 	}
 
 
@@ -66,10 +75,9 @@ implements iLogger
 
 	/**
 	 * Dynamically get/set the logging severity level. All events of this level and
-	 * higher will be logged from this point forward. All events
-	 * below this level will be discarded.
+	 * higher will be logged from this point forward. All events below this level will be discarded.
 	 *
-	 * @param int $value (optional) The level to set the logging level to.
+	 * @param int|string $value (optional) The level to set the logging level to.
 	 *
 	 * @return int The (new) level.
 	 */
@@ -342,7 +350,7 @@ implements iLogger
 
 		$this->backend->log
 		(
-			  LogOptions::level2Log4php( $level )
+			  LogOptions::level2log4php( $level )
 			, $this->messageTemplate( $message, $context )
 			, isset( $context[ 'exception' ] )  ?  $context[ 'exception' ] : null
 		);
@@ -366,66 +374,104 @@ implements iLogger
 
 
 
-	/**
-	 * Create a layout from given options.
-	 *
-	 */
 	protected
-	function layout( $options )
+	function appender( $appConfig )
 	{
-		$layout = new $options[ 'class' ];
-		$layout->setConversionPattern( $options[ 'conversionPattern' ] );
+		$appenders     = $this->options[ 'log4php' ][ 'appenders' ];
+
+		$backendConfig = $appenders[ $appConfig[ 'name' ] ];
+		$app           = new $backendConfig[ 'class' ];
+
+
+		$layout        = new $backendConfig[ 'layout' ];
+		$layout->setConversionPattern( $appConfig[ 'conversionPattern' ] );
 		$layout->activateOptions();
-		return $layout;
-	}
+
+		$app->setLayout( $layout );
 
 
-
-	protected
-	function appender( $type )
-	{
-		switch( $type )
+		switch( $appConfig[ 'name' ] )
 		{
-			case 'echo':
-
-				$appConfig = $this->options[ 'availableAppenders' ][ $type ];
-
-				$app    = new $appConfig[ 'class' ];
-				$layout = $this->layout( $appConfig[ 'layout' ] );
-
-				$app->setLayout( $layout );
-				$app->activateOptions();
-
-				return $app;
+			case 'defaultEcho': break;
 
 
-			case 'file':
+			case 'defaultFile':
 
-				$appConfig = $this->options[ 'availableAppenders' ][ $type ];
-
-				$app    = new $appConfig[ 'class' ];
-				$layout = $this->layout( $appConfig[ 'layout' ] );
-
-				$app->setLayout( $layout );
 				$app->setAppend( true    );
 
-				// TODO: since this accepts an array of filenames, we should either
-				// return an array of appenders, or this method should be called several times.
-				//
-				$app->setFile  ( $this->options[ 'logfile' ][ 0 ] );
-				$app->activateOptions();
+				$app->setFile  ( $appConfig[ 'logfile' ] );
 
-				// TODO: we should call $app->close() to release file handles either when it gets
-				// detached, or in the destructor of this logger...
-
-				return $app;
+				break;
 
 
 			default:
 
-				throw new Exception( "Unknown output type: " . $type );
+				throw new Exception( "Unknown appender with name: " . $appConfig[ 'name' ] );
 
 		}
+
+
+		$app->activateOptions();
+
+		// TODO: we should call $app->close() to release file handles either when it gets
+		// detached, or in the destructor of this logger...
+
+		return $app;
+	}
+
+
+
+	/**
+	 * Since this class uses a backend (log4php), when settings get overridden, we need to forward
+	 * certain settings to the backend.
+	 */
+	public
+	function override( $options )
+	{
+		$this->options->override( $options );
+
+
+		$this->backend->setAdditivity( $this->options[ 'additivity' ] );
+
+
+		$this->updateAppenders( $this->options );
+	}
+
+
+
+	/**
+	 * Update appenders to match new options.
+	 *
+	 */
+	protected
+	function updateAppenders( $options )
+	{
+		if( !isset( $options[ 'appenders' ] ) )
+
+			return;
+
+
+		$this->backend->removeAllAppenders();
+
+		$appenders = $options[ 'appenders' ];
+
+
+
+		// Create all appenders and add them to the backend
+		//
+		foreach( $appenders as $appConfig )
+
+			$this->backend->addAppender( $this->appender( $appConfig ) );
+	}
+
+
+	public
+	function update( SplSubject $subject, $eventName = null )
+	{
+
+		if( $eventName === 'additivity changed' )
+
+			$this->backend->setAdditivity( $subject->additivity() );
 	}
 
 }

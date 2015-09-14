@@ -9,6 +9,7 @@ use
 
 	, Golem\Reference\Data\LogOptions
 	, Golem\Reference\Data\Logger
+	, Golem\Traits\HasOptions
 
 	, \Exception
 ;
@@ -18,8 +19,7 @@ use
 class      Factory
 implements iFactory
 {
-	private $options;
-
+	use HasOptions;
 
 	public
 	function __construct( $golem )
