@@ -229,13 +229,6 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	{
 		// Send wrong value.
 		//
-
-
-
-	private
-	function randomString()
-	{
-		return bin2hex( openssl_random_pseudo_bytes( 32 ) );
 		self::$golem->logger()->level2string( 987654 );
 	}
 
@@ -246,7 +239,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	{
 		// Verify a logged string is present
 		//
-		$msg = $this->randomString();
+		$msg = self::$golem->randomizer()->randomBytes( 32, 'hex' );
 
 
 		ob_start();
@@ -312,7 +305,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	{
 		// Verify a logged string is present
 		//
-		$msg = $this->randomString();
+		$msg = self::$golem->randomizer()->randomBytes( 32, 'hex' );
 
 
 		if( file_exists( $file ) )
@@ -377,7 +370,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	{
 		// Verify a logged string is present
 		//
-		$msg = $this->randomString();
+		$msg = self::$golem->randomizer()->randomBytes( 32, 'hex' );
 
 
 		if( file_exists( $file ) )

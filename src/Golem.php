@@ -15,6 +15,7 @@ require_once __DIR__ . '/Reference/Traits/Autoload.php';
 use
 
 	  Golem\Reference\Logger
+	, Golem\Reference\Randomizer
    , Golem\Reference\Util
    , Golem\Reference\Data\File
 
@@ -59,7 +60,8 @@ class Golem
 	 * @var array Keep track of the loggers managed by this library object.
 	 *
 	 */
-	protected $loggers = [];
+	protected $loggers     = [];
+	protected $randomizer      ;
 
 
 	/**
@@ -143,5 +145,26 @@ class Golem
 
 
 		return $this->loggers[ $name ];
+	}
+
+
+
+	/**
+	 * Get a \Golem\Reference\Randomizer.
+	 *
+	 * @return \Golem\Reference\Randomizer
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function randomizer()
+	{
+		if( ! $this->randomizer )
+
+			$this->randomizer = new Randomizer( $this );
+
+
+		return $this->randomizer;
 	}
 }
