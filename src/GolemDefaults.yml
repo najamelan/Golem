@@ -1,29 +1,29 @@
+golem:
+
+
 logger:
 
-   additivity  : false
-   backend     : log4php
+   # This determines how errors are handled. Values:
+   #
+   # 'auto'   : throw exceptions and log to file
+   # 'nothrow': disable throwing exceptions but log to file
+   # 'none'   : do not report anything
+   #
+   errorHandling: auto
+
+   # Where to log info/warnings/errors from golem. Values (can be an array of multiple):
+   #
+   # 'phplog'       : the default php error log
+   # '/var/log/...' : a file path where to log
+   # 'echo'         : echo errors
+   #
+   logfile: 'phplog'
+
    level       : ALL
-   msgPrefix   : '{type}:{level} - '
-   name        : General
+   name        : Golem
    prefix      : Golem
-   type        : SECURITY
-   appenderHash: sha256
-
-   appenders :
-
-      default:
-
-         name             : defaultFile
-         logfile          : /var/log/golem/security.log
-         conversionPattern: "%date{Y-m-d H:i:s} [%logger] %message %newline---%newline"
 
 
-   log4php  :
-
-      appenders:
-
-         defaultEcho: { class: LoggerAppenderEcho, layout: LoggerLayoutPattern }
-         defaultFile: { class: LoggerAppenderFile, layout: LoggerLayoutPattern }
 
 
 

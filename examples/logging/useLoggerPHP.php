@@ -39,7 +39,7 @@ $golem->seal();
 //
 // We seal the logger, protecting it from changes by later code.
 //
-$log = $golem->logger( 'Examples.useLogger', [ 'logfile' => 'echo' ] )->seal();
+$log = $golem->logger( 'Examples.useLoggerPHP', [ 'logfile' => 'phplog' ] )->seal();
 
 
 // Now we can pass this object around in our code to log events.

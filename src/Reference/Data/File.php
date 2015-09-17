@@ -8,9 +8,13 @@
 namespace Golem\Reference\Data;
 
 use
-	  \Golem\Reference\Codecs\ParseYAML
+
+	  \Golem\Golem
+	, \Golem\Reference\Codecs\ParseYAML
+
 	, \Exception
 	, \finfo
+
 ;
 
 
@@ -24,13 +28,15 @@ class      File
 //implements \Golem\iFace\Data\File
 {
 	private $filename;
+	private $golem   ;
 
 
 
 	public
-	function __construct( $filename )
+	function __construct( Golem $golem, $filename )
 	{
 		$this->filename = $filename;
+		$this->golem    = $golem;
 	}
 
 
@@ -105,6 +111,9 @@ class      File
 		{
 			case 'text/x-yaml': return new ParseYAML( $contents );
 
+			                    // for now we don't use logger()->exception because this class is used to read
+			                    // the default options, and when it fails, we can't get a logger...
+			                    //
 			default           : throw  new Exception( "Unsupported mime type of file: '{$this->filename}'. Detected type: '$mime'." );
 		}
 	}

@@ -1,8 +1,0 @@
-<?php
-
-namespace Golem\iFace;
-
-interface Factory
-{
-
-}

@@ -1,6 +1,5 @@
 <?php
 /**
- * @ignore
  * The main interface to the library.
  *
  */
@@ -11,17 +10,16 @@
  */
 namespace Golem;
 
-require_once __DIR__ . '/Traits/Autoload.php';
+require_once __DIR__ . '/Reference/Traits/Autoload.php';
 
-use   Golem\iFace\Data\Options          as iOptions
-	 , Golem\iFace\Data\LogOptions       as iLogOptions
+use
 
-    , Golem\Reference\Logger
-    , Golem\Reference\Data\GolemOptions
-    , Golem\Reference\Data\LogOptions
-    , Golem\Reference\Data\File
+	  Golem\Reference\Logger
+   , Golem\Reference\Util
+   , Golem\Reference\Data\File
 
-    , \Exception
+   , \Exception
+   , \InvalidArgumentException
 ;
 
 
@@ -44,15 +42,23 @@ class Golem
 {
 	use
 
-		  Traits\Seal
-		, Traits\HasOptions
+		  Reference\Traits\Seal
+		, Reference\Traits\HasOptions
 
 	;
 
 
+	/**
+	 * @var string The file with default options.
+	 *
+	 */
 	const DEFAULT_OPTIONS_FILE = PHPDOCBUG;
 
 
+	/**
+	 * @var array Keep track of the loggers managed by this library object.
+	 *
+	 */
 	protected $loggers = [];
 
 
@@ -61,10 +67,11 @@ class Golem
 	 *
 	 * You should usuall create one and pass it round in your application.
 	 * You can seal this object to prevent changes to security configuration
-	 * to made by code included later in your application.
+	 * to be made by code included later in your application. See the documentation on sealing
+	 * for limitations of this approach.
 	 *
-	 * @param array|string|Golem\iFace\Data\Options $options Filename for an options
-	 *        file or array or Golem\iFace\Data\Options with values to override defaults.
+	 * @param array|string|Golem/Golem $options Filename for an options
+	 *        file or array or Golem/Golem with values to override defaults.
 	 *
 	 * @throws \Exception When the input parameter is of wrong type.
 	 * @throws \Exception When the filename passed is no existing file.
@@ -74,72 +81,67 @@ class Golem
 	public
 	function __construct( $options = [] )
 	{
-		// TODO: $defaultOptions should be moved to options class, which already supports it btw.
-
-		$defaultsFile = new File( self::DEFAULT_OPTIONS_FILE );
-		$defaults     = $defaultsFile->parse();
+		$defaultsFile   = new File( $this, self::DEFAULT_OPTIONS_FILE );
+		$defaults = $defaultsFile->parse();
 
 		switch( Util::getType( $options ) )
 		{
-			case 'string'                           : $options = ( new File( $options ) )->parse();
-			case 'array'                            : // fallthrough
-			case 'Golem\Golem'                      : // fallthrough
-			case 'Golem\Reference\Data\Options'     : // fallthrough
-			case 'Golem\Reference\Data\GolemOptions': $this->options = new GolemOptions( $options, $defaults );
-			                                          return;
+			case 'string'                           : $options = ( new File( $this, $options ) )->parse();
+			case 'array'                            : break;
 
+			case 'Golem\Golem'                      : $options = $options->options;
+			                                          break;
 
-			default: throw new Exception( "Cannot get valid options from a: " . Util::getType( $options ) );
+			default: throw new InvalidArgumentException( "Cannot get valid options from a: " . Util::getType( $options ) );
 		}
+
+
+		$this->setupOptions( $defaults, $options );
 	}
 
 
 
 	/**
-	 * Get a logger object. If a logger with this name does not already exist it will be created. All loggers
-	 * managed by Golem will have "Golem." prefixed to their name. All loggers made outside of Golem (instantiate
-	 * Golem\Reference\Logger directly) should be in a different namespace. Note that if you pass options for an existing
-	 * logger, these will override prior options, which might be unexpected. It is good practice to name loggers in a
-	 * fine-grained fashion (eg. use __CLASS__ as name) in order not to step on other code's toes.
+	 * Get a \Golem\Reference\logger.
 	 *
-	 * @param string|array|Golem\iFace\Data\LogOptions $options to override the defaults. If a string is given
-	 *        it will be assumed to be the name. It will still be prefixed with the default prefix (eg. when calling
-	 *        logger( 'somename' ) you will get a logger named 'Golem.somename')
+	 * @param string $name    The name of the logger. If you request a logger with an existing name,
+	 *                        a new logger will not be created, you will get the named logger.
 	 *
-	 * @throws \Exception On wrong parameter type.
-	 * @throws \Exception When trying to override options on a sealed logger.
+	 * @param array  $options Options to override defaults for the logger. This parameter is not supported
+	 *                        when asking for an existing logger by passing an existing name as $name.
 	 *
-	 * @return Reference\Logger
+	 * @todo figure out if it is a good idea to have named loggers. Even though the golem object needs
+	 *       to be instantiated, this still resembles static access, just by having a name. This can be
+	 *       a security issue because all code with access to the golem object necessarily has access
+	 *       to all loggers of that golem object with a predictable name.
+	 *
+	 * @throws \Exception When trying to pass options for an existing logger.
+	 *
+	 * @return \Golem\Reference\logger The logger with the given name, if it doesn't exist, it will be created.
+	 *
+	 * @api
 	 *
 	 */
 	public
-	function logger( $options = [] )
+	function logger( $name = null, array $options = [] )
 	{
-		if( is_string( $options ) )
+		if( $name === null )
 
-			$options = [ 'name' => $options ];
-
-
-		if( is_array( $options ) )
-
-			$options = new LogOptions( $this, $options );
+			$name = $this->options[ 'logger' ][ 'name' ];
 
 
-		if( ! $options instanceof iLogOptions )
-
-			throw new Exception( "Invalid parameter type given to Golem::logger(). Got: " . Util::getType( $options ) );
-
-
-		if( !isset( $this->loggers[ $options->name() ] ) )
-
-			$this->loggers[ $options->name() ] = new Logger( $options );
+		if( ! isset( $this->loggers[ $name ] ) )
+		{
+			$options[ 'name' ] = $name;
+			$this->loggers[ $name ] = new Logger( $this, $options );
+		}
 
 
-		else
+		elseif( ! empty( $options ) )
 
-			$this->loggers[ $options->name() ]->override( $options );
+			$this->logger()->exception( "Cannot override options on existing logger: [$name]" );
 
 
-		return $this->loggers[ $options->name() ];
+		return $this->loggers[ $name ];
 	}
 }

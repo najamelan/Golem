@@ -7,176 +7,207 @@ use
 
 	  Golem\iFace\Logger as iLogger
 
-	, Golem\Reference\Data\LogOptions
+	, Golem\Golem
 
-	, Golem\Traits\Seal
-	, Golem\Traits\HasOptions
+	, Golem\Reference\Traits\Seal
+	, Golem\Reference\Traits\HasOptions
 
-	, \Logger as AppacheLogger
 	, \Exception
-	, \SplObserver
-	, \SplSubject
+	, \InvalidArgumentException
 ;
-
-
-// Include apache-log4php
-//
-require_once __DIR__ . '/../../lib/log4php/src/main/php/Logger.php';
 
 
 
 class      Logger
-implements iLogger, \SplObserver
+implements iLogger
 {
 	use Seal, HasOptions;
 
 
-	protected $activeAppenders = [];
-
-
-
-	public function __construct( LogOptions $options )
+	public
+	function __construct( Golem $golem, array $options = [] )
 	{
-		$this->options = $options;
-
-
-		$this->backend = AppacheLogger::getLogger( $this->name() );
-
-
-		// Additivity allows the logger to inherit appenders from the root logger
-		// or others in the hierarchy. Since this can be a security risk, we disable it.
-		//
-		$this->backend->setAdditivity( $this->options->additivity() );
-
-
-		// Add all appenders from the configuration to the backend
-		//
-		$this->updateAppenders( $options );
-
-
-		// Observe changes to the options in order to update the backend
-		//
-		$this->options->attach( $this );
+		$this->setupOptions( $golem->options()[ 'logger' ], $options );
 	}
 
 
 	/**
-	 * Get the name of this logger.
+	 * Throw an exception depending on the configuration, which can specify 'nothrow' to disable
+	 * throwing exceptions (In which case it will still be logged).
 	 *
-	 * @return string The name.
+	 * @param \Exception|string $exception The exception to throw. If a string message is passed,
+	 *                                     a standard Exception object will be created.
+	 *
+	 * @param array             $context   Context information about the event.
+	 *
+	 * @return $this
+	 *
+	 * @api
 	 *
 	 */
 	public
-	function name()
+	function exception( $exception, array $context = [] )
 	{
-		return $this->options->name();
+		$how = $this->options()[ 'errorHandling' ];
+
+		switch( $this->options()[ 'errorHandling' ] )
+		{
+			case 'none':
+
+				return $this;
+
+
+			case 'nothrow':
+
+				$this->log( iLogger::ERROR, $exception, $context );
+				return $this;
+
+
+			case 'auto':
+
+				// since exceptions thrown will also be logged automatically to the phplog
+				// set 'nophplog' to prevent double logging
+				//
+				$context[ 'nophplog' ] = true;
+				$this->log( iLogger::ERROR, $exception, $context );
+
+
+				if( is_string( $exception ) )
+
+					$exception = new Exception( $exception );
+
+
+				throw $exception;
+
+
+			default:
+
+				throw new Exception( 'Invalid configuration setting for Logger.errorHandling, got: ' . $how . '. Valid entries are "none", "auto" or "nothrow".' );
+		}
 	}
 
 
-	/**
-	 * Dynamically get/set the logging severity level. All events of this level and
-	 * higher will be logged from this point forward. All events below this level will be discarded.
-	 *
-	 * @param int|string $value (optional) The level to set the logging level to.
-	 *
-	 * @return int The (new) level.
-	 */
-	public
-	function level( $value = null )
-	{
-		return $this->options->level( $value );
-	}
-
-
-
 
 	/**
-	 * System is unusable.
+	 * Logs with an arbitrary level.
 	 *
+	 * @param mixed  $level   The loglevel for this event (NOTICE, WARNING, ERROR)
 	 * @param string $message
 	 * @param array  $context
 	 *
-	 * @return null
+	 * @return \Golem\iFace\Logger $this
+	 *
+	 * @api
+	 *
 	 */
 	public
-	function emergency( $message, array $context = [] )
+	function log( $level, $message, array $context = [] )
 	{
-		$this->log( iLogger::EMERGENCY, $message, $context );
+		if( $level < $this->level() )
+
+			return;
+
+
+		$where = $this->options[ 'logfile' ];
+		$message = $this->format( $message, $level );
+
+
+		foreach( (array) $where as $output )
+		{
+			switch( $output )
+			{
+				case 'phplog':
+
+					if( isset( $context[ 'nophplog' ] ) )
+
+						break;
+
+
+					$output = ini_get( 'error_log' );
+
+					// fallthrough
+
+
+				// Try to parse it as a filename
+				//
+				default:
+
+					// Create the target folder if needed
+					//
+					if( ! is_file( $output ) )
+					{
+						$dir = dirname( $output );
+
+
+						if( ! is_dir( $dir ) )
+
+							if( mkdir( $dir, 0755, true ) === false )
+
+								$this->exception( "Failed creating target directory [$dir] for logfile [$output]." );
+					}
+
+
+					$mode = 'a';
+					$filePointer = fopen( $output, $mode );
+
+					if( ! $filePointer )
+
+						$this->exception( "Failed opening target file for logfile [$output]." );
+
+
+					// Required when appending with concurrent access
+					//
+					fseek( $filePointer, 0, SEEK_END );
+
+
+					if( fwrite( $filePointer, $message ) === false )
+
+						$this->exception( "Failed writing to logfile [$output]." );
+
+
+					fclose( $filePointer );
+
+					break;
+
+
+				case 'echo':
+
+					echo $message;
+
+
+					break;
+			}
+
+		}
+
+
+		return $this;
 	}
+
 
 
 	/**
-	 * Allows the caller to determine if messages logged at this level will be
-	 * discarded, to avoid performing expensive processing.
+	 * Decorates the log message.
 	 *
-	 * @return bool TRUE if emergency level messages will be output to the log.
+	 * @param mixed $message The original message to log (must implement __toString()).
+	 *
+	 * @param int   $level   The log level of this event in order to be able to include
+	 *                       it in the formatted string
+	 *
+	 * @internal
+	 *
 	 */
-	public
-	function emergencyOn()
+	private
+	function format( $message, $level )
 	{
-		return $this->options->level() <= iLogger::EMERGENCY;
+		$level = str_pad( $this->level2string( $level ), 7 );
+
+
+		return
+
+			date( 'Y-m-d H:i:s' ) . " [{$this->name()}] SECURITY:{$level} | $message\n---\n";
 	}
 
-
-	/**
-	 * Action must be taken immediately.
-	 *
-	 * Example: Entire website down, database unavailable, etc. This should
-	 * trigger the SMS alerts and wake you up.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return null
-	 */
-	public
-	function alert( $message, array $context = [] )
-	{
-		$this->log( iLogger::ALERT, $message, $context );
-	}
-
-
-	/**
-	 * Allows the caller to determine if messages logged at this level will be
-	 * discarded, to avoid performing expensive processing.
-	 *
-	 * @return bool TRUE if alert level messages will be output to the log.
-	 */
-	public
-	function alertOn()
-	{
-		return $this->options->level() <= iLogger::ALERT;
-	}
-
-
-	/**
-	 * Critical conditions.
-	 *
-	 * Example: Application component unavailable, unhandled exception.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return null
-	 */
-	public
-	function critical( $message, array $context = [] )
-	{
-		$this->log( iLogger::CRITICAL, $message, $context );
-	}
-
-
-	/**
-	 * Allows the caller to determine if messages logged at this level will be
-	 * discarded, to avoid performing expensive processing.
-	 *
-	 * @return bool TRUE if critical level messages will be output to the log.
-	 */
-	public
-	function criticalOn()
-	{
-		return $this->options->level() <= iLogger::CRITICAL;
-	}
 
 
 	/**
@@ -187,6 +218,9 @@ implements iLogger, \SplObserver
 	 * @param array  $context
 	 *
 	 * @return null
+	 *
+	 * @api
+	 *
 	 */
 	public
 	function error( $message, array $context = [] )
@@ -195,17 +229,22 @@ implements iLogger, \SplObserver
 	}
 
 
+
 	/**
 	 * Allows the caller to determine if messages logged at this level will be
 	 * discarded, to avoid performing expensive processing.
 	 *
 	 * @return bool TRUE if error level messages will be output to the log.
+	 *
+	 * @api
+	 *
 	 */
 	public
 	function errorOn()
 	{
-		return $this->options->level() <= iLogger::ERROR;
+		return $this->level() <= iLogger::ERROR;
 	}
+
 
 
 	/**
@@ -218,6 +257,9 @@ implements iLogger, \SplObserver
 	 * @param array  $context
 	 *
 	 * @return null
+	 *
+	 * @api
+	 *
 	 */
 	public
 	function warning( $message, array $context = [] )
@@ -226,17 +268,22 @@ implements iLogger, \SplObserver
 	}
 
 
+
 	/**
 	 * Allows the caller to determine if messages logged at this level will be
 	 * discarded, to avoid performing expensive processing.
 	 *
 	 * @return bool TRUE if warning level messages will be output to the log.
+	 *
+	 * @api
+	 *
 	 */
 	public
 	function warningOn()
 	{
-		return $this->options->level() <= iLogger::WARNING;
+		return $this->level() <= iLogger::WARNING;
 	}
+
 
 
 	/**
@@ -246,6 +293,9 @@ implements iLogger, \SplObserver
 	 * @param array  $context
 	 *
 	 * @return null
+	 *
+	 * @api
+	 *
 	 */
 	public
 	function notice( $message, array $context = [] )
@@ -254,224 +304,154 @@ implements iLogger, \SplObserver
 	}
 
 
+
 	/**
 	 * Allows the caller to determine if messages logged at this level will be
 	 * discarded, to avoid performing expensive processing.
 	 *
 	 * @return bool TRUE if notice level messages will be output to the log.
+	 *
+	 * @api
+	 *
 	 */
 	public
 	function noticeOn()
 	{
-		return $this->options->level() <= iLogger::NOTICE;
+		return $this->level() <= iLogger::NOTICE;
 	}
+
 
 
 	/**
-	 * Interesting events.
+	 * Get the name of this logger.
 	 *
-	 * Example: User logs in, SQL logs.
+	 * @return string The name.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @api
 	 *
-	 * @return null
 	 */
 	public
-	function info( $message, array $context = [] )
+	function name()
 	{
-		$this->log( iLogger::INFO, $message, $context );
+		return $this->options[ 'name' ];
 	}
+
 
 
 	/**
-	 * Allows the caller to determine if messages logged at this level will be
-	 * discarded, to avoid performing expensive processing.
+	 * Dynamically get/set the logging severity level.
 	 *
-	 * @return bool TRUE if info level messages will be output to the log.
+	 * All events of this level and higher will be logged from this point forward. All events
+	 * below this level will be discarded.
+	 *
+	 * See the constants in \Golem\iFace\Logger for explanation on the levels.
+	 *
+	 * @param int $value (optional) The level to set the logging level to.
+	 *
+	 * @return int The (new) level.
+	 *
+	 * @api
+	 *
 	 */
 	public
-	function infoOn()
+	function level( $value = null )
 	{
-		return $this->options->level() <= iLogger::INFO;
-	}
-
-
-	/**
-	 * Detailed debug information.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return null
-	 */
-	public
-	function debug( $message, array $context = [] )
-	{
-		$this->log( iLogger::DEBUG, $message, $context );
-	}
-
-
-	/**
-	 * Allows the caller to determine if messages logged at this level will be
-	 * discarded, to avoid performing expensive processing.
-	 *
-	 * @return bool TRUE if debug level messages will be output to the log.
-	 */
-	public
-	function debugOn()
-	{
-		return $this->options->level() <= iLogger::DEBUG;
-	}
-
-
-	/**
-	 * Logs with an arbitrary level.
-	 *
-	 * @param mixed  $level
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return null
-	 */
-	public
-	function log( $level, $message, array $context = [] )
-	{
-		$message = $this->options[ 'msgPrefix' ] . $message;
-
-
-		if( ! isset( $context[ 'type' ] ) )
-
-			$context[ 'type' ] = $this->options[ 'type' ];
-
-
-		$context[ 'level' ] = $this->options->level2string( $level );
-
-
-		$this->backend->log
-		(
-			  LogOptions::level2log4php( $level )
-			, $this->messageTemplate( $message, $context )
-			, isset( $context[ 'exception' ] )  ?  $context[ 'exception' ] : null
-		);
-	}
-
-
-
-	protected
-	function messageTemplate( $message, $context )
-	{
-		foreach( $context as $key => $value )
+		// Setter part
+		//
+		if( $value !== null )
 		{
-			error_log( print_r( $key, true ) );
-			$message = preg_replace( '/\{' . preg_quote( $key ) . '\}/u', $value, $message );
-			error_log( print_r( $message, true ) );
+			if( $this->sealed() )
+
+				$this->exception( "Cannot changes sealed options object." );
+
+
+			else
+
+				$this->options[ 'level' ] = $this->userset[ 'level' ] = $value;
+
 		}
 
 
-		return $message;
+		// Getter part
+		//
+		$value = $this->options[ 'level' ];
+
+		// Always return as constant, not string
+		//
+		if( is_string( $value ) )
+
+			$value = $this->string2level( $value );
+
+
+		return $value;
 	}
 
 
 
-	protected
-	function appender( $appConfig )
+	/**
+	 * Converts a logging level from a string to a constant of \Golem\iFace\Logger.
+	 *
+	 * @param string $level The logging level to convert.
+	 *
+	 * @throws Exception when the supplied parameter is not a string.
+	 * @throws Exception when the supplied level doesn't match a level currently defined.
+	 *
+	 * @return string The logging Level as a string.
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function string2level( $level )
 	{
-		$appenders     = $this->options[ 'log4php' ][ 'appenders' ];
 
-		$backendConfig = $appenders[ $appConfig[ 'name' ] ];
-		$app           = new $backendConfig[ 'class' ];
-
-
-		$layout        = new $backendConfig[ 'layout' ];
-		$layout->setConversionPattern( $appConfig[ 'conversionPattern' ] );
-		$layout->activateOptions();
-
-		$app->setLayout( $layout );
-
-
-		switch( $appConfig[ 'name' ] )
+		switch( $level )
 		{
-			case 'defaultEcho': break;
+			case 'ALL'        : return iLogger::ALL      ;
+			case 'NOTICE'     : return iLogger::NOTICE   ;
+			case 'WARNING'    : return iLogger::WARNING  ;
+			case 'ERROR'      : return iLogger::ERROR    ;
+			case 'OFF'        : return iLogger::OFF      ;
+
+			case true : // fallthrough (switch does loose comparison)
+			default   :
+
+				$this->exception( new InvalidArgumentException( "Invalid logging level Value was: ". print_r( $level, true ) . "." ) );
+		}
+
+	}
 
 
-			case 'defaultFile':
 
-				$app->setAppend( true    );
-
-				$app->setFile  ( $appConfig[ 'logfile' ] );
-
-				break;
+	/**
+	 * Converts a logging level to a string.
+	 *
+	 * @param int $level The logging level to convert.
+	 *
+	 * @throws Exception when the supplied parameter is not an integer.
+	 * @throws Exception when the supplied level doesn't match a level currently defined.
+	 *
+	 * @return string The logging Level as a string.
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function level2string( $level )
+	{
+		switch( $level )
+		{
+			case iLogger::ALL       : return 'ALL'       ;
+			case iLogger::NOTICE    : return 'NOTICE'    ;
+			case iLogger::WARNING   : return 'WARNING'   ;
+			case iLogger::ERROR     : return 'ERROR'     ;
+			case iLogger::OFF       : return 'OFF'       ;
 
 
 			default:
 
-				throw new Exception( "Unknown appender with name: " . $appConfig[ 'name' ] );
-
+				$this->exception( new InvalidArgumentException( "Invalid logging level Value was: ". print_r( $level, true ) . "." ) );
 		}
 
-
-		$app->activateOptions();
-
-		// TODO: we should call $app->close() to release file handles either when it gets
-		// detached, or in the destructor of this logger...
-
-		return $app;
 	}
-
-
-
-	/**
-	 * Since this class uses a backend (log4php), when settings get overridden, we need to forward
-	 * certain settings to the backend.
-	 */
-	public
-	function override( $options )
-	{
-		$this->options->override( $options );
-
-
-		$this->backend->setAdditivity( $this->options[ 'additivity' ] );
-
-
-		$this->updateAppenders( $this->options );
-	}
-
-
-
-	/**
-	 * Update appenders to match new options.
-	 *
-	 */
-	protected
-	function updateAppenders( $options )
-	{
-		if( !isset( $options[ 'appenders' ] ) )
-
-			return;
-
-
-		$this->backend->removeAllAppenders();
-
-		$appenders = $options[ 'appenders' ];
-
-
-
-		// Create all appenders and add them to the backend
-		//
-		foreach( $appenders as $appConfig )
-
-			$this->backend->addAppender( $this->appender( $appConfig ) );
-	}
-
-
-	public
-	function update( SplSubject $subject, $eventName = null )
-	{
-
-		if( $eventName === 'additivity changed' )
-
-			$this->backend->setAdditivity( $subject->additivity() );
-	}
-
 }

@@ -24,7 +24,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testConstructor()
 	{
-		$file = new File( 'tester.php' );
+		$file = new File( self::$golem, 'tester.php' );
 		$this->assertEquals( $file->filename(), 'tester.php' );
 	}
 
@@ -33,7 +33,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testReadFile()
 	{
-		$file = new File( __DIR__ . '/../TestData/someData' );
+		$file = new File( self::$golem, __DIR__ . '/../TestData/someData' );
 		$this->assertEquals( $file->readFile(), "12345\n" );
 	}
 
@@ -46,7 +46,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testReadFileNoExist()
 	{
-		$file = new File( 'doesntexist.php' );
+		$file = new File( self::$golem, 'doesntexist.php' );
 		$contents = $file->readFile();
 	}
 
@@ -55,8 +55,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testParser()
 	{
-		$file = new File( __DIR__ . '/../TestData/testGolem.yml' );
-		$this->assertEquals( $file->parse(), [ 'logger' => [ 'prefix' => 'Olé' ] ] );
+		$file = new File( self::$golem, __DIR__ . '/../TestData/testGolem.yml' );
+		$this->assertEquals( $file->parse(), [ 'logger' => [ 'name' => 'Olé' ] ] );
 	}
 
 
@@ -68,7 +68,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testParserWrongExtension()
 	{
-		$file = new File( __DIR__ . '/../TestData/someData' );
+		$file = new File( self::$golem, __DIR__ . '/../TestData/someData' );
 		$file->parse();
 	}
 }

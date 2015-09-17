@@ -4,8 +4,7 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Reference\Data\Options
-	, Golem\Traits\Seal
+	, Golem\Reference\Traits\Seal
 
 	, \ReflectionClass
 ;
@@ -27,15 +26,8 @@ class SealTest extends \PHPUnit_Framework_TestCase
 	{
 		// Seal should return $this
 		//
-		$opt  = new Options();
-		$opt2 = $opt->seal();
-		$this->assertEquals( $opt, $opt2 );
-
-
-		// Seal an object that has options
-		//
-		$golem2 = self::$golem->seal();
-		$this->assertEquals( self::$golem, $golem2 );
+		$copy = self::$golem->seal();
+		$this->assertEquals( self::$golem, $copy );
 	}
 
 
@@ -44,28 +36,15 @@ class SealTest extends \PHPUnit_Framework_TestCase
 	{
 		// Sealed should return false
 		//
-		$opt  = new Options();
-		$this->assertFalse( $opt->sealed() );
+		$golem  = new Golem();
+		$this->assertFalse( $golem->sealed() );
 
 
 		// Sealed should return true
 		//
-		$opt  = new Options();
-		$opt2 = $opt->seal();
-		$this->assertTrue( $opt->sealed() );
-
-
-		// Sealed should return false on an object that has options
-		//
-		self::$golem = new Golem;
-		$this->assertFalse( self::$golem->sealed() );
-
-
-		// Sealed should return true an object that has options
-		//
-		self::$golem = new Golem;
-		self::$golem->seal();
-		$this->assertTrue( self::$golem->sealed() );
+		$golem  = new Golem();
+		$golem->seal();
+		$this->assertTrue( $golem->sealed() );
 	}
 
 
@@ -73,27 +52,25 @@ class SealTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testSealedBypassing()
 	{
-		// Try to get round sealing with reflection.
-		// Unfortunately, at this moment, it seems the only way is to recompile php with --disable-reflection.
-		// The test will be skipped for now.
+		// Try to get round sealing with reflection. This method works by directly accessing private data members.
+		// You need to disable the ReflectionClass in you php.ini in order to protect yourself from this.
 		//
-		$this->markTestSkipped( 'For now can only work by recompiling PHP.' );
+		// see disable_classes ini option.
+		//
+		$this->markTestSkipped( "This requires the ReflectionClass to be disabled, but phpunit requires it." );
 
-		$opt  = new Options( [ 'name' => 'John' ] );
-		$opt->seal();
+		if( class_exists( "ReflectionClass" ) )
+		{
+			$golem = new Golem();
+			$golem->seal();
 
+			$reflect = new ReflectionClass( 'Golem\Golem' );
 
-		$reflect = new ReflectionClass( 'Golem\Reference\Data\Options' );
-
-		$prop = $reflect->getProperty( 'parsed' );
-		$prop->setAccessible( true );
-		$prop->setValue( $opt, [ 'name' => 'Will' ] );
-		$this->assertEquals( $opt[ 'name' ], 'John' );
+			$prop = $reflect->getProperty( 'options' );
+			$prop->setAccessible( true );
+			$prop->setValue( $golem, 'HACKED' );
+			$this->assertTrue( is_array( $golem->options() ), "Make sure the options are an array, but were: " . print_r( $golem->options(), true ) );
+		}
 	}
 }
 
-
-class NoSeal
-{
-	use Seal;
-}

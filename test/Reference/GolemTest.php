@@ -4,12 +4,8 @@ namespace Golem\Test;
 use
 
 	  Golem\iFace\Logger       as iLogger
-	, Golem\iFace\Data\Options as iOptions
 
 	, Golem\Golem
-	, Golem\Reference\Data\Options
-	, Golem\Reference\Data\GolemOptions
-	, Golem\Reference\Data\LogOptions
 
 	, \stdClass
 ;
@@ -33,34 +29,26 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 		// Create default library
 		//
 		$golem = new Golem;
-		$this->assertTrue( isset( $golem->options()[ 'logger' ][ 'prefix' ] ) );
+		$this->assertTrue( isset( $golem->options()[ 'logger' ][ 'name' ] ) );
 
 
-		$overrides =
-		[
-			  __DIR__ . '/../TestData/testGolem.yml'                   // filename
-
-			,                   [ 'logger' => [ 'prefix' => 'Olé' ] ]     // array
-			, new Options     ( [ 'logger' => [ 'prefix' => 'Olé' ] ] )   // Options
-			, new GolemOptions( [ 'logger' => [ 'prefix' => 'Olé' ] ] )   // GolemOptions
-			, new Golem       ( [ 'logger' => [ 'prefix' => 'Olé' ] ] )   // Golem
-		];
+		// Override an option using an array
+		//
+		$golem = new Golem( [ 'logger' => [ 'name' => 'Will' ] ] );
+		$this->assertEquals( $golem->options()[ 'logger' ][ 'name' ], 'Will' );
 
 
-		foreach( $overrides as $options )
-		{
-			$golem = new Golem( $options );
+		// Override an option using another golem
+		//
+		$golem  = new Golem( [ 'logger' => [ 'name' => 'Will' ] ] );
+		$golem2 = new Golem( $golem );
+		$this->assertEquals( $golem2->options()[ 'logger' ][ 'name' ], 'Will' );
 
-			// Make sure it overrides
-			//
-			$this->assertTrue( $golem->options()            [ 'logger' ][ 'prefix' ] === 'Olé'   );
-			$this->assertTrue( $golem->options()->userSet ()[ 'logger' ][ 'prefix' ] === 'Olé'   );
-			$this->assertTrue( $golem->options()->defaults()[ 'logger' ][ 'prefix' ] === 'Golem' );
 
-			// Make sure they are merged correctly
-			//
-			$this->assertTrue( $golem->options()[ 'logger' ][ 'name'   ] === 'General' );
-		}
+		// Override an option using a string filename
+		//
+		$golem  = new Golem( __DIR__ . '/../TestData/testGolem.yml' );
+		$this->assertEquals( $golem->options()[ 'logger' ][ 'name' ], 'Olé' );
 	}
 
 
@@ -100,9 +88,20 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue( self::$golem->logger() instanceof iLogger );
 
 
-		// Create default logger with LogOptions
+		// Make sure that two loggers with the same name are the same object
 		//
-		$this->assertTrue( self::$golem->logger( new LogOptions( self::$golem ) ) instanceof iLogger );
+		$logger  = self::$golem->logger( 'testLogger', [ 'logfile' => 'somethingrandom' ] );
+		$logger2 = self::$golem->logger( 'testLogger' );
+
+		$this->assertEquals( $logger, $logger2 );
+
+
+		// Make sure that two loggers with a different name aren't equal
+		//
+		$logger  = self::$golem->logger( 'testLogger2' );
+		$logger2 = self::$golem->logger( 'testLogger3' );
+
+		$this->assertNotEquals( $logger, $logger2 );
 	}
 
 
@@ -112,27 +111,11 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 	 *
 	 */
 	public
-	function	testLoggerWrongParams()
+	function	testLoggerOverrideExisting()
 	{
-		// Create logger with wrong parameter type.
+		// Make sure that two loggers with the same name are the same object
 		//
-		self::$golem->logger( 4 );
+		$logger = self::$golem->logger( 'testLogger' );
+		$logger = self::$golem->logger( 'testLogger', [ 'logfile' => 'somethingrandom' ] );
 	}
-
-
-
-	public
-	function	testOpions()
-	{
-		$options = self::$golem->options();
-
-		// Get the options.
-		//
-		$this->assertTrue( $options instanceof iOptions );
-
-		// Make sure they're sealed.
-		//
-		$this->assertTrue( $options->sealed() );
-	}
-
 }

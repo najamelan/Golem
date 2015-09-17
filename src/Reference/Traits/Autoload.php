@@ -18,8 +18,9 @@ spl_autoload_register
 		//
 		$pClassName = str_replace( 'Golem\\', '', $pClassName );
 
+
 		// Turn the backslashes from namespaces into forward slashes for linux
 		//
-		include_once __DIR__ . '/../' . str_replace( "\\", "/", $pClassName ) . '.php';
+		include_once __DIR__ . '/../../' . str_replace( "\\", "/", $pClassName ) . '.php';
 	}
 );

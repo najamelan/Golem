@@ -40,27 +40,22 @@ $golem->seal();
 // Golem::logger() does not accept filenames directly.
 //
 //
-$log = $golem->logger
-([
-	  'name'    => "Examples"
-	, 'output'  => "file"
-	, 'logfile' => [ __DIR__ . "/useLoggerFile.log" ]
-]);
+$file = __DIR__ . "/useLoggerFile.log";
 
 
-// Same as above, it's good sealing Option objects to be sure things can't change behind our backs.
-// This will actually seal the $logOptions we made above. We could have called seal on there, but if yo
+// Let's empty if first for this example
 //
-$log->seal();
+if( file_exists( $file ) )
+
+	file_put_contents( $file, '' );
+
+
+$log = $golem->logger( 'Examples.useLoggerFile', [ 'logfile' => [ $file ] ] )->seal();
 
 
 // Now we can pass this object around in our code to log events.
 //
-$log->debug    ( 'Variable x contains y'         );
-$log->info     ( 'User John logged in'           );
 $log->notice   ( 'Server load reached 80%'       );
 $log->warning  ( 'Function DB::mysql deprecated' );
 $log->error    ( 'Unhandled exception'           );
-$log->critical ( 'Cannot connect to database'    );
-$log->alert    ( 'Website down'                  );
-$log->emergency( 'Server X fails to boot'        );
+$log->exception( 'Some situation needs to be handled.'   );

@@ -1,18 +1,16 @@
 <?php
 
-namespace Golem\Traits;
+namespace Golem\Reference\Traits;
 
 use
 
-	  Golem\iFace\Data\Options as iOptions
-
-	, \Exception
+	\Exception
 
 ;
 
 
 /**
- * Common functionality for sealing objects and their options.
+ * Common functionality for sealing objects.
  *
  * The configuration of a sealed object can no longer be changed.
  * Eg. A sealed logger cannot be disabled, have it's loglevel changed,
@@ -21,6 +19,13 @@ use
  */
 trait Seal
 {
+
+	/**
+	 * @var bool Whether the object is sealed.
+	 */
+	private   $sealed    = false ;
+
+
 	/**
 	 * Seal the current object so it's options cannot be changed anymore.
 	 *
@@ -29,9 +34,8 @@ trait Seal
 	 * objects so they won't change anymore by php code included later.
 	 *
 	 * Note: Currently (php 5.6) there is a reflection module in PHP which allows code to write to
-	 *       private properties on objects from the outside. The module can only be turned off by
-	 *       recompiling PHP. If you don't use a specially compiled version of PHP, this will not
-	 *       protect agains malicious attacks.
+	 *       private properties on objects from the outside. One possibility to solve this is to
+	 *       disable the "ReflectionClass" in php.ini.
 	 *
 	 *       In order for this to be useful you also have to store your php code and configuration
 	 *       in a place where the php or webserver user does not have write privileges.
@@ -44,15 +48,7 @@ trait Seal
 	public
 	function seal()
 	{
-		if( $this instanceof iOptions )
-
-			$this->sealed = true;
-
-
-		else
-
-			$this->options->seal();
-
+		$this->sealed = true;
 
 		return $this;
 	}
@@ -60,7 +56,7 @@ trait Seal
 
 
 	/**
-	 * Tells you whether the current object or it's options are sealed.
+	 * Tells you whether the current object is sealed.
 	 *
 	 * @return bool Whether the object is sealed.
 	 *
@@ -70,13 +66,6 @@ trait Seal
 	public
 	function sealed()
 	{
-		if( $this instanceof iOptions )
-
-			return $this->sealed;
-
-
-		else
-
-			return $this->options->sealed();
+		return $this->sealed;
 	}
 }

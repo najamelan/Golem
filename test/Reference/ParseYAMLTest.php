@@ -46,7 +46,7 @@ class ParseYAMLTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testEncode()
 	{
-		$this->markTestSkipped( 'Not yet implemented' );
+		$this->markTestIncomplete( 'Not yet implemented' );
 
 		$yml = new ParseYAML;
 		$this->assertEquals( $yml->encode( [ 'test' => [ 'some' => 'array' ] ] ), "test: { some: 'array' }" );
