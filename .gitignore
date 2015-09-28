@@ -1,3 +1,5 @@
 doc
 output
+resources
+test.php
 /examples/logging/useLoggerFile.log
