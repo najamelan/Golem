@@ -131,7 +131,7 @@ class Golem
 	{
 		if( $name === null )
 
-			$name = $this->options[ 'logger' ][ 'name' ];
+			$name = $this->options[ 'Logger' ][ 'name' ];
 
 
 		if( ! isset( $this->loggers[ $name ] ) )

@@ -56,7 +56,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	function	testParser()
 	{
 		$file = new File( self::$golem, __DIR__ . '/../TestData/testGolem.yml' );
-		$this->assertEquals( $file->parse(), [ 'logger' => [ 'name' => 'Olé' ] ] );
+		$this->assertEquals( $file->parse(), [ 'Logger' => [ 'name' => 'Olé' ] ] );
 	}
 
 

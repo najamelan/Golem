@@ -33,7 +33,7 @@ class HasOptionsTest extends \PHPUnit_Framework_TestCase
 
 		// Test merging of userset and defaults
 		//
-		$golem = new Golem( [ 'logger' => [ 'logfile' => [ 'echo', 'phplog', '/home/user/golem.log' ] ] ] );
+		$golem = new Golem( [ 'Logger' => [ 'logfile' => [ 'echo', 'phplog', '/home/user/golem.log' ] ] ] );
 		$log = $golem->logger( 'testSetup', [ 'logfile' => [ '/var/log/golem', '/var/log/golem2' ] ] );
 
 

@@ -29,26 +29,26 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 		// Create default library
 		//
 		$golem = new Golem;
-		$this->assertTrue( isset( $golem->options()[ 'logger' ][ 'name' ] ) );
+		$this->assertTrue( isset( $golem->options()[ 'Logger' ][ 'name' ] ) );
 
 
 		// Override an option using an array
 		//
-		$golem = new Golem( [ 'logger' => [ 'name' => 'Will' ] ] );
-		$this->assertEquals( $golem->options()[ 'logger' ][ 'name' ], 'Will' );
+		$golem = new Golem( [ 'Logger' => [ 'name' => 'Will' ] ] );
+		$this->assertEquals( $golem->options()[ 'Logger' ][ 'name' ], 'Will' );
 
 
 		// Override an option using another golem
 		//
-		$golem  = new Golem( [ 'logger' => [ 'name' => 'Will' ] ] );
+		$golem  = new Golem( [ 'Logger' => [ 'name' => 'Will' ] ] );
 		$golem2 = new Golem( $golem );
-		$this->assertEquals( $golem2->options()[ 'logger' ][ 'name' ], 'Will' );
+		$this->assertEquals( $golem2->options()[ 'Logger' ][ 'name' ], 'Will' );
 
 
 		// Override an option using a string filename
 		//
 		$golem  = new Golem( __DIR__ . '/../TestData/testGolem.yml' );
-		$this->assertEquals( $golem->options()[ 'logger' ][ 'name' ], 'Olé' );
+		$this->assertEquals( $golem->options()[ 'Logger' ][ 'name' ], 'Olé' );
 	}
 
 
