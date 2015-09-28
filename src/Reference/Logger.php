@@ -27,7 +27,7 @@ implements iLogger
 	public
 	function __construct( Golem $golem, array $options = [] )
 	{
-		$this->setupOptions( $golem->options()[ 'logger' ], $options );
+		$this->setupOptions( $golem->options()[ 'Logger' ], $options );
 	}
 
 

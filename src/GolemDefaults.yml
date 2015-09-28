@@ -1,7 +1,8 @@
-golem:
+Golem:
 
 
-logger:
+
+Logger:
 
    # This determines how errors are handled. Values:
    #
@@ -17,7 +18,7 @@ logger:
    # '/var/log/...' : a file path where to log
    # 'echo'         : echo errors
    #
-   logfile: 'phplog'
+   logfile: phplog
 
    level       : ALL
    name        : Golem
