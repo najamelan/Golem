@@ -1,5 +1,6 @@
 Golem:
 
+   encoding: 'UTF-8'
 
 
 Logger:
@@ -25,11 +26,27 @@ Logger:
    prefix      : Golem
 
 
+Codec:
+
+   HTML:
+
+      immuneText     : ',.-_ '
+      immuneAttribute: ',.-_'
+      context        : text
 
 
 
+      # private $_immune_css        = [ ' '     ];
+      # private $_immune_sql        = [ ' '     ];
+      # private $_immune_vbscript   = [ ' '     ];
+      # private $_immune_javascript = [ '_'     ];
+      # private $_immune_os         = [ '-'     ];
+      # private $_immune_xml        = [ ',.-_ ' ];
+      # private $_immune_xmlattr    = [ ',.-_'  ];
+      # private $_immune_xpath      = [ ',.-_ ' ];
+      # private $_immune_url        = [ '.-*_'  ];
 
 
+Encoder:
 
-
-
+   codecs: [ 'HTML' ]

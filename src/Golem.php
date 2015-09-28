@@ -18,6 +18,7 @@ use
 	, Golem\Reference\Randomizer
    , Golem\Reference\Util
    , Golem\Reference\Data\File
+   , Golem\Reference\Encoder
 
    , \Exception
    , \InvalidArgumentException
@@ -62,6 +63,7 @@ class Golem
 	 */
 	protected $loggers     = [];
 	protected $randomizer      ;
+	protected $encoder         ;
 
 
 	/**
@@ -166,5 +168,26 @@ class Golem
 
 
 		return $this->randomizer;
+	}
+
+
+
+	/**
+	 * Get a \Golem\Reference\Escape.
+	 *
+	 * @return \Golem\Reference\Escape
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function Encoder()
+	{
+		if( ! $this->encoder )
+
+			$this->encoder = new Encoder( $this );
+
+
+		return $this->encoder;
 	}
 }
