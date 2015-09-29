@@ -75,8 +75,8 @@ class Encoder
 		{
 			if( $codec === 'HTML' )
 			{
-				$this->htmlTextCodec = new HTML( $this->golem, [ 'context' => 'text'      ] );
-				$this->htmlAttrCodec = new HTML( $this->golem, [ 'context' => 'attribute' ] );
+				$this->htmlTextCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'text'      ] ] );
+				$this->htmlAttrCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'attribute' ] ] );
 				continue;
 			}
 

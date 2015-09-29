@@ -55,6 +55,11 @@ class HTML extends Codec
 
 
 		// TODO: else throw error
+		//
+		else
+
+			throw new Exception( 'wrong context option: ' . $this->options[ 'HTML' ][ 'context' ] );
+
 
 		$this->options[ 'immune' ] = array_merge( Util::mb_str_split( $immune ), Codec::$ALPHANUMERICS );
 	}

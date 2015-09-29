@@ -10,6 +10,12 @@
 
 		</testsuite>
 
+		<testsuite name="Codecs">
+
+			<directory>test/Reference/Codecs</directory>
+
+		</testsuite>
+
 
 		<testsuite name="Traits">
 

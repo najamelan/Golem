@@ -155,6 +155,10 @@ class Codec
 
 			return null;
 
+		// TODO: Validate input
+		//
+		// $input = mb_convert_encoding( $input, 'UTF-8' );
+
 
 		$length = mb_strlen( $input );
 
@@ -162,6 +166,10 @@ class Codec
 
 			$output .= $this->encodeCharacter( mb_substr( $input, $i, 1 ) );
 
+
+		// TODO: Validate output
+		//
+		// $output = mb_convert_encoding( $output, 'UTF-8' );
 
 		return $output;
 	}
