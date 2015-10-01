@@ -46,4 +46,3 @@ Codec:
 
 Encoder:
 
-   codecs: [ 'HTML' ]

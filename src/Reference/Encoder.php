@@ -66,22 +66,7 @@ class Encoder
 	{
 		$this->golem = $golem;
 
-		$this->setupOptions( $golem->options()[ 'Encoder' ], $options );
-
-
-		// initialise codecs
-		//
-		foreach( $this->options[ 'codecs' ] as $codec )
-		{
-			if( $codec === 'HTML' )
-			{
-				$this->htmlTextCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'text'      ] ] );
-				$this->htmlAttrCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'attribute' ] ] );
-				continue;
-			}
-
-			$this->{ $codec . 'Codec' } = new $codec( $this->golem );
-		}
+		$this->setupOptions( (array) $golem->options()[ 'Encoder' ], $options );
 	}
 
 
@@ -103,6 +88,11 @@ class Encoder
 	 */
 	public function htmlText( $input )
 	{
+		if( ! $this->htmlTextCodec )
+
+			$this->htmlTextCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'text' ] ] );
+
+
 		return $this->htmlTextCodec->encode( $input );
 	}
 
@@ -111,6 +101,11 @@ class Encoder
 	 */
 	public function htmlAttr( $input )
 	{
+		if( ! $this->htmlAttrCodec )
+
+			$this->htmlAttrCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'attribute' ] ] );
+
+
 		return $this->htmlAttrCodec->encode( $input );
 	}
 
