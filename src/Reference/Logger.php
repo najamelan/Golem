@@ -48,42 +48,21 @@ implements iLogger
 	public
 	function exception( $exception, array $context = [] )
 	{
-		$how = $this->options()[ 'errorHandling' ];
 
-		switch( $this->options()[ 'errorHandling' ] )
+		// throw if appropriate
+		//
+		if( $this->throwingOn() )
 		{
-			case 'none':
+			if( ! $exception instanceof Exception )
 
-				return $this;
-
-
-			case 'nothrow':
-
-				$this->log( iLogger::ERROR, $exception, $context );
-				return $this;
+				$exception = new Exception( $exception );
 
 
-			case 'auto':
-
-				// since exceptions thrown will also be logged automatically to the phplog
-				// set 'nophplog' to prevent double logging
-				//
-				$context[ 'nophplog' ] = true;
-				$this->log( iLogger::ERROR, $exception, $context );
-
-
-				if( is_string( $exception ) )
-
-					$exception = new Exception( $exception );
-
-
-				throw $exception;
-
-
-			default:
-
-				throw new Exception( 'Invalid configuration setting for Logger.errorHandling, got: ' . $how . '. Valid entries are "none", "auto" or "nothrow".' );
+			throw $exception;
 		}
+
+
+		return $this->log( iLogger::ERROR, $exception, $context );
 	}
 
 
@@ -103,12 +82,12 @@ implements iLogger
 	public
 	function log( $level, $message, array $context = [] )
 	{
-		if( $level < $this->level() )
+		if( $level < $this->level()  ||  !$this->options[ 'loggingOn' ] )
 
 			return;
 
 
-		$where = $this->options[ 'logfile' ];
+		$where   = $this->options[ 'logfile' ];
 		$message = $this->format( $message, $level );
 
 
@@ -116,12 +95,13 @@ implements iLogger
 		{
 			switch( $output )
 			{
+				case 'echo':
+
+					echo $message, "\n";
+					break;
+
+
 				case 'phplog':
-
-					if( isset( $context[ 'nophplog' ] ) )
-
-						break;
-
 
 					$output = ini_get( 'error_log' );
 
@@ -134,50 +114,17 @@ implements iLogger
 
 					// Create the target folder if needed
 					//
-					if( ! is_file( $output ) )
-					{
-						$dir = dirname( $output );
+					if( ! is_dir( dirname( $output ) ) )
+
+						if( false === mkdir( dirname( $output ), 0755, true ) )
+
+							$this->exception( "Failed creating target directory [$dir] for logfile [$output]." );
 
 
-						if( ! is_dir( $dir ) )
-
-							if( mkdir( $dir, 0755, true ) === false )
-
-								$this->exception( "Failed creating target directory [$dir] for logfile [$output]." );
-					}
-
-
-					$mode = 'a';
-					$filePointer = fopen( $output, $mode );
-
-					if( ! $filePointer )
-
-						$this->exception( "Failed opening target file for logfile [$output]." );
-
-
-					// Required when appending with concurrent access
-					//
-					fseek( $filePointer, 0, SEEK_END );
-
-
-					if( fwrite( $filePointer, $message ) === false )
+					if( file_put_contents( $output, $message, FILE_APPEND | LOCK_EX ) === false )
 
 						$this->exception( "Failed writing to logfile [$output]." );
-
-
-					fclose( $filePointer );
-
-					break;
-
-
-				case 'echo':
-
-					echo $message;
-
-
-					break;
 			}
-
 		}
 
 
@@ -206,6 +153,32 @@ implements iLogger
 		return
 
 			date( 'Y-m-d H:i:s' ) . " [{$this->name()}] SECURITY:{$level} | $message\n---\n";
+	}
+
+
+
+	public
+	function throwingOn( $value = null )
+	{
+		if( $value !== null  &&  ! $this->sealed() )
+
+			$this->options[ 'throwingOn' ] = (bool) $value;
+
+
+		return (bool) $this->options[ 'throwingOn' ];
+	}
+
+
+
+	public
+	function loggingOn( $value = null )
+	{
+		if( $value !== null  &&  ! $this->sealed() )
+
+			$this->options[ 'loggingOn' ] = (bool) $value;
+
+
+		return (bool) $this->options[ 'loggingOn' ];
 	}
 
 

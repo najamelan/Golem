@@ -286,14 +286,14 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
 		// Test exception without throwing
 		//
-		$logger = self::$golem->logger( 'echoTestExcept' , [ 'logfile' => 'echo', 'errorHandling' => 'nothrow' ] );
+		$logger = self::$golem->logger( 'echoTestExcept' , [ 'logfile' => 'echo', 'throwingOn' => false ] );
 
 		$this->logEcho( $logger, 'exception', 'ERROR', 'assertContains'   );
 
 
 		// Test exception without throwing
 		//
-		$logger = self::$golem->logger( 'echoTestExceptNone' , [ 'logfile' => 'echo', 'errorHandling' => 'none' ] );
+		$logger = self::$golem->logger( 'echoTestExceptNone' , [ 'logfile' => 'echo', 'loggingOn' => false, 'throwingOn' => false ] );
 
 		$this->logEcho( $logger, 'exception', 'ERROR', 'assertNotContains' );
 	}
@@ -346,14 +346,14 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
 		// Test exception without throwing
 		//
-		$logger = self::$golem->logger( 'fileTestExcept' , [ 'logfile' => $file, 'errorHandling' => 'nothrow' ] );
+		$logger = self::$golem->logger( 'fileTestExcept' , [ 'logfile' => $file, 'throwingOn' => false ] );
 
 		$this->logFile( $logger, $file, 'exception', 'ERROR', 'assertContains'   );
 
 
 		// Test exception without throwing
 		//
-		$logger = self::$golem->logger( 'fileTestExceptNone' , [ 'logfile' => $file, 'errorHandling' => 'none' ] );
+		$logger = self::$golem->logger( 'fileTestExceptNone' , [ 'logfile' => $file, 'loggingOn' => false, 'throwingOn' => false ] );
 
 		$this->logFile( $logger, $file, 'exception', 'ERROR', 'assertNotContains' );
 
@@ -405,14 +405,14 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
 		// Test exception without throwing
 		//
-		$logger = self::$golem->logger( 'phpTestExcept' , [ 'logfile' => 'phplog', 'errorHandling' => 'nothrow' ] );
+		$logger = self::$golem->logger( 'phpTestExcept' , [ 'logfile' => 'phplog', 'throwingOn' => false ] );
 
 		$this->logPHP( $logger, $file, 'exception', 'ERROR', 'assertContains'   );
 
 
 		// Test exception without throwing
 		//
-		$logger = self::$golem->logger( 'phpTestExceptNone' , [ 'logfile' => 'phplog', 'errorHandling' => 'none' ] );
+		$logger = self::$golem->logger( 'phpTestExceptNone' , [ 'logfile' => 'phplog', 'loggingOn' => false, 'throwingOn' => false ] );
 
 		$this->logPHP( $logger, $file, 'exception', 'ERROR', 'assertNotContains' );
 	}
@@ -454,7 +454,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testWrongErrorHandling()
 	{
-		$logger = self::$golem->logger( 'testExceptionParam', [ 'errorHandling' => 'mlkj' ] );
+		$logger = self::$golem->logger( 'testExceptionParam', [ 'throwingOn' => 'random' ] );
 
 		$logger->exception( 'Some exception' );
 	}

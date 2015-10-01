@@ -5,13 +5,10 @@ Golem:
 
 Logger:
 
-   # This determines how errors are handled. Values:
+   # Disable certain functionality (not recommended):
    #
-   # 'auto'   : throw exceptions and log to file
-   # 'nothrow': disable throwing exceptions but log to file
-   # 'none'   : do not report anything
-   #
-   errorHandling: auto
+   loggingOn:  true
+   throwingOn: true
 
    # Where to log info/warnings/errors from golem. Values (can be an array of multiple):
    #
