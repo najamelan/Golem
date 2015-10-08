@@ -13,8 +13,8 @@ use
 
 	, Golem\Reference\Traits\Seal
 	, Golem\Reference\Traits\HasOptions
+	, Golem\Reference\Traits\HasLog
 
-	, Golem\Reference\Logger
 	, Golem\Reference\Util
 ;
 
@@ -31,7 +31,7 @@ use
 abstract
 class Codec
 {
-	use Seal, HasOptions;
+	use Seal, HasOptions, HasLog;
 
 
 	private static $initialized = false;
@@ -87,6 +87,7 @@ class Codec
 		$this->golem = $golem;
 
 		$this->setupOptions( $golem->options()[ 'Codec' ], $options );
+		$this->setupLog();
 
 
 		self::initialize();

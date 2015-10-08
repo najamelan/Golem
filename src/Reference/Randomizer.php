@@ -5,11 +5,12 @@ namespace Golem\Reference;
 
 use
 
-	  \Golem\iFace\Randomizer as iRandomizer
+	  Golem\iFace\Randomizer as iRandomizer
 
-	, \Golem\Golem
+	, Golem\Golem
+	, Golem\Reference\Traits\HasLog
 
-	, \InvalidArgumentException
+	, InvalidArgumentException
 ;
 
 
@@ -17,12 +18,15 @@ use
 class      Randomizer
 implements iRandomizer
 {
+	use HasLog;
+
 	private $golem;
 
 	public
 	function __construct( Golem $golem )
 	{
 		$this->golem = $golem;
+		$this->setupLog();
 	}
 
 
@@ -36,7 +40,7 @@ implements iRandomizer
 	{
 		if( $numChars < 1 || strlen( $charset ) < 2 )
 
-			$this->golem->logger()->exception( new InvalidArgumentException() );
+			$this->log->exception( new InvalidArgumentException() );
 
 
 		for( $i = 0, $rs = ''; $i < $numChars; ++$i )
@@ -67,7 +71,7 @@ implements iRandomizer
 			case 'bin': return decbin ( $this->randomBytes( $amount, 'dec' ) );
 			case 'raw': return openssl_random_pseudo_bytes( $amount );
 
-			default: $this->golem->logger()->exception( new InvalidArgumentException() );
+			default: $this->log->exception( new InvalidArgumentException() );
 		}
 	}
 
