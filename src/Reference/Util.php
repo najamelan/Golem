@@ -64,7 +64,15 @@ class Util
 				// Value is an array with numeric keys
 				// Traverse the array; replace or add result to original array
 				//
-				if( is_array( $value ) && ! isset( $value[ 0 ] ) )
+				if
+				(
+					     is_array( $value      )
+					&& ! isset   ( $value[ 0 ] )
+
+					&&   isset   ( $original[ $key ] )
+					&&   is_array( $original[ $key ] )
+					&& ! isset   ( $original[ 0 ]    )
+				)
 
 					$original[ $key ] = self::joinAssociativeArray( $original[ $key ], $array[ $key ] );
 
