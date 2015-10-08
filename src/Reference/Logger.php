@@ -48,6 +48,8 @@ implements iLogger
 	public
 	function exception( $exception, array $context = [] )
 	{
+		$this->log( iLogger::ERROR, $exception, $context );
+
 
 		// throw if appropriate
 		//
@@ -62,7 +64,7 @@ implements iLogger
 		}
 
 
-		return $this->log( iLogger::ERROR, $exception, $context );
+		return $this;
 	}
 
 
@@ -87,11 +89,9 @@ implements iLogger
 			return;
 
 
-		$where   = $this->options[ 'logfile' ];
 		$message = $this->format( $message, $level );
 
-
-		foreach( (array) $where as $output )
+		foreach( (array) $this->options[ 'logfile' ] as $output )
 		{
 			switch( $output )
 			{
@@ -116,7 +116,7 @@ implements iLogger
 					//
 					if( ! is_dir( dirname( $output ) ) )
 
-						if( false === mkdir( dirname( $output ), 0755, true ) )
+						if( mkdir( dirname( $output ), 0755, true ) === false )
 
 							$this->exception( "Failed creating target directory [$dir] for logfile [$output]." );
 
