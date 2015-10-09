@@ -19,7 +19,7 @@ use
 
 
 class Encoder
-// implements Encoder
+// implements iEncoder
 {
 	use Seal, HasOptions;
 

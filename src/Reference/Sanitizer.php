@@ -44,13 +44,13 @@ class Sanitizer
 
 
 	public
-	function string( $input )
+	function string( $input, $encoding )
 	{
 		if( ! isset( $this->rules[ 'StringRule' ] ) )
 
 			$this->rules[ 'StringRule' ] = new StringRule( $this->golem, $this->options( 'StringRule' ) );
 
 
-		return $this->rules[ 'StringRule' ]->sanitize( $input );
+		return $this->rules[ 'StringRule' ]->sanitize( $input, $encoding );
 	}
 }

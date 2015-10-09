@@ -6,7 +6,7 @@ use
 
 	  Golem\Reference\Util
 
-	, \Exception
+	, Exception
 
 ;
 

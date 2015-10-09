@@ -14,6 +14,8 @@ use
 	, Golem\Reference\Traits\Seal
 	, Golem\Reference\Traits\HasOptions
 	, Golem\Reference\Traits\HasLog
+
+	, Iterator
 ;
 
 
@@ -23,13 +25,18 @@ use
  * Object oriented strings. Provide encoding safety.
  *
  */
-class String
+class      String
+implements Iterator
 {
 	use Seal, HasOptions, HasLog;
 
 	private $golem   ;
 	private $content ;
 	private $sanitize;
+
+	// For the iterator
+	//
+	private $position = 0;
 
 
 
@@ -48,6 +55,14 @@ class String
 
 
 	public
+	function klone()
+	{
+		return clone $this;
+	}
+
+
+
+	public
 	function content( $value = null )
 	{
 		if( $value === null )
@@ -55,7 +70,7 @@ class String
 			return $this->content;
 
 
-		return $this->content = $this->sanitize->string( $value );
+		return $this->content = $this->sanitize->string( $value, $this->options( 'encoding' ) );
 	}
 
 
@@ -63,9 +78,10 @@ class String
 	public
 	function convert( $toEncoding )
 	{
-		mb_convert_encoding( $this->content(), $toEncoding, $this->options( 'encoding' ) );
-
+		$oldEncoding = $this->options( 'encoding' );
 		$this->options[ 'encoding' ] = $toEncoding;
+
+		$this->content( mb_convert_encoding( $this->content(), $toEncoding, $oldEncoding ) );
 
 		return $this;
 	}
@@ -79,11 +95,28 @@ class String
 	}
 
 
+	public
+	function hex()
+	{
+		$hex = bin2hex( $this->content() );
+		$arr = str_split( $hex, 2 );
+		return join( ' ', $arr );
+	}
+
+
 
 	public
 	function length()
 	{
 		return mb_strlen( $this->content, $this->options( 'encoding' ) );
+	}
+
+
+
+	public
+	function encoding()
+	{
+		return $this->options( 'encoding' );
 	}
 
 
@@ -188,5 +221,67 @@ class String
 		$this->content( $new->content() . $this->content() );
 
 		return $this;
+	}
+
+
+
+	function uniCodePoint()
+	{
+		$utf32  = $this->klone()->convert( 'UTF-32' );
+		$result = [];
+
+
+		foreach( $utf32 as $char )
+
+			$result[] = hexdec( bin2hex( $char->content() ) );
+
+
+		return $result;
+	}
+
+
+
+	/**
+	 * Iterator implementation
+	 *
+	 */
+	public
+	function current()
+	{
+		$raw = mb_substr( $this->content(), $this->position, 1, $this->options( 'encoding' ) );
+
+		return new self( $this->golem, $raw, [ 'encoding' => $this->options( 'encoding' ) ] );
+	}
+
+
+
+	public
+	function key()
+	{
+		return $this->position;
+	}
+
+
+
+	public
+	function next()
+	{
+		++$this->position;
+	}
+
+
+
+	public
+	function rewind()
+	{
+		$this->position = 0;
+	}
+
+
+
+	public
+	function valid()
+	{
+		return $this->position < $this->length();
 	}
 }

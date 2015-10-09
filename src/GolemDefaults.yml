@@ -1,17 +1,34 @@
 Golem:
 
+   # The encoding of this and other configuration files. You probably want to leave this on utf-8
+   # and make sure it's actually utf-8. If really there is a reason utf-8 would not be a good idea,
+   # file an issue on github so we can all learn something, otherwise stick with it!
+   #
+   configEncoding: 'UTF-8'
+
 
 String:
 
+   # The default encoding for strings throughout Golem. You can instantiate Golem\Reference\Data\String objects
+   # with other encodings, or convert existing strings, but whenever you don't specify, golem will assume it's
+   # this encoding. Recommended: utf-8.
+   #
    encoding  : &globalEncoding 'UTF-8'
-   substitute: 0xfffd #�
+
+   # When invalid encoding is detected, which replacement string to use. This should be something understood by
+   # mb_substitute_character()
+   #
+   substitute: 0xfffd  # �
 
 
 Logger:
 
-   # Disable certain functionality (not recommended):
+   # Allows to disable logging (not recommended):
    #
    loggingOn:  true
+
+   # Allows to disable exceptions (not recommended):
+   #
    throwingOn: true
 
    # Where to log info/warnings/errors from golem. Values (can be an array of multiple):
@@ -22,7 +39,12 @@ Logger:
    #
    logfile: phplog
 
+   # The default log level, can be 'ALL', 'NOTICE', 'WARNING', 'ERROR', 'OFF'.
+   #
    level       : ALL
+
+   # The default name for a logger
+   #
    name        : Golem
    prefix      : Golem
 
@@ -31,10 +53,20 @@ Codec:
 
    HTML:
 
+      # Immune characters in the context of HTML text. (eg. between <p> and </p>)
+      # Alphanumeric characters are also immune.
+      #
       immuneText     : ',.-_ '
-      immuneAttribute: ',.-_'
-      context        : text
 
+      # Immune characters in the context of HTML attributes (eg. <p id="THE TEXT HERE">)
+      # Alphanumeric characters are also immune.
+      #
+      immuneAttribute: ',.-_'
+
+      # Some characters that are valid in character encodings aren't allowed in HTML.
+      # This should be a string used to replace them.
+      #
+      substitute     : '&#xfffd;'  # �
 
 
       # private $_immune_css        = [ ' '     ];

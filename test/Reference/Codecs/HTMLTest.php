@@ -16,14 +16,25 @@ extends \PHPUnit_Framework_TestCase
 	private static $encoder         ;
 	private static $immuneText      ;
 	private static $immuneAttribute ;
+	private static $encSubstitute   ;
+	private static $htmlSubstitute  ;
+	private static $initialized = false;
 
 
 	public static function setUpBeforeClass()
    {
+   	if( self::$initialized )
+
+   		return;
+
+   	self::$initialized     = true;
    	self::$golem           = new Golem;
    	self::$encoder         = self::$golem->encoder();
-   	self::$immuneText      = self::$golem->options( 'Codec', 'HTML', 'immuneText'      );
-   	self::$immuneAttribute = self::$golem->options( 'Codec', 'HTML', 'immuneAttribute' );
+   	self::$immuneText      = self::$golem->options( 'Codec' , 'HTML', 'immuneText'      );
+   	self::$immuneAttribute = self::$golem->options( 'Codec' , 'HTML', 'immuneAttribute' );
+   	self::$htmlSubstitute  = self::$golem->options( 'Codec' , 'HTML', 'substitute'      );
+
+   	self::$encSubstitute   = '&#x' . dechex( self::$golem->options( 'String', 'substitute' ) ) . ';';
    }
 
 
@@ -80,6 +91,11 @@ extends \PHPUnit_Framework_TestCase
 	public
 	function encodeData()
 	{
+
+		// Thanks phpunit for calling data providers before setupBeforeClass
+		//
+		self::setupBeforeClass();
+
 		return
 		[
 			  [ null, null ]
@@ -94,14 +110,6 @@ extends \PHPUnit_Framework_TestCase
 			  ]
 
 
-			  // Immunes from configuration file
-			  //
-			, [
-			       self::$immuneText
-			     , self::$immuneText
-			  ]
-
-
 			  // Test a named entity
 			  //
 			, [
@@ -110,21 +118,25 @@ extends \PHPUnit_Framework_TestCase
 			  ]
 
 
-			  // Replace control characters by spaces
+			  // Make sure control characters are encoded
 			  //
 			, [
 			         'a' . chr(0  ) . 'b' . chr(4  ) . 'c' . chr(127) . 'd' . chr(128)
 			       . 'e' . chr(129) . 'f' . chr(150) . 'g' . chr(159) . 'h'
 
-			     , 'a b c d e f g h'
+			     ,   'a&#x0;b&#x4;c&#x7f;d' . self::$encSubstitute
+			       . 'e'                    . self::$encSubstitute
+			       . 'f'                    . self::$encSubstitute
+			       . 'g'                    . self::$encSubstitute
+			       . 'h'
 			  ]
 
 
 			  // Properly encode \t \r \n
 			  //
 			, [
-			       'a' . chr(9) . 'b' . chr(10) . 'c' . chr(13) . 'd'
-			     , 'a&#x9;b&#xa;c&#xd;d'
+			       'a' . chr(9) . 'b' . chr(10) . 'c' . chr(12) . 'd' . chr(13) . 'e'
+			     , 'a&#x9;b&#xa;c&#xc;d&#xd;e'
 			  ]
 
 
@@ -151,6 +163,11 @@ extends \PHPUnit_Framework_TestCase
 			, [ '!@$%()=+{}[]', '&#x21;&#x40;&#x24;&#x25;&#x28;&#x29;&#x3d;&#x2b;&#x7b;&#x7d;&#x5b;&#x5d;' ]
 
 
+			  // Test ampersand at the beginning
+			  //
+			, [ '&dir', '&amp;dir' ]
+
+
 			  // Test ampersand EoS
 			  //
 			, [ 'dir&', 'dir&amp;' ]
@@ -159,6 +176,11 @@ extends \PHPUnit_Framework_TestCase
 			  // Test ampersand mid string
 			  //
 			, [ 'one&two', 'one&amp;two' ]
+
+
+			  // Test some kana
+			  //
+			, [ 'ｳﾞｶｷｸ', '&#xff73;&#xff9e;&#xff76;&#xff77;&#xff78;' ]
 		];
 	}
 }

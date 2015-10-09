@@ -4,7 +4,7 @@ namespace Golem\Reference\Traits;
 
 use
 
-	\Exception
+	Exception
 
 ;
 

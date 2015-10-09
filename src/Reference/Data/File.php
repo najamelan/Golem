@@ -9,11 +9,11 @@ namespace Golem\Reference\Data;
 
 use
 
-	  \Golem\Golem
-	, \Golem\Reference\Codecs\ParseYAML
+	  Golem\Golem
+	, Golem\Reference\Codecs\ParseYAML
 
-	, \Exception
-	, \finfo
+	, Exception
+	, finfo
 
 ;
 

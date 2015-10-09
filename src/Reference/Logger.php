@@ -12,8 +12,8 @@ use
 	, Golem\Reference\Traits\Seal
 	, Golem\Reference\Traits\HasOptions
 
-	, \Exception
-	, \InvalidArgumentException
+	, Exception
+	, InvalidArgumentException
 ;
 
 

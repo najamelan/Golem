@@ -11,8 +11,11 @@ use
 
 	, Golem\Reference\Util
 	, Golem\Reference\Encoder
+	, Golem\Reference\Unicode
 
 	, Golem\Reference\Data\String
+
+	, InvalidArgumentException
 
 ;
 
@@ -26,6 +29,18 @@ use
 class HTML extends Codec
 {
 
+	// HTML5 specification section 2.5.1
+	//
+	const HTML5_SPACE_CHARS =
+	[
+		  0x20  // space
+		, 0x09  // tab
+		, 0x0A  // line feed      \n
+		, 0x0C  // form feed
+		, 0x0D  // cariage return \r
+	];
+
+
 	private static $characterToEntityMap = []     ;
 	private static $entityToCharacterMap = []     ;
 	private static $longestEntity        = 0      ;
@@ -33,8 +48,13 @@ class HTML extends Codec
 
 
 
+
 	/**
 	 * Public Constructor.
+	 *
+	 * There is no default for options( 'context' ). You have to specify it on construction.
+	 * Otherwise an exception will be thrown.
+	 *
 	 */
 	public function __construct( Golem $golem, array $options = [] )
 	{
@@ -68,6 +88,21 @@ class HTML extends Codec
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * TODO: Attributes shouldn't contain ambigious ampersands...
+	 *
+	 * Restrictions (HTML5 specs section: 3.2.4.1.5 Phrasing content, 8.1.2.3 Attributes):
+	 *
+	 * Right now, we go way beyond the standard, encoding everything but alphanumericals and
+	 * the immune characters (as defined in the OWASP XSS Cheat sheet). The downside is extra
+	 * size and unreadable html code for people not using a latin alphabet.
+	 *
+	 * A version of this could be written that uses a blacklist approach based on the html specification.
+	 *
+	 * We encode, not strip special classes like control characters and unicode noncharacters since
+	 * in principle the standard only specifies that they shouldn't occur literally, but in entity
+	 * form they are legal.
+	 *
 	 */
 	public function encodeCharacter( String $c )
 	{
@@ -75,62 +110,41 @@ class HTML extends Codec
 		//
 		if( $c->length() !== 1 )
 
-			$this->log->exception( 'Only one character should be passed to this function, got: ' . var_export( $c->content(), true ) );
+			$this->log->exception
+			(
+				new InvalidArgumentException
+				(
+					'Only one character should be passed to this function, got: ' . var_export( $c->content(), true )
+				)
+			)
+		;
 
 
-		// Get a utf-8 version of the character because we compare to immune characters that are hardcoded.
+
+		// Get a version of the character in the correct encoding to compare to hardcoded values.
 		//
-		$cUtf = $c->convert( 'UTF-8' );
-		$cRaw = $c->content();
+		$cCfgEnc = $c->klone()->convert( $this->golem->options( 'Golem', 'configEncoding' ) )->content();
 
 
 		// Check for immune characters.
 		//
-		if( in_array( $c->content(), $this->options[ 'immune' ], /* strict = */ true ) )
+		if( in_array( $cCfgEnc, $this->options[ 'immune' ], /* strict = */ true ) )
 
 			return $c;
 
 
-		// Get the ordinal value of the character.
-		//
-		$ordinal = hexdec( bin2hex( $c->content() ) );
-
-		// Check for illegal characters
-		// https://en.wikipedia.org/wiki/C0_and_C1_control_codes
-		//
-		if
-		(
-			      $ordinal <= 31     // C0 control characters
-			   && $ordinal != 9      // tab
-			   && $ordinal != 10     // \n
-			   && $ordinal != 13     // \r
-
-			||
-
-			      $ordinal >= 0x7f       // C1 control characters
-			   && $ordinal <= 0x9f
-		)
-
-			return new String( $this->golem, '&#x' . dechex( $this->golem->options( 'String', 'substitute' ) ) . ';' );
-
-
-
 		// Check if there's a defined entity
 		//
-		if( isset( self::$characterToEntityMap[ $c->content() ] ) )
+		if( isset( self::$characterToEntityMap[ $cCfgEnc ] ) )
 
-			return new String( $this->golem, '&' . self::$characterToEntityMap[ $c->content() ] . ';' );
-
-
+			return new String( $this->golem, '&' . self::$characterToEntityMap[ $cCfgEnc ] . ';' );
 
 
 		// Else return a hex entity of the unicode code point
-		// see html specs
-		// TODO: verify this is correct (the specs don't go into much detail about how to get a codepoint from a character)
-		// Need to convert to decimal to get rid of leading zeros
 		//
-		return new String( $this->golem, '&#x' . dechex( hexdec( bin2hex( mb_convert_encoding( $c->content(), 'UTF-16' ) ) ) ) . ';' );
+		return new String( $this->golem, '&#x' . dechex( $c->uniCodePoint()[ 0 ] ) . ';' );
 	}
+
 
 
 	/**

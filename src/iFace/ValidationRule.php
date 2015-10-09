@@ -25,6 +25,6 @@ interface ValidationRule
 {
 	const INVALID = 'INVALID';
 
-	public function sanitize( $input );
-	public function validate( $input );
+	public function sanitize( $input, $context );
+	public function validate( $input, $context );
 }

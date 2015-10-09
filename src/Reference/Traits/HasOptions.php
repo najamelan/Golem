@@ -6,7 +6,7 @@ use
 
 	  Golem\Reference\Util
 
-	, \InvalidArgumentException
+	, InvalidArgumentException
 
 ;
 

@@ -45,16 +45,16 @@ implements ValidationRule
 
 
 	public
-	function sanitize( $input )
+	function sanitize( $input, $encoding )
 	{
 		$substitute = mb_substitute_character();
 
 			mb_substitute_character( $this->golem->options( 'String', 'substitute' ) );
-			$sane = mb_convert_encoding( $input, $this->options( 'encoding' ), $this->options( 'encoding' ) );
+			$sane = mb_convert_encoding( $input, $encoding, $encoding );
 
 		mb_substitute_character( $substitute );
 
-		if( ! $this->validate( $sane ) )
+		if( ! $this->validate( $sane, $encoding ) )
 
 			$this->log->exception( 'Could not sanitize string: ' . var_export( $input, true ) );
 
@@ -65,8 +65,8 @@ implements ValidationRule
 
 
 	public
-	function validate( $input )
+	function validate( $input, $encoding )
 	{
-		return mb_check_encoding( $input, $this->options( 'encoding' ) );
+		return mb_check_encoding( $input, $encoding );
 	}
 }
