@@ -114,7 +114,7 @@ class      File
 			                    // for now we don't use logger()->exception because this class is used to read
 			                    // the default options, and when it fails, we can't get a logger...
 			                    //
-			default           : throw  new Exception( "Unsupported mime type of file: '{$this->filename}'. Detected type: '$mime'." );
+			default           : throw  new RuntimeException( "Unsupported mime type of file: '{$this->filename}'. Detected type: '$mime'." );
 		}
 	}
 

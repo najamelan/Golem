@@ -20,6 +20,7 @@ use
 	, Golem\Reference\Util
 
 	, RuntimeException
+	, UnexpectedValueException
 ;
 
 /**
