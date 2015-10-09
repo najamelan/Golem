@@ -82,7 +82,7 @@ class HTML extends Codec
 			$this->log->exception( new UnexpectedValueException( 'wrong context option: ' . $this->options( 'context' ) ) );
 
 
-		$this->options[ 'immune' ] = array_merge( $this->golem->string( $immune, [ 'encoding' => 'UTF-8' ] )->split(), Codec::$ALPHANUMERICS );
+		$this->options[ 'immune' ] = array_merge( $this->golem->string( $immune, 'UTF-8' )->split(), Codec::$ALPHANUMERICS );
 	}
 
 

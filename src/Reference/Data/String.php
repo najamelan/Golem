@@ -70,7 +70,7 @@ implements Iterator
 			return $this->content;
 
 
-		return $this->content = $this->sanitize->string( $value, $this->options( 'encoding' ) );
+		return $this->content = $this->sanitize->string( $value, $this->encoding() );
 	}
 
 
@@ -78,7 +78,7 @@ implements Iterator
 	public
 	function convert( $toEncoding )
 	{
-		$oldEncoding = $this->options( 'encoding' );
+		$oldEncoding = $this->encoding();
 		$this->options[ 'encoding' ] = $toEncoding;
 
 		$this->content( mb_convert_encoding( $this->content(), $toEncoding, $oldEncoding ) );
@@ -108,7 +108,7 @@ implements Iterator
 	public
 	function length()
 	{
-		return mb_strlen( $this->content, $this->options( 'encoding' ) );
+		return mb_strlen( $this->content, $this->encoding() );
 	}
 
 
@@ -137,7 +137,7 @@ implements Iterator
 
 		for( $i = 0, $result = []; $i < $stop; $i += $chunksize )
 
-			$result[] = mb_substr( $this->content, $i, $chunksize, $this->options( 'encoding' ) );
+			$result[] = mb_substr( $this->content, $i, $chunksize, $this->encoding() );
 
 
 		return $result;
@@ -158,9 +158,9 @@ implements Iterator
 	{
 		$amount = min( $amount, $this->length() );
 
-		$result = mb_substr( $this->content, $this->length() - $amount, $amount, $this->options( 'encoding' ) );
+		$result = mb_substr( $this->content, $this->length() - $amount, $amount, $this->encoding() );
 
-		$this->content( mb_substr( $this->content, 0, $this->length() - $amount, $this->options( 'encoding' ) ) );
+		$this->content( mb_substr( $this->content, 0, $this->length() - $amount, $this->encoding() ) );
 
 		return new String( $this->golem, $result, $this->options() );
 	}
@@ -198,9 +198,9 @@ implements Iterator
 	{
 		$amount = min( $amount, $this->length() );
 
-		$result = mb_substr( $this->content, 0, $amount, $this->options( 'encoding' ) );
+		$result = mb_substr( $this->content, 0, $amount, $this->encoding() );
 
-		$this->content( mb_substr( $this->content, $amount, $this->length() - $amount, $this->options( 'encoding' ) ) );
+		$this->content( mb_substr( $this->content, $amount, $this->length() - $amount, $this->encoding() ) );
 
 		return new String( $this->golem, $result, $this->options() );
 	}
@@ -248,9 +248,9 @@ implements Iterator
 	public
 	function current()
 	{
-		$raw = mb_substr( $this->content(), $this->position, 1, $this->options( 'encoding' ) );
+		$raw = mb_substr( $this->content(), $this->position, 1, $this->encoding() );
 
-		return new self( $this->golem, $raw, [ 'encoding' => $this->options( 'encoding' ) ] );
+		return new self( $this->golem, $raw, [ 'encoding' => $this->encoding() ] );
 	}
 
 

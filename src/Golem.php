@@ -248,8 +248,13 @@ class Golem
 	 *
 	 */
 	public
-	function string( $content )
+	function string( $content, $encoding = null )
 	{
-		return new String( $this, $content );
+		if( $encoding === null )
+
+			$encoding = $this->options( 'String', 'encoding' );
+
+
+		return new String( $this, $content, [ 'encoding' => $encoding ] );
 	}
 }
