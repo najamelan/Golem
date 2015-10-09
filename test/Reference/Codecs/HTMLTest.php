@@ -9,7 +9,8 @@ use
 ;
 
 
-class HTMLTest extends \PHPUnit_Framework_TestCase
+class   HTMLTest
+extends \PHPUnit_Framework_TestCase
 {
 	private static $golem           ;
 	private static $encoder         ;
@@ -21,8 +22,8 @@ class HTMLTest extends \PHPUnit_Framework_TestCase
    {
    	self::$golem           = new Golem;
    	self::$encoder         = self::$golem->encoder();
-   	self::$immuneText      = self::$golem->options()[ 'Codec' ][ 'HTML' ][ 'immuneText'      ];
-   	self::$immuneAttribute = self::$golem->options()[ 'Codec' ][ 'HTML' ][ 'immuneAttribute' ];
+   	self::$immuneText      = self::$golem->options( 'Codec', 'HTML', 'immuneText'      );
+   	self::$immuneAttribute = self::$golem->options( 'Codec', 'HTML', 'immuneAttribute' );
    }
 
 

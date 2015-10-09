@@ -12,6 +12,8 @@ use
 	, Golem\Reference\Util
 	, Golem\Reference\Encoder
 
+	, Golem\Reference\Data\String
+
 ;
 
 
@@ -36,7 +38,7 @@ class HTML extends Codec
 	 */
 	public function __construct( Golem $golem, array $options = [] )
 	{
-		parent::__construct( $golem, $options );
+		parent::__construct( $golem, $golem->options( 'Codec', 'HTML' ), $options );
 
 
 		if( ! self::$mapIsInitialized )
@@ -44,24 +46,22 @@ class HTML extends Codec
 			self::initialize();
 
 
-		if( $this->options[ 'HTML' ][ 'context' ] === 'text' )
+		if( $this->options( 'context' ) === 'text' )
 
-			$immune = $this->options[ 'HTML' ][ 'immuneText' ];
-
-
-		elseif( $this->options[ 'HTML' ][ 'context' ] === 'attribute' )
-
-			$immune = $this->options[ 'HTML' ][ 'immuneAttribute' ];
+			$immune = $this->options( 'immuneText' );
 
 
-		// TODO: else throw error
-		//
+		elseif( $this->options( 'context' ) === 'attribute' )
+
+			$immune = $this->options( 'immuneAttribute' );
+
+
 		else
 
-			throw new Exception( 'wrong context option: ' . $this->options[ 'HTML' ][ 'context' ] );
+			$this->log->exception( new Exception( 'wrong context option: ' . $this->options( 'context' ) ) );
 
 
-		$this->options[ 'immune' ] = array_merge( Util::mb_str_split( $immune ), Codec::$ALPHANUMERICS );
+		$this->options[ 'immune' ] = array_merge( $this->golem->string( $immune, [ 'encoding' => 'UTF-8' ] )->split(), Codec::$ALPHANUMERICS );
 	}
 
 
@@ -69,25 +69,31 @@ class HTML extends Codec
 	/**
 	 * {@inheritdoc}
 	 */
-	public function encodeCharacter( $c )
+	public function encodeCharacter( String $c )
 	{
 		// Make sure we only have one character
 		//
-		if( mb_strlen( $c ) !== 1 )
+		if( $c->length() !== 1 )
 
-			; // TODO: throw exception
+			$this->log->exception( 'Only one character should be passed to this function, got: ' . var_export( $c->content(), true ) );
+
+
+		// Get a utf-8 version of the character because we compare to immune characters that are hardcoded.
+		//
+		$cUtf = $c->convert( 'UTF-8' );
+		$cRaw = $c->content();
 
 
 		// Check for immune characters.
 		//
-		if( in_array( $c, $this->options[ 'immune' ], /* strict = */ true ) )
+		if( in_array( $c->content(), $this->options[ 'immune' ], /* strict = */ true ) )
 
 			return $c;
 
 
 		// Get the ordinal value of the character.
 		//
-		$ordinal = hexdec( bin2hex( $c ) );
+		$ordinal = hexdec( bin2hex( $c->content() ) );
 
 		// Check for illegal characters
 		// https://en.wikipedia.org/wiki/C0_and_C1_control_codes
@@ -105,15 +111,15 @@ class HTML extends Codec
 			   && $ordinal <= 0x9f
 		)
 
-			return ' ';
+			return new String( $this->golem, '&#x' . dechex( $this->golem->options( 'String', 'substitute' ) ) . ';' );
 
 
 
 		// Check if there's a defined entity
 		//
-		if( isset( self::$characterToEntityMap[ $c ] ) )
+		if( isset( self::$characterToEntityMap[ $c->content() ] ) )
 
-			return '&' . self::$characterToEntityMap[ $c ] . ';';
+			return new String( $this->golem, '&' . self::$characterToEntityMap[ $c->content() ] . ';' );
 
 
 
@@ -123,7 +129,7 @@ class HTML extends Codec
 		// TODO: verify this is correct (the specs don't go into much detail about how to get a codepoint from a character)
 		// Need to convert to decimal to get rid of leading zeros
 		//
-		return '&#x' . dechex( hexdec( bin2hex( mb_convert_encoding( $c, 'UTF-16' ) ) ) ) . ';';
+		return new String( $this->golem, '&#x' . dechex( hexdec( bin2hex( mb_convert_encoding( $c->content(), 'UTF-16' ) ) ) ) . ';' );
 	}
 
 

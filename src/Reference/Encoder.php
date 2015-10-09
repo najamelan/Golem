@@ -66,7 +66,7 @@ class Encoder
 	{
 		$this->golem = $golem;
 
-		$this->setupOptions( (array) $golem->options()[ 'Encoder' ], $options );
+		$this->setupOptions( $golem->options( 'Encoder' ), $options );
 	}
 
 
@@ -90,7 +90,7 @@ class Encoder
 	{
 		if( ! $this->htmlTextCodec )
 
-			$this->htmlTextCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'text' ] ] );
+			$this->htmlTextCodec = new HTML( $this->golem,  [ 'context' => 'text' ] );
 
 
 		return $this->htmlTextCodec->encode( $input );
@@ -103,7 +103,7 @@ class Encoder
 	{
 		if( ! $this->htmlAttrCodec )
 
-			$this->htmlAttrCodec = new HTML( $this->golem, [ 'HTML' => [ 'context' => 'attribute' ] ] );
+			$this->htmlAttrCodec = new HTML( $this->golem, [ 'context' => 'attribute' ] );
 
 
 		return $this->htmlAttrCodec->encode( $input );

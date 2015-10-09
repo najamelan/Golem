@@ -113,29 +113,4 @@ class Util
 
 		return rmdir( $dir );
 	}
-
-
-
-	/**
-	 * Splits a string into an array of characters. Supports multibyte strings. See also str_split()
-	 *
-	 * @param string $string The string to split into characters.
-	 *
-	 * @return array $result An array containing one element per character in the string.
-	 *
-	 */
-	public
-	static
-	function mb_str_split( $string )
-	{
-		$stop   = mb_strlen( $string );
-
-
-		for( $i = 0, $result = []; $i < $stop; ++$i )
-
-			$result[] = mb_substr( $string, $i, 1 );
-
-
-		return $result;
-	}
 }

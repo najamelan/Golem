@@ -15,6 +15,8 @@ use
 	, Golem\Reference\Traits\HasOptions
 	, Golem\Reference\Traits\HasLog
 
+	, Golem\Reference\Data\String
+
 	, Golem\Reference\Util
 ;
 
@@ -78,15 +80,15 @@ class Codec
 	static protected $PASSWORD_LETTERS;
 
 
-	private $golem;
+	protected $golem;
 
 
 	protected
-	function __construct( Golem $golem, array $options = [] )
+	function __construct( Golem $golem, array $defaults = [], array $options = [] )
 	{
 		$this->golem = $golem;
 
-		$this->setupOptions( $golem->options()[ 'Codec' ], $options );
+		$this->setupOptions( $defaults, $options );
 		$this->setupLog();
 
 
@@ -105,10 +107,10 @@ class Codec
 
 		self::$initialized = true;
 
-		self::$LOWERS        = Util::mb_str_split( 'abcdefghijklmnopqrstuvwxyz' );
-		self::$UPPERS        = Util::mb_str_split( 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' );
-		self::$DIGITS        = Util::mb_str_split( '0123456789'                 );
-		self::$SPECIALS      = Util::mb_str_split( '.-_!@$^*=~|+?'              );
+		self::$LOWERS        = str_split( 'abcdefghijklmnopqrstuvwxyz' );
+		self::$UPPERS        = str_split( 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' );
+		self::$DIGITS        = str_split( '0123456789'                 );
+		self::$SPECIALS      = str_split( '.-_!@$^*=~|+?'              );
 		self::$LETTERS       = array_merge( self::$LOWERS , self::$UPPERS );
 		self::$ALPHANUMERICS = array_merge( self::$LETTERS, self::$DIGITS );
 
@@ -118,24 +120,23 @@ class Codec
 		/**
 		 * Lower case alphabet, for passwords, which excludes 'l', 'i' and 'o'.
 		 */
-		self::$PASSWORD_LOWERS = Util::mb_str_split( 'abcdefghjkmnpqrstuvwxyz' );
+		self::$PASSWORD_LOWERS = str_split( 'abcdefghjkmnpqrstuvwxyz' );
 
 		/**
 		 * Upper case alphabet, for passwords, which excludes 'I' and 'O'.
 		 */
-		self::$PASSWORD_UPPERS = Util::mb_str_split( 'ABCDEFGHJKLMNPQRSTUVWXYZ' );
+		self::$PASSWORD_UPPERS = str_split( 'ABCDEFGHJKLMNPQRSTUVWXYZ' );
 
 		/**
 		 * Numerical digits, for passwords, which excludes '0'.
 		 */
-		self::$PASSWORD_DIGITS = Util::mb_str_split( '123456789' );
+		self::$PASSWORD_DIGITS = str_split( '123456789' );
 
 		/**
 		 * Special characters, for passwords, excluding '|' which resembles
-		 * alphanumeric characters 'i' and '1' and excluding '+' used in URL
-		 * encoding.
+		 * alphanumeric characters 'i' and '1'.
 		 */
-		self::$PASSWORD_SPECIALS = Util::mb_str_split( '.-_!@$*=?+' );
+		self::$PASSWORD_SPECIALS = str_split( '.-_!@$*=?+' );
 
 
 		self::$PASSWORD_LETTERS = array_merge( self::$PASSWORD_LOWERS, self::$PASSWORD_UPPERS );
@@ -156,23 +157,19 @@ class Codec
 
 			return null;
 
-		// TODO: Validate input
+
+		// Make sure character encoding is valid
 		//
-		// $input = mb_convert_encoding( $input, 'UTF-8' );
+		$input  = $this->golem->string( $input );
+		$output = $this->golem->string( ''     );
 
 
-		$length = mb_strlen( $input );
+		while( $input->length() )
 
-		for( $i = 0, $output = ''; $i < $length; ++$i )
-
-			$output .= $this->encodeCharacter( mb_substr( $input, $i, 1 ) );
+			$output->push( $this->encodeCharacter( $input->shift() ) );
 
 
-		// TODO: Validate output
-		//
-		// $output = mb_convert_encoding( $output, 'UTF-8' );
-
-		return $output;
+		return $output->content();
 	}
 
 

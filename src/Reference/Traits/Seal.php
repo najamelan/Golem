@@ -23,7 +23,7 @@ trait Seal
 	/**
 	 * @var bool Whether the object is sealed.
 	 */
-	private   $sealed    = false ;
+	private   $sealed = false ;
 
 
 	/**

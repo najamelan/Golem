@@ -17,8 +17,15 @@ use
 	  Golem\Reference\Logger
 	, Golem\Reference\Randomizer
    , Golem\Reference\Util
-   , Golem\Reference\Data\File
    , Golem\Reference\Encoder
+   , Golem\Reference\Sanitizer
+   , Golem\Reference\Validator
+
+   , Golem\Reference\Data\File
+   , Golem\Reference\Data\String
+
+   , Golem\Reference\Traits\Seal
+   , Golem\Reference\Traits\HasOptions
 
    , \Exception
    , \InvalidArgumentException
@@ -42,12 +49,7 @@ define( 'PHPDOCBUG', __DIR__ . '/GolemDefaults.yml' );
  */
 class Golem
 {
-	use
-
-		  Reference\Traits\Seal
-		, Reference\Traits\HasOptions
-
-	;
+	use Seal, HasOptions;
 
 
 	/**
@@ -64,6 +66,8 @@ class Golem
 	protected $loggers     = [];
 	protected $randomizer      ;
 	protected $encoder         ;
+	protected $validator       ;
+	protected $sanitizer       ;
 
 
 	/**
@@ -173,21 +177,79 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Reference\Escape.
+	 * Get a \Golem\Reference\Encoder.
 	 *
-	 * @return \Golem\Reference\Escape
+	 * @return \Golem\Reference\Encoder
 	 *
 	 * @api
 	 *
 	 */
 	public
-	function Encoder()
+	function encoder( $options = [] )
 	{
 		if( ! $this->encoder )
 
-			$this->encoder = new Encoder( $this );
+			$this->encoder = new Encoder( $this, $options );
 
 
 		return $this->encoder;
+	}
+
+
+
+	/**
+	 * Get a \Golem\Reference\Sanitizer.
+	 *
+	 * @return \Golem\Reference\Sanitizer
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function sanitizer( $options = [] )
+	{
+		if( ! $this->sanitizer )
+
+			$this->sanitizer = new Sanitizer( $this, $options );
+
+
+		return $this->sanitizer;
+	}
+
+
+
+	/**
+	 * Get a \Golem\Reference\Validator.
+	 *
+	 * @return \Golem\Reference\Validator
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function validator( $options = [] )
+	{
+		if( ! $this->validator )
+
+			$this->validator = new Validator( $this, $options );
+
+
+		return $this->validator;
+	}
+
+
+
+	/**
+	 * Get a \Golem\Data\String.
+	 *
+	 * @return \Golem\Data\String
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function string( $content )
+	{
+		return new String( $this, $content );
 	}
 }

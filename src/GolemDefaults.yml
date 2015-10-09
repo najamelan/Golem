@@ -1,6 +1,10 @@
 Golem:
 
-   encoding: 'UTF-8'
+
+String:
+
+   encoding  : &globalEncoding 'UTF-8'
+   substitute: 0xfffd #�
 
 
 Logger:
@@ -44,5 +48,12 @@ Codec:
       # private $_immune_url        = [ '.-*_'  ];
 
 
-Encoder:
+Encoder: []
+
+
+Validation:
+
+   StringRule:
+
+      encoding: *globalEncoding
 
