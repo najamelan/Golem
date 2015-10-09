@@ -49,12 +49,18 @@ implements ValidationRule
 	public
 	function sanitize( $input, $encoding )
 	{
+		if( ! in_array( $encoding, mb_list_encodings() ) )
+
+			$this->log->exception( new UnexpectedValueException( 'Encoding passed in not supported by the mbstring extension: ' . $encoding ) );
+
+
 		$substitute = mb_substitute_character();
 
 			mb_substitute_character( $this->golem->options( 'String', 'substitute' ) );
 			$sane = mb_convert_encoding( $input, $encoding, $encoding );
 
 		mb_substitute_character( $substitute );
+
 
 		if( ! $this->validate( $sane, $encoding ) )
 
@@ -69,6 +75,11 @@ implements ValidationRule
 	public
 	function validate( $input, $encoding )
 	{
+		if( ! in_array( $encoding, mb_list_encodings() ) )
+
+			$this->log->exception( new UnexpectedValueException( 'Encoding passed in not supported by the mbstring extension: ' . $encoding ) );
+
+
 		return mb_check_encoding( $input, $encoding );
 	}
 }
