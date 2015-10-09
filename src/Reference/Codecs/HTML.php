@@ -15,7 +15,8 @@ use
 
 	, Golem\Reference\Data\String
 
-	, InvalidArgumentException
+	, UnexpectedValueException
+	, LengthException
 
 ;
 
@@ -78,7 +79,7 @@ class HTML extends Codec
 
 		else
 
-			$this->log->exception( new Exception( 'wrong context option: ' . $this->options( 'context' ) ) );
+			$this->log->exception( new UnexpectedValueException( 'wrong context option: ' . $this->options( 'context' ) ) );
 
 
 		$this->options[ 'immune' ] = array_merge( $this->golem->string( $immune, [ 'encoding' => 'UTF-8' ] )->split(), Codec::$ALPHANUMERICS );
@@ -112,7 +113,7 @@ class HTML extends Codec
 
 			$this->log->exception
 			(
-				new InvalidArgumentException
+				new LengthException
 				(
 					'Only one character should be passed to this function, got: ' . var_export( $c->content(), true )
 				)

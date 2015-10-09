@@ -12,7 +12,7 @@ use
 	  Golem\Golem
 	, Golem\Reference\Codecs\ParseYAML
 
-	, Exception
+	, RuntimeException
 	, finfo
 
 ;
@@ -70,7 +70,7 @@ class      File
 	{
 		if( ! file_exists( $this->filename ) )
 
-			throw new Exception( "Cannot find file: {$this->filename}" );
+			throw new RuntimeException( "Cannot find file: {$this->filename}" );
 
 
 		return file_get_contents( $this->filename );

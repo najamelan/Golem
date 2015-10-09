@@ -6,7 +6,7 @@ use
 
 	  Golem\Reference\Util
 
-	, InvalidArgumentException
+	, UnexpectedValueException
 
 ;
 
@@ -87,7 +87,7 @@ trait HasOptions
 
 			else
 			{
-				$e = new InvalidArgumentException
+				$e = new UnexpectedValueException
 				(
 						'Called with invalid keys: ' . print_r( func_get_args(), true )
 					.  ' from: ' . basename( debug_backtrace()[ 0 ][ 'file' ] ) . ":" . debug_backtrace()[ 0 ][ 'line' ]

@@ -18,6 +18,8 @@ use
 	, Golem\Reference\Traits\HasLog
 
 	, Golem\Reference\Util
+
+	, RuntimeException
 ;
 
 /**
@@ -56,7 +58,7 @@ implements ValidationRule
 
 		if( ! $this->validate( $sane, $encoding ) )
 
-			$this->log->exception( 'Could not sanitize string: ' . var_export( $input, true ) );
+			$this->log->exception( new RuntimeException( 'Could not sanitize string: ' . var_export( $input, true ) ) );
 
 
 		return $sane;

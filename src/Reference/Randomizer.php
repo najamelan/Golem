@@ -10,7 +10,8 @@ use
 	, Golem\Golem
 	, Golem\Reference\Traits\HasLog
 
-	, InvalidArgumentException
+	, LengthException
+	, UnexpectedValueException
 ;
 
 
@@ -40,7 +41,7 @@ implements iRandomizer
 	{
 		if( $numChars < 1 || strlen( $charset ) < 2 )
 
-			$this->log->exception( new InvalidArgumentException() );
+			$this->log->exception( new LengthException() );
 
 
 		for( $i = 0, $rs = ''; $i < $numChars; ++$i )
@@ -71,7 +72,7 @@ implements iRandomizer
 			case 'bin': return decbin ( $this->randomBytes( $amount, 'dec' ) );
 			case 'raw': return openssl_random_pseudo_bytes( $amount );
 
-			default: $this->log->exception( new InvalidArgumentException() );
+			default: $this->log->exception( new UnexpectedValueException( 'Wrong [$form] parameter, legal values are: "hex", "dec", bin", "raw". Got: ' . var_export( $form, true ) ) );
 		}
 	}
 
