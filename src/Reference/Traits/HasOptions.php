@@ -6,7 +6,7 @@ use
 
 	  Golem\Reference\Util
 
-	, \Exception
+	, \InvalidArgumentException
 
 ;
 
@@ -75,7 +75,40 @@ trait HasOptions
 	public
 	function options()
 	{
-		return $this->options;
+		$pointer = $this->options;
+
+
+		foreach( func_get_args() as $param )
+		{
+			if( isset( $pointer[ $param ] ) )
+
+				$pointer = $pointer[ $param ];
+
+
+			else
+			{
+				$e = new InvalidArgumentException
+				(
+						'Called with invalid keys: ' . print_r( func_get_args(), true )
+					.  ' from: ' . basename( debug_backtrace()[ 0 ][ 'file' ] ) . ":" . debug_backtrace()[ 0 ][ 'line' ]
+				);
+
+
+				// Golem itself uses this function, so $this->golem doesn't necessarily exist
+				// TODO: check that __CLASS__ doesn't return the name of the trait
+				//
+				if( property_exists( $this, 'golem' ) )
+
+					$this->golem->logger( __CLASS__ )->exception( $e );
+
+				else
+
+					throw $e;
+			}
+		}
+
+
+		return $pointer;
 	}
 
 
