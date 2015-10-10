@@ -38,6 +38,8 @@ class Codec
 
 	private static $initialized = false;
 
+	protected $configEncoding;
+
 
 	/*
 	 * Standard character sets.
@@ -86,11 +88,11 @@ class Codec
 	protected
 	function __construct( Golem $golem, array $defaults = [], array $options = [] )
 	{
-		$this->golem = $golem;
+		$this->golem          = $golem;
+		$this->configEncoding = $golem->options( 'Golem', 'configEncoding' );
 
 		$this->setupOptions( $defaults, $options );
 		$this->setupLog();
-
 
 		self::initialize();
 	}

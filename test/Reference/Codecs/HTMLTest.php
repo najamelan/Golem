@@ -124,19 +124,22 @@ extends \PHPUnit_Framework_TestCase
 			         'a' . chr(0  ) . 'b' . chr(4  ) . 'c' . chr(127) . 'd' . chr(128)
 			       . 'e' . chr(129) . 'f' . chr(150) . 'g' . chr(159) . 'h'
 
-			     ,   'a&#x0;b&#x4;c&#x7f;d' . self::$encSubstitute
-			       . 'e'                    . self::$encSubstitute
-			       . 'f'                    . self::$encSubstitute
-			       . 'g'                    . self::$encSubstitute
+			     ,   'a' . self::$htmlSubstitute
+			       . 'b' . self::$htmlSubstitute
+			       . 'c' . self::$htmlSubstitute
+			       . 'd' . self::$encSubstitute
+			       . 'e' . self::$encSubstitute
+			       . 'f' . self::$encSubstitute
+			       . 'g' . self::$encSubstitute
 			       . 'h'
 			  ]
 
 
-			  // Properly encode \t \r \n
+			  // Properly encode \t \r \n and form feed
 			  //
 			, [
 			       'a' . chr(9) . 'b' . chr(10) . 'c' . chr(12) . 'd' . chr(13) . 'e'
-			     , 'a&#x9;b&#xa;c&#xc;d&#xd;e'
+			     , 'a&#x9;b&#xa;c&#xc;d'. self::$htmlSubstitute . 'e'
 			  ]
 
 

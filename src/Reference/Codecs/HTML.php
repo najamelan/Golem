@@ -92,7 +92,7 @@ class HTML extends Codec
 	 *
 	 * TODO: Attributes shouldn't contain ambigious ampersands...
 	 *
-	 * Restrictions (HTML5 specs section: 3.2.4.1.5 Phrasing content, 8.1.2.3 Attributes):
+	 * Restrictions (HTML5 specs section: 3.2.4.1.5 Phrasing content, 8.1.2.3 Attributes, 8.1.4 Character references):
 	 *
 	 * Right now, we go way beyond the standard, encoding everything but alphanumericals and
 	 * the immune characters (as defined in the OWASP XSS Cheat sheet). The downside is extra
@@ -124,7 +124,7 @@ class HTML extends Codec
 
 		// Get a version of the character in the correct encoding to compare to hardcoded values.
 		//
-		$cCfgEnc = $c->klone()->convert( $this->golem->options( 'Golem', 'configEncoding' ) )->content();
+		$cCfgEnc = $c->klone()->convert( $this->configEncoding )->content();
 
 
 		// Check for immune characters.
@@ -134,16 +134,54 @@ class HTML extends Codec
 			return $c;
 
 
+		$codePoint = $c->uniCodePoint()[ 0 ];
+
+
+		// Check for illegal characters
+		//
+		if
+		(
+			   Unicode::isNonChar    ( $codePoint )
+			|| Unicode::isControlChar( $codePoint )  && ! in_array( $codePoint, self::HTML5_SPACE_CHARS )
+			|| $codePoint === 0x0D
+		)
+		{
+			return
+
+				$this->golem->string
+				(
+					  $this->options( 'substitute' )
+					, $this->configEncoding
+				)
+			;
+		}
+
+
 		// Check if there's a defined entity
 		//
 		if( isset( self::$characterToEntityMap[ $cCfgEnc ] ) )
+		{
+			return
 
-			return new String( $this->golem, '&' . self::$characterToEntityMap[ $cCfgEnc ] . ';' );
+				$this->golem->string
+				(
+					  '&' . self::$characterToEntityMap[ $cCfgEnc ] . ';'
+					, $this->configEncoding
+				)
+			;
+		}
 
 
 		// Else return a hex entity of the unicode code point
 		//
-		return new String( $this->golem, '&#x' . dechex( $c->uniCodePoint()[ 0 ] ) . ';' );
+		return
+
+			$this->golem->string
+			(
+				  '&#x' . dechex( $codePoint ) . ';'
+				, $this->configEncoding
+			)
+		;
 	}
 
 
