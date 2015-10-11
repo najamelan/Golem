@@ -178,7 +178,7 @@ implements Iterator
 	public
 	function push( String $new )
 	{
-		$this->content( $this->content() . $new->content() );
+		$this->content( $this->content() . $new->convert( $this->encoding() )->content() );
 
 		return $this;
 	}
@@ -218,7 +218,7 @@ implements Iterator
 	public
 	function unshift( String $new )
 	{
-		$this->content( $new->content() . $this->content() );
+		$this->content( $new->convert( $this->encoding() )->content() . $this->content() );
 
 		return $this;
 	}
