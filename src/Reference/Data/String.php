@@ -70,7 +70,9 @@ implements Iterator
 			return $this->content;
 
 
-		return $this->content = $this->sanitize->string( $value, $this->encoding() );
+		$this->content = $this->sanitize->string( $value, $this->encoding() );
+
+		return $this;
 	}
 
 
