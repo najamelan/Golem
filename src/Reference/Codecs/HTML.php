@@ -42,7 +42,7 @@ class HTML extends Codec
 	];
 
 
-	private static $characterToEntityMap = []     ;
+	private static $charToEntityMap = []     ;
 	private static $entityToCharacterMap = []     ;
 	private static $longestEntity        = 0      ;
 	private static $mapIsInitialized     = false  ;
@@ -121,15 +121,14 @@ class HTML extends Codec
 		;
 
 
-
 		// Get a version of the character in the correct encoding to compare to hardcoded values.
 		//
-		$cCfgEnc = $c->klone()->convert( $this->configEncoding )->content();
+		$charCfgEnc = $c->klone()->convert( $this->cfgEnc )->content();
 
 
 		// Check for immune characters.
 		//
-		if( in_array( $cCfgEnc, $this->options[ 'immune' ], /* strict = */ true ) )
+		if( in_array( $charCfgEnc, $this->options[ 'immune' ], /* strict = */ true ) )
 
 			return $c;
 
@@ -148,39 +147,26 @@ class HTML extends Codec
 		{
 			return
 
-				$this->golem->string
-				(
-					  $this->options( 'substitute' )
-					, $this->configEncoding
-				)
+				$this->golem->string( $this->options( 'substitute' ), $this->cfgEnc )
 			;
 		}
 
 
 		// Check if there's a defined entity
 		//
-		if( isset( self::$characterToEntityMap[ $cCfgEnc ] ) )
-		{
+		if( isset( self::$charToEntityMap[ $charCfgEnc ] ) )
+
 			return
 
-				$this->golem->string
-				(
-					  '&' . self::$characterToEntityMap[ $cCfgEnc ] . ';'
-					, $this->configEncoding
-				)
+				$this->golem->string( '&' . self::$charToEntityMap[ $charCfgEnc ] . ';' , $this->cfgEnc )
 			;
-		}
 
 
 		// Else return a hex entity of the unicode code point
 		//
 		return
 
-			$this->golem->string
-			(
-				  '&#x' . dechex( $codePoint ) . ';'
-				, $this->configEncoding
-			)
+			$this->golem->string( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc )
 		;
 	}
 

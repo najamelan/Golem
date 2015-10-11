@@ -38,7 +38,7 @@ class Codec
 
 	private static $initialized = false;
 
-	protected $configEncoding;
+	protected $cfgEnc;
 
 
 	/*
@@ -88,8 +88,8 @@ class Codec
 	protected
 	function __construct( Golem $golem, array $defaults = [], array $options = [] )
 	{
-		$this->golem          = $golem;
-		$this->configEncoding = $golem->options( 'Golem', 'configEncoding' );
+		$this->golem  = $golem;
+		$this->cfgEnc = $golem->options( 'Golem', 'configEncoding' );
 
 		$this->setupOptions( $defaults, $options );
 		$this->setupLog();
