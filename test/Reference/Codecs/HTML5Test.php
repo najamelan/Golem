@@ -4,7 +4,7 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Reference\Codecs\HTML
+	, Golem\Reference\Codecs\HTML5
 
 ;
 
@@ -30,9 +30,9 @@ extends \PHPUnit_Framework_TestCase
    	self::$initialized     = true;
    	self::$golem           = new Golem;
    	self::$encoder         = self::$golem->encoder();
-   	self::$immuneText      = self::$golem->options( 'Codec' , 'HTML', 'immuneText'      );
-   	self::$immuneAttribute = self::$golem->options( 'Codec' , 'HTML', 'immuneAttribute' );
-   	self::$htmlSubstitute  = self::$golem->options( 'Codec' , 'HTML', 'substitute'      );
+   	self::$immuneText      = self::$golem->options( 'Codec' , 'HTML5', 'immuneText'      );
+   	self::$immuneAttribute = self::$golem->options( 'Codec' , 'HTML5', 'immuneAttribute' );
+   	self::$htmlSubstitute  = self::$golem->options( 'Codec' , 'HTML5', 'substitute'      );
 
    	self::$encSubstitute   = '&#x' . dechex( self::$golem->options( 'String', 'substitute' ) ) . ';';
    }

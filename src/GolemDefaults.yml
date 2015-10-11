@@ -51,22 +51,27 @@ Logger:
 
 Codec:
 
-   HTML:
+   HTML5:
 
-      # Immune characters in the context of HTML text. (eg. between <p> and </p>)
+      # Immune characters in the context of HTML5 text. (eg. between <p> and </p>)
       # Alphanumeric characters are also immune.
       #
       immuneText     : ',.-_ '
 
-      # Immune characters in the context of HTML attributes (eg. <p id="THE TEXT HERE">)
+      # Immune characters in the context of HTML5 attributes (eg. <p id="THE TEXT HERE">)
       # Alphanumeric characters are also immune.
       #
       immuneAttribute: ',.-_'
 
-      # Some characters that are valid in character encodings aren't allowed in HTML.
+      # Some characters that are valid in character encodings aren't allowed in HTML5.
       # This should be a string used to replace them.
       #
       substitute     : '&#xfffd;'  # �
+
+      # HTML5 Standard specifies that there should be a semicolon at the end of entities,
+      # however as long as browsers interprete them when the semicolon is missing, so must we.
+      #
+      requireEntitySemicolon: false
 
 
       # private $_immune_css        = [ ' '     ];

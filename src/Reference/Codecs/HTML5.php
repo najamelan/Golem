@@ -27,7 +27,7 @@ use
  * Reference implementation of the HTML codec.
  *
  */
-class HTML extends Codec
+class HTML5 extends Codec
 {
 
 	// HTML5 specification section 2.5.1
@@ -59,7 +59,7 @@ class HTML extends Codec
 	 */
 	public function __construct( Golem $golem, array $options = [] )
 	{
-		parent::__construct( $golem, $golem->options( 'Codec', 'HTML' ), $options );
+		parent::__construct( $golem, $golem->options( 'Codec', 'HTML5' ), $options );
 
 
 		if( ! self::$mapIsInitialized )
@@ -175,84 +175,61 @@ class HTML extends Codec
 	/**
 	 * {@inheritdoc}
 	 */
-	public function decodeCharacter($input)
+	public function decodeCharacter( String $input )
 	{
-		//TODO: add comments
+		// Create a version of the string that is in the right encoding to compare to hard coded values
+		//
+		$inputCfgEnc = $input->copy()->convert( $this->cfgEnc );
 
-		$decodeResult = null;
-		if (mb_substr($input, 0, 1, Codec::$referenceEncoding ) == null) {
-			// first character is null, so eat the 1st character off the string
-			//and return null
 
-			//todo: this isn't necessary, can simply return null...no need to eat
-			//1st character off input string
-			$input = mb_substr($input, 1, mb_strlen($input, Codec::$referenceEncoding ), Codec::$referenceEncoding );
+		// if this is not an encoded character, shift it of the string and return it.
+		//
+		if( $inputCfgEnc[ 0 ] !== '&' )
 
-			return array(
-				'decodedCharacter' => null,
-				'encodedString' => null
-			);
-		}
+			return $input->shift();
 
-		// if this is not an encoded character, return null
-		if (mb_substr($input, 0, 1, Codec::$referenceEncoding ) != $this->normalizeEncoding('&')) {
-			// 1st character is not part of encoding pattern, so return null
-			return array(
-				'decodedCharacter' => null,
-				'encodedString' => null
-			);
-		}
-		// 1st character is part of encoding pattern...
 
 		// test for numeric encodings
-		if (mb_substr($input, 1, 1, Codec::$referenceEncoding ) == null) {
-			// 2nd character is null, so return decodedCharacter=null and
-			//encodedString=(1st character, malformed encoding)
-			return array(
-				'decodedCharacter' => null,
-				'encodedString' => mb_substr($input, 0, 1, Codec::$referenceEncoding )
-			); //could potentially speed this up simply using
-			   //'encodedString'=>$this->normalizeEncoding('&')
+		//
+		// 2nd character is null, so return decodedCharacter=null and
+		// encodedString = ( 1st character, malformed encoding )
+		//
+		$second = $consume->unshift()->raw();
+
+		if( $second === '' )
+		{
+			$decodeResult[ 'encodedString' ] = '&';
+
+			return $decodeResult;
 		}
 
-		if (mb_substr($input, 1, 1, Codec::$referenceEncoding ) == $this->normalizeEncoding('#')) {
-			// 2nd character is hash, so handle numbers...
 
-			// handle numbers
-			$decodeResult     = $this->getNumericEntity($input);
-			$decodedCharacter = $decodeResult['decodedCharacter'];
-			if ($decodedCharacter != null) {
+		// 2nd character is hash, so handle numbers...
+		// handle numbers
+		//
+		elseif( $second === '#' )
+		{
+			$decodeResult = $this->getNumericEntity( $input );
+
+
+			if( $decodeResult[ 'decodedCharacter' ] !== null )
+
 				return $decodeResult;
-			}
-		} else {
-			// Get the ordinal value of the 2nd character.
-			list(, $ordinalValue) = unpack("N", mb_substr($input, 1, 1, Codec::$referenceEncoding ));
-
-			if ( in_array( chr( $ordinalValue ), Encoder::CHAR_ALPHANUMERICS, true ) ) {
-				// 2nd character is an alphabetical char, so handle entities...
-
-				// handle entities
-				$decodeResult     = $this->getNamedEntity($input);
-				$decodedCharacter = $decodeResult['decodedCharacter'];
-				if ($decodedCharacter != null) {
-					return $decodeResult;
-				}
-			} else {
-				// 2nd character does not form a known entity, so re
-				return array(
-					'decodedCharacter' => null,
-					'encodedString' => null
-				);
-			}
 		}
 
-		//perhaps, if decodedCharacter is not null then add it back to start of
-		//input string and see if it is part of a greater encoding pattern (i.e.
-		//double-encoding)
 
-		//at this stage: decodedCharacter could only be null, encodedString could
-		//only be anything between 1st character (i.e. '&') and all remaining
-		//characters
+		// 2nd character is an alphabetical char, so handle entities...
+		//
+		elseif( in_array( $second, Codec::CHAR_ALPHANUMERICS, /* strict = */ true ) )
+		{
+			$decodeResult = $this->getNamedEntity( $input );
+
+			if( $decodeResult[ 'decodedCharacter' ] !== null )
+
+				return $decodeResult;
+		}
+
+
 		return $decodeResult;
 	}
 
