@@ -168,10 +168,10 @@ class Codec
 
 		while( $input->length() )
 
-			$output->push( $this->encodeCharacter( $input->shift() ) );
+			$output->append( $this->encodeCharacter( $input->shift() ) );
 
 
-		return $output->content();
+		return $output->raw();
 	}
 
 

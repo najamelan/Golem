@@ -115,7 +115,7 @@ class HTML extends Codec
 			(
 				new LengthException
 				(
-					'Only one character should be passed to this function, got: ' . var_export( $c->content(), true )
+					'Only one character should be passed to this function, got: ' . var_export( $c->raw(), true )
 				)
 			)
 		;
@@ -123,7 +123,7 @@ class HTML extends Codec
 
 		// Get a version of the character in the correct encoding to compare to hardcoded values.
 		//
-		$charCfgEnc = $c->klone()->convert( $this->cfgEnc )->content();
+		$charCfgEnc = $c->copy()->convert( $this->cfgEnc )->raw();
 
 
 		// Check for immune characters.
@@ -877,7 +877,7 @@ class HTML extends Codec
 
 			// Normalize encoding to UTF-32
 			//
-			self::$characterToEntityMap[ $character         ] = $entityNames[ $i ] ;
+			self::$charToEntityMap[ $character         ] = $entityNames[ $i ] ;
 			self::$entityToCharacterMap[ $entityNames[ $i ] ] = $character         ;
 
 
