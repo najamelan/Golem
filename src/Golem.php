@@ -185,11 +185,11 @@ class Golem
 	 *
 	 */
 	public
-	function encoder( $options = [] )
+	function encoder()
 	{
 		if( ! $this->encoder )
 
-			$this->encoder = new Encoder( $this, $options );
+			$this->encoder = new Encoder( $this );
 
 
 		return $this->encoder;
@@ -206,11 +206,11 @@ class Golem
 	 *
 	 */
 	public
-	function sanitizer( $options = [] )
+	function sanitizer()
 	{
 		if( ! $this->sanitizer )
 
-			$this->sanitizer = new Sanitizer( $this, $options );
+			$this->sanitizer = new Sanitizer( $this );
 
 
 		return $this->sanitizer;
@@ -227,11 +227,11 @@ class Golem
 	 *
 	 */
 	public
-	function validator( $options = [] )
+	function validator()
 	{
 		if( ! $this->validator )
 
-			$this->validator = new Validator( $this, $options );
+			$this->validator = new Validator( $this );
 
 
 		return $this->validator;
