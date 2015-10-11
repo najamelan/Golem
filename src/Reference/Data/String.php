@@ -16,6 +16,9 @@ use
 	, Golem\Reference\Traits\HasLog
 
 	, Iterator
+	, ArrayAccess
+	, InvalidArgumentException
+	, OutOfRangeException
 ;
 
 
@@ -26,12 +29,12 @@ use
  *
  */
 class      String
-implements Iterator
+implements Iterator, ArrayAccess
 {
 	use Seal, HasOptions, HasLog;
 
 	private $golem   ;
-	private $content ;
+	private $raw ;
 	private $sanitize;
 
 	// For the iterator
@@ -49,13 +52,13 @@ implements Iterator
 		$this->setupLog();
 
 		$this->sanitize = $this->golem->sanitizer();
-		$this->content( $content );
+		$this->raw( $content );
 	}
 
 
 
 	public
-	function klone()
+	function copy()
 	{
 		return clone $this;
 	}
@@ -63,14 +66,14 @@ implements Iterator
 
 
 	public
-	function content( $value = null )
+	function raw( $value = null )
 	{
 		if( $value === null )
 
-			return $this->content;
+			return $this->raw;
 
 
-		$this->content = $this->sanitize->string( $value, $this->encoding() );
+		$this->raw = $this->sanitize->string( $value, $this->encoding() );
 
 		return $this;
 	}
@@ -83,7 +86,7 @@ implements Iterator
 		$oldEncoding = $this->encoding();
 		$this->options[ 'encoding' ] = $toEncoding;
 
-		$this->content( mb_convert_encoding( $this->content(), $toEncoding, $oldEncoding ) );
+		$this->raw( mb_convert_encoding( $this->raw(), $toEncoding, $oldEncoding ) );
 
 		return $this;
 	}
@@ -93,16 +96,22 @@ implements Iterator
 	public
 	function __toString()
 	{
-		return $this->content();
+		return $this->raw();
 	}
 
 
 	public
-	function hex()
+	function hex( $prettify = false )
 	{
-		$hex = bin2hex( $this->content() );
-		$arr = str_split( $hex, 2 );
-		return join( ' ', $arr );
+		$hex = bin2hex( $this->raw() );
+
+
+		if( $prettify )
+
+			$hex =  join( ' ', str_split( $hex, 2 ) );
+
+
+		return $hex;
 	}
 
 
@@ -110,7 +119,7 @@ implements Iterator
 	public
 	function length()
 	{
-		return mb_strlen( $this->content, $this->encoding() );
+		return mb_strlen( $this->raw, $this->encoding() );
 	}
 
 
@@ -139,7 +148,7 @@ implements Iterator
 
 		for( $i = 0, $result = []; $i < $stop; $i += $chunksize )
 
-			$result[] = mb_substr( $this->content, $i, $chunksize, $this->encoding() );
+			$result[] = mb_substr( $this->raw, $i, $chunksize, $this->encoding() );
 
 
 		return $result;
@@ -160,29 +169,11 @@ implements Iterator
 	{
 		$amount = min( $amount, $this->length() );
 
-		$result = mb_substr( $this->content, $this->length() - $amount, $amount, $this->encoding() );
+		$result = mb_substr( $this->raw, $this->length() - $amount, $amount, $this->encoding() );
 
-		$this->content( mb_substr( $this->content, 0, $this->length() - $amount, $this->encoding() ) );
+		$this->raw( mb_substr( $this->raw, 0, $this->length() - $amount, $this->encoding() ) );
 
 		return new String( $this->golem, $result, $this->options() );
-	}
-
-
-
-	/**
-	 * Pushes a character onto the end of a string.
-	 *
-	 * @param String $new The string to append to the string.
-	 *
-	 * @return String $this
-	 *
-	 */
-	public
-	function push( String $new )
-	{
-		$this->content( $this->content() . $new->convert( $this->encoding() )->content() );
-
-		return $this;
 	}
 
 
@@ -200,9 +191,9 @@ implements Iterator
 	{
 		$amount = min( $amount, $this->length() );
 
-		$result = mb_substr( $this->content, 0, $amount, $this->encoding() );
+		$result = mb_substr( $this->raw, 0, $amount, $this->encoding() );
 
-		$this->content( mb_substr( $this->content, $amount, $this->length() - $amount, $this->encoding() ) );
+		$this->raw( mb_substr( $this->raw, $amount, $this->length() - $amount, $this->encoding() ) );
 
 		return new String( $this->golem, $result, $this->options() );
 	}
@@ -218,9 +209,27 @@ implements Iterator
 	 *
 	 */
 	public
-	function unshift( String $new )
+	function append( String $new )
 	{
-		$this->content( $new->convert( $this->encoding() )->content() . $this->content() );
+		$this->raw( $this->raw() . $new->copy()->convert( $this->encoding() )->raw() );
+
+		return $this;
+	}
+
+
+
+	/**
+	 * Pushes a character onto the end of a string.
+	 *
+	 * @param String $new The string to append to the string.
+	 *
+	 * @return String $this
+	 *
+	 */
+	public
+	function prepend( String $new )
+	{
+		$this->raw( $new->copy()->convert( $this->encoding() )->raw() . $this->raw() );
 
 		return $this;
 	}
@@ -229,13 +238,13 @@ implements Iterator
 
 	function uniCodePoint()
 	{
-		$utf32  = $this->klone()->convert( 'UTF-32' );
+		$utf32  = $this->copy()->convert( 'UTF-32' );
 		$result = [];
 
 
 		foreach( $utf32 as $char )
 
-			$result[] = hexdec( bin2hex( $char->content() ) );
+			$result[] = hexdec( bin2hex( $char->raw() ) );
 
 
 		return $result;
@@ -250,9 +259,7 @@ implements Iterator
 	public
 	function current()
 	{
-		$raw = mb_substr( $this->content(), $this->position, 1, $this->encoding() );
-
-		return new self( $this->golem, $raw, [ 'encoding' => $this->encoding() ] );
+		return $this->offsetGet( $this->position );
 	}
 
 
@@ -285,5 +292,135 @@ implements Iterator
 	function valid()
 	{
 		return $this->position < $this->length();
+	}
+
+
+
+	/*
+	 * ArrayAccess Implementation
+	 */
+
+	/**
+	 * @ignore
+	 *
+	 */
+	public
+	function offsetExists( $i )
+	{
+		if( ! is_int( $i ) )
+
+			$this->log->exception( new InvalidArgumentException( 'Index should be of type int' ) );
+
+
+		return $i >= 0  &&  $i < $this->length();
+	}
+
+
+
+	/**
+	 * @ignore
+	 *
+	 */
+	public
+	function offsetGet( $i )
+	{
+		if( ! $this->offsetExists( $i ) )
+
+			return null;
+
+
+		$raw = mb_substr( $this->raw(), $i, 1, $this->encoding() );
+
+		return new self( $this->golem, $raw, [ 'encoding' => $this->encoding() ] );
+	}
+
+
+
+	/**
+	 * @ignore
+	 *
+	 */
+	public
+	function offsetSet( $i , $value )
+	{
+		// TODO: Input validation (of $value)
+
+		if( $i < 0 || $i > $this->length() )
+
+			$this->log->exception( new OutOfRangeException( "Can only set characters up to the length of the string" ) );
+
+
+		if( is_null( $i ) || $i === $this->length() )
+
+			$this->push( $value );
+
+
+		else
+
+			$this->splice[ $i ] = $value;
+	}
+
+
+
+	/**
+	 * @ignore
+	 *
+	 */
+	public function offsetUnset( $i )
+	{
+		if( $this->sealed() )
+
+			throw new Exception( "Cannot change sealed options object." );
+
+
+		unset( $this->parsed[ $i ] );
+	}
+
+
+
+	/**
+	 * @ignore
+	 *
+	 */
+	public
+	function splice( $offset, $amount, String $replacement = null )
+	{
+		// TODO: Input validation
+
+		$first  = $this->substr( 0                , $offset  );
+		$splice = $this->substr( $offset          , $amount  );
+		$last   = $this->substr( $offset + $amount           );
+
+
+		if( $replacement )
+
+			$first->append( $replacement );
+
+
+		return $first->append( $last );
+	}
+
+
+
+	/**
+	 * @ignore
+	 *
+	 */
+	public
+	function substr( $offset, $length = null )
+	{
+		// TODO: Input validation
+
+		return
+
+			$this
+
+				-> copy()
+
+				-> raw
+				   (
+				      mb_substr( $this->raw(), $offset, $length, $this->encoding() )
+				   )
+		;
 	}
 }
