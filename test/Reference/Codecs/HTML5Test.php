@@ -139,7 +139,7 @@ extends \PHPUnit_Framework_TestCase
 			  //
 			, [
 			       'a' . chr(9) . 'b' . chr(10) . 'c' . chr(12) . 'd' . chr(13) . 'e'
-			     , 'a&#x9;b&#xa;c&#xc;d'. self::$htmlSubstitute . 'e'
+			     , 'a&Tab;b&NewLine;c&#xc;d'. self::$htmlSubstitute . 'e'
 			  ]
 
 
@@ -150,20 +150,20 @@ extends \PHPUnit_Framework_TestCase
 
 			  // Encoded script tag
 			  //
-			, [ '&lt;script&gt;', '&amp;lt&#x3b;script&amp;gt&#x3b;' ]
+			, [ '&lt;script&gt;', '&amp;lt&semi;script&amp;gt&semi;' ]
 
 
 			  // More complete script tag
 			  //
 			, [
 			       '"><script>alert(/XSS/)</script><fooattr="'
-			     , '&quot;&gt;&lt;script&gt;alert&#x28;&#x2f;XSS&#x2f;&#x29;&lt;&#x2f;script&gt;&lt;fooattr&#x3d;&quot;'
+			     , '&quot;&gt;&lt;script&gt;alert&lpar;&sol;XSS&sol;&rpar;&lt;&sol;script&gt;&lt;fooattr&bne;&quot;'
 			  ]
 
 
 			  // Encode special chars
 			  //
-			, [ '!@$%()=+{}[]', '&#x21;&#x40;&#x24;&#x25;&#x28;&#x29;&#x3d;&#x2b;&#x7b;&#x7d;&#x5b;&#x5d;' ]
+			, [ '!@$%()=+{}[]', '&excl;&commat;&dollar;&percnt;&lpar;&rpar;&bne;&plus;&lbrace;&rbrace;&lbrack;&rbrack;' ]
 
 
 			  // Test ampersand at the beginning

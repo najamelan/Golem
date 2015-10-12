@@ -60,6 +60,26 @@ class Unicode
 
 		return false;
 	}
+
+
+
+	/*
+	 * Test if codePoint value is a noncharacter.
+	 *
+	 * Unicode Standard v8.0 section: 2.4 Code Points and Characters
+	 *
+	 */
+	public
+	static
+	function isCodePoint( $codePoint )
+	{
+		if( $codePoint >= 0  &&  $codePoint <= 0x10FFFF )
+
+			return true;
+
+
+		return false;
+	}
 }
 
 

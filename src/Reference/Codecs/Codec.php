@@ -47,6 +47,7 @@ class Codec
 	static protected $LOWERS        ;
 	static protected $UPPERS        ;
 	static protected $DIGITS        ;
+	static protected $HEXDIGITS     ;
 	static protected $SPECIALS      ;
 	static protected $LETTERS       ;
 	static protected $ALPHANUMERICS ;
@@ -112,6 +113,7 @@ class Codec
 		self::$LOWERS        = str_split( 'abcdefghijklmnopqrstuvwxyz' );
 		self::$UPPERS        = str_split( 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' );
 		self::$DIGITS        = str_split( '0123456789'                 );
+		self::$HEXDIGITS     = str_split( '0123456789abcdefABCDEF'     );
 		self::$SPECIALS      = str_split( '.-_!@$^*=~|+?'              );
 		self::$LETTERS       = array_merge( self::$LOWERS , self::$UPPERS );
 		self::$ALPHANUMERICS = array_merge( self::$LETTERS, self::$DIGITS );
@@ -160,7 +162,7 @@ class Codec
 			return null;
 
 
-		// Make sure character encoding is valid
+		// TODO: Make sure character encoding is valid
 		//
 		$input  = $this->golem->string( $input );
 		$output = $this->golem->string( ''     );
@@ -183,117 +185,25 @@ class Codec
 	 *
 	 * @return string returns the decoded string, otherwise NULL
 	 */
-	public function decode($input)
+	public function decode( $input )
 	{
+		if( $input === null )
 
-		// Normalize string to UTF-32
-		$_4ByteString = self::normalizeEncoding($input);
+			return null;
 
-		// debug
-		CodecDebug::getInstance()->addEncodedString($_4ByteString);
 
-		// Start with an empty string.
-		$decodedString           = '';
-		$targetCharacterEncoding = 'ASCII';
+		// TODO: Make sure character encoding is valid
+		//
+		$input  = $this->golem->string( $input );
+		$output = $this->golem->string( ''     );
 
-		//logic to iterate through the string's characters, while (input has
-		//characters remaining){} feed whole sequence into decoder, which then
-		//determines the first decoded character from the input and "pushes back"
-		//the encodedPortion of seuquence and the resultant decodedCharacter to here
-		while (mb_strlen($_4ByteString, "UTF-32") > 0) {
-			// get the first decodedCharacter, allowing decodeCharacter to eat
-			//away at the string
 
-			//decodeCharacter() returns an array containing 'decodedCharacter' and
-			//'encodedString' so as to provide PushbackString-(from-ESAPI-JAVA)-like
-			//behaviour
-			$decodeResult = $this->decodeCharacter($_4ByteString);
+		while( $input->length() )
 
-			//note: decodedCharacter should be UTF-32 encoded already
-			$decodedCharacter = $decodeResult['decodedCharacter'];
+			$output->append( $this->decodeCharacter( $input ) );
 
-			$encodedString = $decodeResult['encodedString'];
 
-			if ($decodedCharacter !== null) {
-				// Append the decoded character to the output string and remove
-				// the sequence of characters that formed an entity or numeric
-				// encoding of that character from the start of the input string.
-				if ($decodedCharacter != '') {
-					$resultOfAppend = $this->_appendCharacterToOuput(
-						$decodedCharacter,
-						$decodedString,
-						$targetCharacterEncoding
-					);
-
-					if ($resultOfAppend != true) {
-						// Decoded character has an Invalid codepoint so remove
-						// the first character from the encoded string
-						// $_4ByteString and append it to the decoded string.
-						$charToAppend   = mb_substr($_4ByteString, 0, 1, 'UTF-32');
-						$resultOfAppend = $this->_appendCharacterToOuput(
-							$charToAppend,
-							$decodedString,
-							$targetCharacterEncoding
-						);
-						if ($resultOfAppend != true) {
-							// We can do two things here, throw EncodingException
-							// or ignore the dodgy character.  This situation is
-							// an exceptional one and shouldn't happen often...
-							throw new EncodingException(
-								'Error encountered whilst decoding Input.',
-								'A sequence of characters was recognised as using ' .
-								'a valid encoding scheme, but the character it ' .
-								'encodes is not a valid Unicode CodePoint. ' .
-								'The first character in the sequence is also not' .
-								'a valid Unicode CodePoint so decoding was aborted'
-							);
-						}
-						// remove the first character from the input string.
-						$encStringLen = mb_strlen($_4ByteString, 'UTF-32');
-						$_4ByteString = mb_substr($_4ByteString, 1, $encStringLen, 'UTF-32');
-						continue;
-					}
-				}
-
-				// remove the encodedString portion off the start of the input
-				// string.
-				$entityLen    = mb_strlen($encodedString, 'UTF-32');
-				$encStringLen = mb_strlen($_4ByteString, 'UTF-32');
-				$_4ByteString = mb_substr($_4ByteString, $entityLen, $encStringLen, 'UTF-32');
-			} else {
-				// decodedCharacter is null, so add the single, unencoded
-				// character to the decodedString and remove the 1st character
-				// from the start of the input string.
-				$charToAppend   = mb_substr($_4ByteString, 0, 1, 'UTF-32');
-				$resultOfAppend = $this->_appendCharacterToOuput(
-					$charToAppend,
-					$decodedString,
-					$targetCharacterEncoding
-				);
-				if ($resultOfAppend !== true) {
-					// The first character in the remaining string of input
-					// characters is not a Valid Unicode CodePoint.  We could
-					// throw EncodingException here, but instead we'll forget
-					// about it and log a warning.
-					ESAPI::getLogger('Codec')->warn(
-						DefaultLogger::SECURITY,
-						false,
-						'Input contained a character with an invalid Unicode ' .
-						'CodePoint. We destroyed it!'
-					);
-				}
-
-				// eat the single, unencoded character portion off the start of the
-				// UTF-32 converted input string
-				$encStringLen = mb_strlen($_4ByteString, 'UTF-32');
-				$_4ByteString = mb_substr($_4ByteString, 1, $encStringLen, 'UTF-32');
-			}
-		}
-
-		// debug
-		CodecDebug::getInstance()->output($decodedString);
-
-		return $decodedString;
+		return $output->raw();
 	}
 
 	/**

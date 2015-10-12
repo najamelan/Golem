@@ -58,6 +58,15 @@ extends \PHPUnit_Framework_TestCase
 
 
 	public
+	function	testFromUniCodePoint()
+	{
+
+		$this->markTestIncomplete();
+	}
+
+
+
+	public
 	function	testEncoding()
 	{
 

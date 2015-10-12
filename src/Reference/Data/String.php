@@ -58,6 +58,23 @@ implements Iterator, ArrayAccess
 
 
 	public
+	static
+	function fromUniCodePoint( $golem, $codePoint, $encoding = null )
+	{
+		if( $encoding === null )
+
+			$encoding = $golem->options( 'String', 'encoding' );
+
+
+		$raw = mb_convert_encoding( pack( "N", $codePoint ), $encoding, 'UTF-32' );
+
+		return new self( $golem, $raw, [ 'encoding' => $encoding ] );
+	}
+
+
+
+
+	public
 	function copy()
 	{
 		return clone $this;
@@ -148,6 +165,7 @@ implements Iterator, ArrayAccess
 
 		for( $i = 0, $result = []; $i < $stop; $i += $chunksize )
 
+			// $result[] = new self( mb_substr( $this->raw, $i, $chunksize, $this->encoding() ), $this->options() );
 			$result[] = mb_substr( $this->raw, $i, $chunksize, $this->encoding() );
 
 
@@ -324,9 +342,9 @@ implements Iterator, ArrayAccess
 	public
 	function offsetGet( $i )
 	{
-		if( ! $this->offsetExists( $i ) )
+		// if( ! $this->offsetExists( $i ) )
 
-			return null;
+		// 	return '';
 
 
 		$raw = mb_substr( $this->raw(), $i, 1, $this->encoding() );
