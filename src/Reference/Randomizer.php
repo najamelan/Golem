@@ -72,7 +72,11 @@ implements iRandomizer
 			case 'bin': return decbin ( $this->randomBytes( $amount, 'dec' ) );
 			case 'raw': return openssl_random_pseudo_bytes( $amount );
 
-			default: $this->log->exception( new UnexpectedValueException( 'Wrong [$form] parameter, legal values are: "hex", "dec", bin", "raw". Got: ' . var_export( $form, true ) ) );
+			default: $this->log->unexpectedValueException
+			         (
+			              'Wrong [$form] parameter, legal values are: "hex", "dec", bin", "raw". Got: '
+			            . var_export( $form, /* return = */ true )
+			         );
 		}
 	}
 

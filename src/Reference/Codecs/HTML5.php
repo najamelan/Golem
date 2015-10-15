@@ -15,9 +15,6 @@ use
 
 	, Golem\Reference\Data\String
 
-	, UnexpectedValueException
-	, LengthException
-
 ;
 
 
@@ -44,9 +41,7 @@ const HTML5_SPACE_CHARS =
 ];
 
 
-private static $entityTable            ;
-private static $longestEntity  = 35    ;
-private static $mapInitialized = false ;
+const LONGEST_ENTITY  = 35;
 
 
 
@@ -58,33 +53,31 @@ private static $mapInitialized = false ;
  * Otherwise an exception will be thrown.
  *
  */
-public function __construct( Golem $golem, array $options = [] )
+public function __construct( Golem $golem, $context, array $options = [] )
 {
 	parent::__construct( $golem, $golem->options( 'Codec', 'HTML5' ), $options );
 
 
-	if( $this->options( 'context' ) === 'text' )
+	// Parameter Validation
+	//
+	$this->options[ 'context' ] = $context	= $this->golem->stringRule()
 
-		$immune = $this->options( 'immuneText' );
+		->encoding( $this->cfgEnc                   )
+		->in      ( 'text'  , 'attribute'           )
+		->validate( $context, 'parameter: $context' )
+	;
 
 
-	elseif( $this->options( 'context' ) === 'attribute' )
+	$immune =   $context->raw() === 'text'  ?
 
-		$immune = $this->options( 'immuneAttribute' );
-
-
-	else
-
-		$this->log->exception
-		(
-			new UnexpectedValueException( 'wrong context option: ' . $this->options( 'context' ) )
-		)
+		   $this->options( 'immuneText'      )
+		:  $this->options( 'immuneAttribute' )
 	;
 
 
 	$this->options[ 'immune' ] =
 
-		array_merge( $this->golem->string( $immune, 'UTF-8' )->split(), Codec::$ALPHANUMERICS )
+		array_merge( $this->golem->string( $immune, $this->cfgEnc )->split(), Codec::$ALPHANUMERICS )
 	;
 }
 
@@ -107,17 +100,12 @@ public function __construct( Golem $golem, array $options = [] )
 public
 function encodeCharacter( String $c )
 {
-	// Make sure we only have one character
+	// Parameter Validation
 	//
-	if( $c->length() !== 1 )
+	$c = $this->golem->stringRule()
 
-		$this->log->exception
-		(
-			new LengthException
-			(
-				'Only one character should be passed to this function, got: ' . var_export( $c->raw(), true )
-			)
-		)
+		->length  ( 1                  )
+		->validate( $c, 'parameter $c' )
 	;
 
 
@@ -174,6 +162,16 @@ function encodeCharacter( String $c )
 public
 function allowedInEntity( $codePoint )
 {
+
+	// Parameter Validation
+	//
+	// $codePoint = $this->golem->numberRule()
+
+	// 	->type    ( 'int'                               )
+	// 	->validate( $codePoint, 'parameter: $codePoint' )
+	// ;
+
+
 	// Check for illegal characters
 	//
 	if
@@ -244,23 +242,30 @@ function decodeCharacter( String $input )
 private
 function decodeNumericEntity( String $input, $type = 'dec' )
 {
+	// Parameter Validation
+	//
+	$c = $this->golem->stringRule()
+
+		->encoding( $this->cfgEnc             )
+		->in      ( 'hex', 'dec'              )
+		->validate( $type, 'parameter: $type' )
+	;
+
+
 	switch( $type )
 	{
 		case 'hex': $startLength  =  3                     ;
 		            $startString  =  '&#x'                 ;
 		            $startString2 =  '&#X'                 ;
-		            $ditgits      =& Codec::$HEXDIGITS     ;
+		            $ditgits      =  &Codec::$HEXDIGITS    ;
 		            $convFunction =  'hexdec'              ;
 		            break;
 
 
 		case 'dec': $startLength  =  2                     ;
 		            $startString  =  $startString2 =  '&#' ;
-		            $ditgits      =& Codec::$DIGITS        ;
+		            $ditgits      =  &Codec::$DIGITS       ;
 		            $convFunction =  'intval'              ;
-						break;
-
-		default   : # throw exception
 	}
 
 
@@ -345,13 +350,12 @@ function decodeNumericEntity( String $input, $type = 'dec' )
  *               if no decoding is possible. 'encodedString' => the string that
  *               was decoded or found to be malformed
  */
-private function decodeNamedEntity( $input )
+private function decodeNamedEntity( String $input )
 {
 
 	// get a config encoded string to compare to hard coded values
-	// Since the number should never be more than 32 bytes, we need at most 12 chars to work with
 	//
-	$inputCfgEnc = $input->substr( 0, self::$longestEntity + 2 )->convert( $this->cfgEnc );
+	$inputCfgEnc = $input->substr( 0, self::LONGEST_ENTITY + 2 )->convert( $this->cfgEnc );
 
 
 	if( $inputCfgEnc->shift()->raw() !== '&' )

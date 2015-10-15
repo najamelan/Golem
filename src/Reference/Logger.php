@@ -12,8 +12,23 @@ use
 	, Golem\Reference\Traits\Seal
 	, Golem\Reference\Traits\HasOptions
 
+	, Golem\Reference\Errors\ValidationException
 	, Exception
+	, BadFunctionCallException
+	, BadMethodCallException
+	, DomainException
 	, InvalidArgumentException
+	, LengthException
+	, LogicException
+	, OutOfBoundsException
+	, OutOfRangeException
+	, OverflowException
+	, RangeException
+	, RuntimeException
+	, UnderflowException
+	, UnexpectedValueException
+
+	, SplFileInfo
 ;
 
 
@@ -46,7 +61,7 @@ implements iLogger
 	 *
 	 */
 	public
-	function exception( $exception, array $context = [] )
+	function trow( Exception $exception, array $context = [] )
 	{
 		$this->log( iLogger::ERROR, $exception, $context );
 
@@ -54,19 +69,28 @@ implements iLogger
 		// throw if appropriate
 		//
 		if( $this->throwingOn() )
-		{
-			if( ! $exception instanceof Exception )
-
-				$exception = new Exception( $exception );
-
 
 			throw $exception;
-		}
 
 
 		return $this;
 	}
 
+
+	public function exception               ( $s, array $c = [] ) { $this->trow( new Exception               ( $s ), $c ); }
+	public function badFunctionCallException( $s, array $c = [] ) { $this->trow( new BadFunctionCallException( $s ), $c ); }
+	public function badMethodCallException  ( $s, array $c = [] ) { $this->trow( new BadMethodCallException  ( $s ), $c ); }
+	public function domainException         ( $s, array $c = [] ) { $this->trow( new DomainException         ( $s ), $c ); }
+	public function invalidArgumentException( $s, array $c = [] ) { $this->trow( new InvalidArgumentException( $s ), $c ); }
+	public function lengthException         ( $s, array $c = [] ) { $this->trow( new LengthException         ( $s ), $c ); }
+	public function logicException          ( $s, array $c = [] ) { $this->trow( new LogicException          ( $s ), $c ); }
+	public function outOfBoundsException    ( $s, array $c = [] ) { $this->trow( new OutOfBoundsException    ( $s ), $c ); }
+	public function outOfRangeException     ( $s, array $c = [] ) { $this->trow( new OutOfRangeException     ( $s ), $c ); }
+	public function overflowException       ( $s, array $c = [] ) { $this->trow( new OverflowException       ( $s ), $c ); }
+	public function rangeException          ( $s, array $c = [] ) { $this->trow( new RangeException          ( $s ), $c ); }
+	public function runtimeException        ( $s, array $c = [] ) { $this->trow( new RuntimeException        ( $s ), $c ); }
+	public function underflowException      ( $s, array $c = [] ) { $this->trow( new UnderflowException      ( $s ), $c ); }
+	public function unexpectedValueException( $s, array $c = [] ) { $this->trow( new UnexpectedValueException( $s ), $c ); }
 
 
 	/**
@@ -74,7 +98,7 @@ implements iLogger
 	 *
 	 * @param mixed  $level   The loglevel for this event (NOTICE, WARNING, ERROR)
 	 * @param string $message
-	 * @param array  $context
+	 * @param array  $context Unused for now
 	 *
 	 * @return \Golem\iFace\Logger $this
 	 *
@@ -114,16 +138,28 @@ implements iLogger
 
 					// Create the target folder if needed
 					//
-					if( ! is_dir( dirname( $output ) ) )
+					$output = new SplFileInfo( $output );
+					$dir    = $output->getPathInfo();
 
-						if( mkdir( dirname( $output ), 0755, true ) === false )
+
+					if( ! $dir->isDir() )
+
+						if( mkdir( dirname( $output ), $this->options( 'logDirPermissions' ), true ) === false )
 
 							$this->exception( "Failed creating target directory [$dir] for logfile [$output]." );
 
 
-					if( file_put_contents( $output, $message, FILE_APPEND | LOCK_EX ) === false )
+					$output  = $output->openFile( 'a'      );
+					$written = $output->fwrite  ( $message );
+
+
+					if( $written === null )
 
 						$this->exception( "Failed writing to logfile [$output]." );
+
+					// TODO: deal correctly with encodings
+					// TODO: accept our own string class
+					// TODO: what if $written is smaller than the length of the string
 			}
 		}
 
@@ -152,7 +188,7 @@ implements iLogger
 
 		return
 
-			date( 'Y-m-d H:i:s' ) . " [{$this->name()}] SECURITY:{$level} | $message\n---\n";
+			date( 'Y-m-d H:i:s' ) . " [{$this->name()}] SECURITY:$level | $message" . PHP_EOL . "---" . PHP_EOL;
 	}
 
 

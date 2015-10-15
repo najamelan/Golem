@@ -90,7 +90,7 @@ class Encoder
 	{
 		if( ! $this->htmlTextCodec )
 
-			$this->htmlTextCodec = new HTML5( $this->golem,  [ 'context' => 'text' ] );
+			$this->htmlTextCodec = new HTML5( $this->golem, 'text' );
 
 
 		return $this->htmlTextCodec->encode( $input );
@@ -103,7 +103,7 @@ class Encoder
 	{
 		if( ! $this->htmlAttrCodec )
 
-			$this->htmlAttrCodec = new HTML5( $this->golem, [ 'context' => 'attribute' ] );
+			$this->htmlAttrCodec = new HTML5( $this->golem, 'attribute' );
 
 
 		return $this->htmlAttrCodec->encode( $input );

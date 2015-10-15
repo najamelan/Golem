@@ -1,3 +1,11 @@
+# This is the default configuration file for Golem.
+#
+# DO NOT CHANGE THIS FILE
+#
+# Rather, make a copy of it and keep just the values you want to change from the defaults, and then pass the
+# filename of your own configuration file to the constructor of Golem. Your values will override the values
+# in this file.
+#
 Golem:
 
    # The encoding of this and other configuration files. You probably want to leave this on utf-8
@@ -38,6 +46,12 @@ Logger:
    # 'echo'         : echo errors
    #
    logfile: phplog
+
+   # If you specify a logfile and the directory it's in does not exist, Golem will try to create it.
+   # This are the permissions for the missing directory and it's parent directories that have to be
+   # created.
+   #
+   logDirPermissions: 0755
 
    # The default log level, can be 'ALL', 'NOTICE', 'WARNING', 'ERROR', 'OFF'.
    #
@@ -92,5 +106,45 @@ Validation:
 
    StringRule:
 
-      encoding: *globalEncoding
+      # Any php strings passed to the StringRule object will be assumed and sanitized to be of this encoding
+      # Any Golem\Reference\Data\String objects passed in will be converted to this encoding. It can no longer be
+      # changed once any string have been passed to the object.
+      # Validated and sanitized strings returned from the StringRule will be in this encoding.
+      #
+      encoding : *globalEncoding
+
+      # Whether a null value validates
+      #
+      allowNull: false
+
+      # The default value, certain sanitize routines will use this in case the input is invalid.
+      # This value must be conform all the constraints set on the validation, otherwise an exception will be thrown.
+      # It usually doesn't make sense to set a default value for this option, but for documentation purposes it's included here.
+      # If set, minLength and maxLength will be ignored.
+      #
+      # defaultValue :
+
+      # A set of values from which the input needs to be one in order to validate (sanitize will return defaultValue on invalid input)
+      # It usually doesn't make sense to set a default value for this option, but for documentation purposes it's included here.
+      # This value should be an array in the configuration file, but when calling the setter, you can also pass each value as a separate parameter.
+      #
+      # in: [ 'hi', 'hello' ]
+
+      # The exact length in characters the string should have (sanitize will truncate if the value is to long, and try to use the defaultValue if it's to short).
+      # You SHOULDN'T set a default value for this option, but for documentation purposes it's included here.
+      # This value should be an integer
+      # If set, minLength and maxLength will be ignored.
+      #
+      # length :
+
+      # The minimum allowed length of the string (sanitation will not try to fix strings that are to short, but will return defaultValue if set, fail if defaultValue is not set)
+      # This value should be an integer
+      #
+      minLength: 0
+
+      # The maximum allowed length of the string (sanitize will crop the string to this length if it's to long).
+      # This value should be an integer
+      # One special value is allowed in configuration files: 'PHP_INT_MAX' which will be translated to the php constant.
+      #
+      maxLength: PHP_INT_MAX
 

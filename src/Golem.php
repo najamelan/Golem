@@ -20,6 +20,7 @@ use
    , Golem\Reference\Encoder
    , Golem\Reference\Sanitizer
    , Golem\Reference\Validator
+   , Golem\Reference\Validation\StringRule
 
    , Golem\Reference\Data\File
    , Golem\Reference\Data\String
@@ -27,8 +28,8 @@ use
    , Golem\Reference\Traits\Seal
    , Golem\Reference\Traits\HasOptions
 
-   , \Exception
-   , \InvalidArgumentException
+   , Exception
+   , InvalidArgumentException
 ;
 
 
@@ -145,7 +146,7 @@ class Golem
 		}
 
 
-		elseif( ! empty( $options ) )
+		elseif( $options )
 
 			$this->logger()->exception( "Cannot override options on existing logger: [$name]" );
 
@@ -257,4 +258,7 @@ class Golem
 
 		return new String( $this, $content, [ 'encoding' => $encoding ] );
 	}
+
+
+	public function stringRule( $options = [] ){ return new StringRule( $this, $options ); }
 }

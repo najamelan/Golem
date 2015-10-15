@@ -17,8 +17,8 @@ use
 
 	, Iterator
 	, ArrayAccess
-	, InvalidArgumentException
-	, OutOfRangeException
+	, Countable
+
 ;
 
 
@@ -29,13 +29,12 @@ use
  *
  */
 class      String
-implements Iterator, ArrayAccess
+implements Iterator, ArrayAccess, Countable
 {
 	use Seal, HasOptions, HasLog;
 
-	private $golem   ;
-	private $raw ;
-	private $sanitize;
+	private $golem;
+	private $raw  ;
 
 	// For the iterator
 	//
@@ -51,8 +50,8 @@ implements Iterator, ArrayAccess
 		$this->setupOptions( $this->golem->options( 'String' ), $options );
 		$this->setupLog();
 
-		$this->sanitize = $this->golem->sanitizer();
-		$this->raw( $content );
+		$this->ensureValidEncoding( $this->options( 'encoding' ) );
+		$this->raw                ( $content                     );
 	}
 
 
@@ -73,7 +72,6 @@ implements Iterator, ArrayAccess
 
 
 
-
 	public
 	function copy()
 	{
@@ -90,7 +88,17 @@ implements Iterator, ArrayAccess
 			return $this->raw;
 
 
-		$this->raw = $this->sanitize->string( $value, $this->encoding() );
+		if( ! is_string( $value ) )
+
+			$this->log->warning
+			(
+				  'Passing non string value to String::raw(). Trying implicit cast to string. Got: '
+				. var_export( $value, /* return = */ true  )
+			)
+		;
+
+
+		$this->raw = $this->sanitizeEncoding( $value );
 
 		return $this;
 	}
@@ -98,8 +106,65 @@ implements Iterator, ArrayAccess
 
 
 	public
+	function encoding()
+	{
+		return $this->options( 'encoding' );
+	}
+
+
+
+	protected
+	function sanitizeEncoding( $input )
+	{
+		$enc = $this->options( 'encoding' );
+
+
+		$substitute = mb_substitute_character();
+
+			mb_substitute_character( $this->golem->options( 'String', 'substitute' ) );
+			$sane = mb_convert_encoding( $input, $enc, $enc );
+
+		mb_substitute_character( $substitute );
+
+
+		if( mb_check_encoding( $sane, $enc ) === false )
+
+			$this->log->validationException( 'Encoding doesn\'t validate' );
+
+
+		return $sane;
+	}
+
+
+
+	public
+	static
+	function encodingSupported( $encoding )
+	{
+		return in_array( $encoding, mb_list_encodings(), /* strict = */ true );
+	}
+
+
+
+	public
+	function ensureValidEncoding( $encoding )
+	{
+		if( ! self::encodingSupported( $encoding ) )
+
+			$this->log->unexpectedValueException
+			(
+				"Encoding passed in not supported by the mbstring extension: [$encoding]"
+			)
+		;
+	}
+
+
+
+	public
 	function convert( $toEncoding )
 	{
+		$this->ensureValidEncoding( $toEncoding );
+
 		$oldEncoding = $this->encoding();
 		$this->options[ 'encoding' ] = $toEncoding;
 
@@ -142,15 +207,14 @@ implements Iterator, ArrayAccess
 
 
 	public
-	function encoding()
+	function count()
 	{
-		return $this->options( 'encoding' );
+		return $this->length();
 	}
 
 
-
 	/**
-	 * Splits a string into an array of characters. Supports multibyte strings. See also str_split()
+	 * Splits a string into an array of characters. See also str_split()
 	 *
 	 * @param string $string The string to split into characters.
 	 *
@@ -270,6 +334,19 @@ implements Iterator, ArrayAccess
 
 
 
+	public
+	function equals( String $input )
+	{
+		if( $input->encoding() !== $this->encoding() )
+
+			$input = $input->copy()->convert( $this->encoding() );
+
+
+		return $this->raw() === $input->raw();
+	}
+
+
+
 	/**
 	 * Iterator implementation
 	 *
@@ -327,7 +404,7 @@ implements Iterator, ArrayAccess
 	{
 		if( ! is_int( $i ) )
 
-			$this->log->exception( new InvalidArgumentException( 'Index should be of type int' ) );
+			$this->log->invalidArgumentException( 'Index should be of type int' );
 
 
 		return $i >= 0  &&  $i < $this->length();
@@ -365,7 +442,7 @@ implements Iterator, ArrayAccess
 
 		if( $i < 0 || $i > $this->length() )
 
-			$this->log->exception( new OutOfRangeException( "Can only set characters up to the length of the string" ) );
+			$this->log->OutOfRangeException( "Can only set characters up to the length of the string" );
 
 
 		if( is_null( $i ) || $i === $this->length() )
@@ -388,7 +465,7 @@ implements Iterator, ArrayAccess
 	{
 		if( $this->sealed() )
 
-			throw new Exception( "Cannot change sealed options object." );
+			$this->log->logicException( "Cannot change sealed options object." );
 
 
 		unset( $this->parsed[ $i ] );
