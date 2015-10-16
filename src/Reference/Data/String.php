@@ -163,6 +163,11 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function convert( $toEncoding )
 	{
+		if( $toEncoding === $this->encoding() )
+
+			return $this;
+
+
 		$this->ensureValidEncoding( $toEncoding );
 
 		$oldEncoding = $this->encoding();
