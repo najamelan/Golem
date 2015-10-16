@@ -33,7 +33,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testReadFile()
 	{
-		$file = new File( self::$golem, __DIR__ . '/../../TestData/someData' );
+		$file = new File( self::$golem, __DIR__ . '/../TestData/someData' );
 		$this->assertEquals( $file->readFile(), "12345\n" );
 	}
 
@@ -55,7 +55,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testParser()
 	{
-		$file = new File( self::$golem, __DIR__ . '/../../TestData/testGolem.yml' );
+		$file = new File( self::$golem, __DIR__ . '/../TestData/testGolem.yml' );
 		$this->assertEquals( $file->parse(), [ 'Logger' => [ 'name' => 'Olé' ] ] );
 	}
 
@@ -68,7 +68,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public
 	function	testParserWrongExtension()
 	{
-		$file = new File( self::$golem, __DIR__ . '/../../TestData/someData' );
+		$file = new File( self::$golem, __DIR__ . '/../TestData/someData' );
 		$file->parse();
 	}
 }

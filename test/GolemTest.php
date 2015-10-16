@@ -47,7 +47,7 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 
 		// Override an option using a string filename
 		//
-		$golem  = new Golem( __DIR__ . '/../TestData/testGolem.yml' );
+		$golem  = new Golem( __DIR__ . '/TestData/testGolem.yml' );
 		$this->assertEquals( $golem->options()[ 'Logger' ][ 'name' ], 'Olé' );
 	}
 

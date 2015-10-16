@@ -67,9 +67,9 @@ function	testConstructor()
 
 	// Invalid utf-8 data
 	//
-	$s = new String( self::$golem, file_get_contents( __DIR__ . '/../../TestData/UTF-8-test.txt' ), [ 'encoding' => 'UTF-8' ] );
+	$s = new String( self::$golem, file_get_contents( __DIR__ . '/../TestData/UTF-8-test.txt' ), [ 'encoding' => 'UTF-8' ] );
 
-	$this->assertEquals( file_get_contents( __DIR__ . '/../../TestData/UTF-8-test-processed.txt' ), $s->raw()        );
+	$this->assertEquals( file_get_contents( __DIR__ . '/../TestData/UTF-8-test-processed.txt' ), $s->raw()        );
 
 
 

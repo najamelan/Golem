@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="test/bootstrap.php" colors="true">
+<phpunit bootstrap="test/TestData/bootstrap.php" colors="true">
 
 	<testsuites>
 
-		<testsuite name="Reference">
+		<testsuite name="test">
 
-			<directory>test/Reference</directory>
-
-		</testsuite>
-
-
-		<testsuite name="Traits">
-
-			<directory>test/Traits</directory>
+			<directory>test</directory>
 
 		</testsuite>
 
