@@ -165,11 +165,11 @@ function allowedInEntity( $codePoint )
 
 	// Parameter Validation
 	//
-	// $codePoint = $this->golem->numberRule()
+	$codePoint = $this->golem->numberRule()
 
-	// 	->type    ( 'int'                               )
-	// 	->validate( $codePoint, 'parameter: $codePoint' )
-	// ;
+		->type    ( 'integer'                           )
+		->validate( $codePoint, 'parameter: $codePoint' )
+	;
 
 
 	// Check for illegal characters

@@ -148,3 +148,19 @@ Validation:
       #
       maxLength: PHP_INT_MAX
 
+      # The type of the variable. The validation rule will return your value as this type. Also if using validation and not
+      # sanitation if your input is not of the correct type, it won't be cast, but an exception will be thrown.
+      # Possible values are 'Golem\Reference\Data\String' or 'string' for native php strings.
+      #
+      # type:
+
+
+   NumberRule:
+
+      # The type of the variable. The validation rule will return your value as this type. Also if using validation and not
+      # sanitation if your input is not of the correct type, it won't be cast, but an exception will be thrown.
+      # Possible values are 'integer', 'float', 'double'.
+      #
+      # type:
+      #
+      dummy:

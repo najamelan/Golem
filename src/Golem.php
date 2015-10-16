@@ -20,7 +20,9 @@ use
    , Golem\Reference\Encoder
    , Golem\Reference\Sanitizer
    , Golem\Reference\Validator
+
    , Golem\Reference\Validation\StringRule
+   , Golem\Reference\Validation\NumberRule
 
    , Golem\Reference\Data\File
    , Golem\Reference\Data\String
@@ -261,4 +263,5 @@ class Golem
 
 
 	public function stringRule( $options = [] ){ return new StringRule( $this, $options ); }
+	public function numberRule( $options = [] ){ return new NumberRule( $this, $options ); }
 }

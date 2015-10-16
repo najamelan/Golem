@@ -91,6 +91,7 @@ implements iLogger
 	public function runtimeException        ( $s, array $c = [] ) { $this->trow( new RuntimeException        ( $s ), $c ); }
 	public function underflowException      ( $s, array $c = [] ) { $this->trow( new UnderflowException      ( $s ), $c ); }
 	public function unexpectedValueException( $s, array $c = [] ) { $this->trow( new UnexpectedValueException( $s ), $c ); }
+	public function validationException     ( $s, array $c = [] ) { $this->trow( new ValidationException     ( $s ), $c ); }
 
 
 	/**

@@ -95,6 +95,26 @@ function validateOptionLength( $option )
 
 
 protected
+function validateOptionType( $option )
+{
+	$option = parent::validateOptionType( $option );
+
+
+	if( ! in_array( $option, [ 'string', 'Golem\Reference\Data\String' ] ) )
+
+		$this->log->unexpectedValueException
+		(
+			"Unsupported type [$option]. Should be one of: 'int', 'float' or 'double'."
+		)
+	;
+
+
+	return $option;
+}
+
+
+
+protected
 function ensureType( $string )
 {
 	if( ! $string instanceof String )
@@ -149,7 +169,7 @@ function encoding( $encoding = null )
 public
 function sanitize( $input, $context )
 {
-	if( $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
 
 		return null;
 
@@ -166,7 +186,7 @@ function sanitize( $input, $context )
 public
 function validate( $input, $context )
 {
-	if( $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
 
 		return null;
 
