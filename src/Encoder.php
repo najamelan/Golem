@@ -3,17 +3,17 @@
  *
  */
 
-namespace Golem\Reference;
+namespace Golem;
 
 use
 
 	  Golem\Golem
 
-	, Golem\Reference\Traits\Seal
-	, Golem\Reference\Traits\HasOptions
+	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
 
-	, Golem\Reference\Util
-	, Golem\Reference\Codecs\HTML5
+	, Golem\Util
+	, Golem\Codecs\HTML5
 
 ;
 

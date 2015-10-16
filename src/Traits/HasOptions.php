@@ -1,10 +1,10 @@
 <?php
 
-namespace Golem\Reference\Traits;
+namespace Golem\Traits;
 
 use
 
-	  Golem\Reference\Util
+	  Golem\Util
 
 	, UnexpectedValueException
 

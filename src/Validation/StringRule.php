@@ -5,7 +5,7 @@
 
 
 
-namespace Golem\Reference\Validation;
+namespace Golem\Validation;
 
 use
 
@@ -13,11 +13,11 @@ use
 
 	, Golem\iFace\ValidationRule
 
-	, Golem\Reference\Data\String
+	, Golem\Data\String
 
-	, Golem\Reference\Validation\BaseRule
+	, Golem\Validation\BaseRule
 
-	, Golem\Reference\Util
+	, Golem\Util
 ;
 
 /**
@@ -100,7 +100,7 @@ function validateOptionType( $option )
 	$option = parent::validateOptionType( $option );
 
 
-	if( ! in_array( $option, [ 'string', 'Golem\Reference\Data\String' ] ) )
+	if( ! in_array( $option, [ 'string', 'Golem\Data\String' ] ) )
 
 		$this->log->unexpectedValueException
 		(

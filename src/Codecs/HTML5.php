@@ -3,17 +3,17 @@
  *
  */
 
-namespace Golem\Reference\Codecs;
+namespace Golem\Codecs;
 
 use
 
 	  Golem\Golem
 
-	, Golem\Reference\Util
-	, Golem\Reference\Encoder
-	, Golem\Reference\Unicode
+	, Golem\Util
+	, Golem\Encoder
+	, Golem\Unicode
 
-	, Golem\Reference\Data\String
+	, Golem\Data\String
 
 ;
 

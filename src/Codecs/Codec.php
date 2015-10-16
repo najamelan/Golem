@@ -5,19 +5,19 @@
 
 
 
-namespace Golem\Reference\Codecs;
+namespace Golem\Codecs;
 
 use
 
 	  Golem\Golem
 
-	, Golem\Reference\Traits\Seal
-	, Golem\Reference\Traits\HasOptions
-	, Golem\Reference\Traits\HasLog
+	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
+	, Golem\Traits\HasLog
 
-	, Golem\Reference\Data\String
+	, Golem\Data\String
 
-	, Golem\Reference\Util
+	, Golem\Util
 ;
 
 /**

@@ -6,8 +6,8 @@ use
 	  Golem\iFace\Logger          as iLogger
 
 	, Golem\Golem
-	, Golem\Reference\Logger
-	, Golem\Reference\Util
+	, Golem\Logger
+	, Golem\Util
 
 	, \Exception
 

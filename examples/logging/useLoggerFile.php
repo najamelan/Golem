@@ -35,7 +35,7 @@ $golem->seal();
 // output: Where to log to. Possible values are 'echo' and 'file'. Future features might be adding
 //         email or rss etc...
 //
-// We could also have instantiated Golem\Reference\Data\LogOptions and pass that to $golem->logger( $options ).
+// We could also have instantiated Golem\Data\LogOptions and pass that to $golem->logger( $options ).
 // This allows amongst other things to set the options up using a yaml file instead of a PHP array. Note that
 // Golem::logger() does not accept filenames directly.
 //

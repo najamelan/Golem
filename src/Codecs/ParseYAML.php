@@ -9,14 +9,14 @@
  *
  */
 
-namespace Golem\Reference\Codecs;
+namespace Golem\Codecs;
 
-require_once __DIR__ . '/../../../lib/sfYaml/Exception/ExceptionInterface.php';
-require_once __DIR__ . '/../../../lib/sfYaml/Exception/RuntimeException.php';
-require_once __DIR__ . '/../../../lib/sfYaml/Exception/ParseException.php';
-require_once __DIR__ . '/../../../lib/sfYaml/Inline.php';
-require_once __DIR__ . '/../../../lib/sfYaml/Parser.php';
-require_once __DIR__ . '/../../../lib/sfYaml/Unescaper.php';
+require_once __DIR__ . '/../../lib/sfYaml/Exception/ExceptionInterface.php';
+require_once __DIR__ . '/../../lib/sfYaml/Exception/RuntimeException.php';
+require_once __DIR__ . '/../../lib/sfYaml/Exception/ParseException.php';
+require_once __DIR__ . '/../../lib/sfYaml/Inline.php';
+require_once __DIR__ . '/../../lib/sfYaml/Parser.php';
+require_once __DIR__ . '/../../lib/sfYaml/Unescaper.php';
 
 
 use

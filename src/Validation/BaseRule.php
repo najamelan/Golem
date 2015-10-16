@@ -5,7 +5,7 @@
 
 
 
-namespace Golem\Reference\Validation;
+namespace Golem\Validation;
 
 use
 
@@ -13,13 +13,13 @@ use
 
 	, Golem\iFace\ValidationRule
 
-	, Golem\Reference\Traits\Seal
-	, Golem\Reference\Traits\HasOptions
-	, Golem\Reference\Traits\HasLog
+	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
+	, Golem\Traits\HasLog
 
-	, Golem\Reference\Data\String
+	, Golem\Data\String
 
-	, Golem\Reference\Util
+	, Golem\Util
 ;
 
 /**
@@ -103,7 +103,7 @@ function validateOptionType( $option )
 
 		$this->log->invalidArgumentException
 		(
-			  "Option 'type' should be an a string or a Golem\Reference\Data\String. Got: "
+			  "Option 'type' should be an a string or a Golem\Data\String. Got: "
 			. var_export( $option, /* return = */ true )
 		)
 	;

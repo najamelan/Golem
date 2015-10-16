@@ -1,6 +1,6 @@
 <?php
 
-namespace Golem\Reference\Errors;
+namespace Golem\Errors;
 
 use
 

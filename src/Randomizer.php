@@ -1,6 +1,6 @@
 <?php
 
-namespace Golem\Reference;
+namespace Golem;
 
 
 use
@@ -8,7 +8,7 @@ use
 	  Golem\iFace\Randomizer as iRandomizer
 
 	, Golem\Golem
-	, Golem\Reference\Traits\HasLog
+	, Golem\Traits\HasLog
 
 	, LengthException
 	, UnexpectedValueException

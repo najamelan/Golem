@@ -5,7 +5,7 @@
 
 
 
-namespace Golem\Reference\Validation;
+namespace Golem\Validation;
 
 use
 
@@ -13,11 +13,11 @@ use
 
 	, Golem\iFace\ValidationRule
 
-	, Golem\Reference\Data\String
+	, Golem\Data\String
 
-	, Golem\Reference\Validation\BaseRule
+	, Golem\Validation\BaseRule
 
-	, Golem\Reference\Util
+	, Golem\Util
 ;
 
 /**

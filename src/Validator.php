@@ -3,18 +3,18 @@
  *
  */
 
-namespace Golem\Reference;
+namespace Golem;
 
 use
 
 	  Golem\Golem
 
-	, Golem\Reference\Validation\StringRule
+	, Golem\Validation\StringRule
 
-	, Golem\Reference\Traits\Seal
-	, Golem\Reference\Traits\HasOptions
+	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
 
-	, Golem\Reference\Util
+	, Golem\Util
 
 ;
 

@@ -10,25 +10,25 @@
  */
 namespace Golem;
 
-require_once __DIR__ . '/Reference/Traits/Autoload.php';
+require_once __DIR__ . '/Traits/Autoload.php';
 
 use
 
-	  Golem\Reference\Logger
-	, Golem\Reference\Randomizer
-   , Golem\Reference\Util
-   , Golem\Reference\Encoder
-   , Golem\Reference\Sanitizer
-   , Golem\Reference\Validator
+	  Golem\Logger
+	, Golem\Randomizer
+   , Golem\Util
+   , Golem\Encoder
+   , Golem\Sanitizer
+   , Golem\Validator
 
-   , Golem\Reference\Validation\StringRule
-   , Golem\Reference\Validation\NumberRule
+   , Golem\Validation\StringRule
+   , Golem\Validation\NumberRule
 
-   , Golem\Reference\Data\File
-   , Golem\Reference\Data\String
+   , Golem\Data\File
+   , Golem\Data\String
 
-   , Golem\Reference\Traits\Seal
-   , Golem\Reference\Traits\HasOptions
+   , Golem\Traits\Seal
+   , Golem\Traits\HasOptions
 
    , Exception
    , InvalidArgumentException
@@ -113,7 +113,7 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Reference\logger.
+	 * Get a \Golem\logger.
 	 *
 	 * @param string $name    The name of the logger. If you request a logger with an existing name,
 	 *                        a new logger will not be created, you will get the named logger.
@@ -128,7 +128,7 @@ class Golem
 	 *
 	 * @throws \Exception When trying to pass options for an existing logger.
 	 *
-	 * @return \Golem\Reference\logger The logger with the given name, if it doesn't exist, it will be created.
+	 * @return \Golem\logger The logger with the given name, if it doesn't exist, it will be created.
 	 *
 	 * @api
 	 *
@@ -159,9 +159,9 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Reference\Randomizer.
+	 * Get a \Golem\Randomizer.
 	 *
-	 * @return \Golem\Reference\Randomizer
+	 * @return \Golem\Randomizer
 	 *
 	 * @api
 	 *
@@ -180,9 +180,9 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Reference\Encoder.
+	 * Get a \Golem\Encoder.
 	 *
-	 * @return \Golem\Reference\Encoder
+	 * @return \Golem\Encoder
 	 *
 	 * @api
 	 *
@@ -201,9 +201,9 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Reference\Sanitizer.
+	 * Get a \Golem\Sanitizer.
 	 *
-	 * @return \Golem\Reference\Sanitizer
+	 * @return \Golem\Sanitizer
 	 *
 	 * @api
 	 *
@@ -222,9 +222,9 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Reference\Validator.
+	 * Get a \Golem\Validator.
 	 *
-	 * @return \Golem\Reference\Validator
+	 * @return \Golem\Validator
 	 *
 	 * @api
 	 *

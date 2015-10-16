@@ -11,11 +11,11 @@ use
 
 	  Golem\Golem
 
-	, Golem\Reference\Traits\Seal
-	, Golem\Reference\Traits\HasOptions
-	, Golem\Reference\Traits\HasLog
+	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
+	, Golem\Traits\HasLog
 
-	, Golem\Reference\Util
+	, Golem\Util
 ;
 
 /**

@@ -4,7 +4,7 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Reference\Codecs\ParseYAML
+	, Golem\Codecs\ParseYAML
 
 ;
 

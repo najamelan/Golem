@@ -5,12 +5,12 @@
  *
  */
 
-namespace Golem\Reference\Data;
+namespace Golem\Data;
 
 use
 
 	  Golem\Golem
-	, Golem\Reference\Codecs\ParseYAML
+	, Golem\Codecs\ParseYAML
 
 	, RuntimeException
 	, finfo

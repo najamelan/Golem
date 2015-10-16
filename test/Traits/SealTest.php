@@ -4,7 +4,7 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Reference\Traits\Seal
+	, Golem\Traits\Seal
 
 	, \ReflectionClass
 ;

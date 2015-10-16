@@ -1,6 +1,6 @@
 <?php
 
-namespace Golem\Reference;
+namespace Golem;
 
 
 use

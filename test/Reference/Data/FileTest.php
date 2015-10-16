@@ -4,7 +4,7 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Reference\Data\File
+	, Golem\Data\File
 
 ;
 

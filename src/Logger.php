@@ -1,6 +1,6 @@
 <?php
 
-namespace Golem\Reference;
+namespace Golem;
 
 
 use
@@ -9,10 +9,10 @@ use
 
 	, Golem\Golem
 
-	, Golem\Reference\Traits\Seal
-	, Golem\Reference\Traits\HasOptions
+	, Golem\Traits\Seal
+	, Golem\Traits\HasOptions
 
-	, Golem\Reference\Errors\ValidationException
+	, Golem\Errors\ValidationException
 	, Exception
 	, BadFunctionCallException
 	, BadMethodCallException

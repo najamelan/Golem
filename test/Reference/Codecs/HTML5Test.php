@@ -4,7 +4,7 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Reference\Codecs\HTML5
+	, Golem\Codecs\HTML5
 
 ;
 
