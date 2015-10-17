@@ -6,6 +6,8 @@ use
 	  Golem\Golem
 	, Golem\Data\String
 
+	, stdClass
+
 ;
 
 
@@ -74,8 +76,59 @@ function	testConstructor()
 
 
 	// Send in non string values
+	//
+	// Number
+	//
+	$s = new String( self::$golem, 53, self::$enc );
 
-	$this->markTestIncomplete();
+	$this->assertEquals( '53'      , $s->raw     () );
+	$this->assertEquals( self::$cfgEnc, $s->encoding() );
+
+
+	// null
+	//
+	$s = new String( self::$golem, null, self::$enc );
+
+	$this->assertEquals( null      , $s->raw     () );
+	$this->assertEquals( self::$cfgEnc, $s->encoding() );
+
+
+	// boolean
+	//
+	$s = new String( self::$golem, true, self::$enc );
+
+	$this->assertEquals( 1            , $s->raw     () );
+	$this->assertEquals( self::$cfgEnc, $s->encoding() );
+
+
+	// Send in a String Object
+	//
+	$s = new String( self::$golem, new String( self::$golem, 'testｶｷｸ', self::$enc ), self::$enc );
+
+	$this->assertEquals( 'testｶｷｸ'    , $s->raw     () );
+	$this->assertEquals( self::$cfgEnc, $s->encoding() );
+}
+
+
+
+/**
+ * @expectedException PHPUnit_Framework_Error
+ */
+public
+function	testContructorParamArray()
+{
+	$s = new String( self::$golem, [], self::$enc );
+}
+
+
+
+/**
+ * @expectedException PHPUnit_Framework_Error
+ */
+public
+function	testContructorParamObj()
+{
+	$s = new String( self::$golem, new stdClass, self::$enc );
 }
 
 
@@ -269,9 +322,11 @@ function	testAppend()
 
 	$t = $s->append( $a );
 
-	$this->assertEquals( 'abc???', $s ->raw() );
-	$this->assertEquals( 'ｶｷｸ'   , $a->raw()  );
-	$this->assertTrue  ( $s === $t            );
+	$this->assertEquals( 'ｶｷｸ'   , $a->raw() );
+	$this->assertEquals( 'UTF-8'   , $a->encoding() );
+	$this->assertEquals( '???'   , $a->convert( 'ASCII' )->raw() );
+	$this->assertEquals( 'abc???', $s->raw() );
+	$this->assertTrue  ( $s === $t           );
 
 
 	// Combine UTF-8 with UTF-32

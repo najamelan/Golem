@@ -26,6 +26,9 @@ String:
    # When invalid encoding is detected, which replacement string to use. This should be something understood by
    # mb_substitute_character()
    #
+   # Note that when the character doesn't exist in target encoding mbstring will just remove the invalid characters.
+   # eg. The unicode replacement character doesn't exist in ascii.
+   #
    substitute: 0xfffd  # �
 
 

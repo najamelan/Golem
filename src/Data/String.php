@@ -19,6 +19,8 @@ use
 	, ArrayAccess
 	, Countable
 
+	, Exception
+
 ;
 
 
@@ -98,7 +100,7 @@ implements Iterator, ArrayAccess, Countable
 		;
 
 
-		$this->raw = $this->sanitizeEncoding( $value );
+		$this->raw = $this->sanitizeEncoding( $value, $this->options[ 'encoding' ], $this->options[ 'encoding' ] );
 
 		return $this;
 	}
@@ -114,25 +116,62 @@ implements Iterator, ArrayAccess, Countable
 
 
 	protected
-	function sanitizeEncoding( $input )
+	function sanitizeEncoding( $input, $from, $to )
 	{
-		$enc = $this->options( 'encoding' );
-
-
 		$substitute = mb_substitute_character();
 
-			mb_substitute_character( $this->golem->options( 'String', 'substitute' ) );
-			$sane = mb_convert_encoding( $input, $enc, $enc );
 
-		mb_substitute_character( $substitute );
+		mb_substitute_character( $this->verifySubstitute() );
 
 
-		if( mb_check_encoding( $sane, $enc ) === false )
+		// Sending wrong input to mbstring will cause a warning, and if someone turns warnings into exceptions,
+		// The substitute char won't be set back unless we call finally.
+		//
+		try
+		{
+			$sane = mb_convert_encoding( $input, $to, $from );
+		}
 
-			$this->log->validationException( 'Encoding doesn\'t validate' );
+		catch( Exception $e )
+		{
+			$this->log->trow( $e );
+		}
+
+		finally
+		{
+			mb_substitute_character( $substitute );
+		}
+
+
+		if( mb_check_encoding( $sane, $to ) === false )
+
+			$this->log->validationException( 'Encoding doesn\'t validate after conversion.' );
 
 
 		return $sane;
+	}
+
+
+
+	/**
+	 * Makes sure the substitute character is valid in our current encoding. Mainly checks for ascii.
+	 * If it isn't valid ascii, it will use '?' instead.
+	 *
+	 * TODO: a general purpose algorithm which will also check encodings other than ascii.
+	 *
+	 */
+	protected
+	function verifySubstitute()
+	{
+		$sub = $this->options( 'substitute' );
+
+
+		if( $this->encoding() === 'ASCII'  &&  is_numeric( $sub )  &&  $sub >= 127 )
+
+			return ord( '?' );
+
+
+		return $sub;
 	}
 
 
@@ -173,17 +212,21 @@ implements Iterator, ArrayAccess, Countable
 		$oldEncoding = $this->encoding();
 		$this->options[ 'encoding' ] = $toEncoding;
 
-		$this->raw( mb_convert_encoding( $this->raw(), $toEncoding, $oldEncoding ) );
+		$this->raw( $this->sanitizeEncoding( $this->raw(), $oldEncoding, $toEncoding ) );
 
 		return $this;
 	}
 
 
 
+	/**
+	 * We convert to the configEncoding, which should be the encoding all php files are in.
+	 *
+	 */
 	public
 	function __toString()
 	{
-		return $this->raw();
+		return $this->copy()->convert( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 	}
 
 
