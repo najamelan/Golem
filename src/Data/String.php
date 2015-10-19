@@ -43,11 +43,25 @@ implements Iterator, ArrayAccess, Countable
 	private $position = 0;
 
 
+	// Validators
+	//
+	private $posIntRule;
+
+
 
 	public
 	function __construct( Golem $golem, $content = '', $options = [] )
 	{
 		$this->golem = $golem;
+
+
+		$this->posIntRule = $this->golem->validator()->number()
+
+			-> type( 'integer'           )
+			-> min ( 0                   )
+			-> seal()
+		;
+
 
 		$this->setupOptions( $this->golem->options( 'String' ), $options );
 		$this->setupLog();
@@ -60,11 +74,24 @@ implements Iterator, ArrayAccess, Countable
 
 	public
 	static
-	function fromUniCodePoint( $golem, $codePoint, $encoding = null )
+	function fromUniCodePoint( Golem $golem, $codePoint, $encoding = null )
 	{
-		if( $encoding === null )
+		$encoding = $this->ensureValidEncoding
+		(
+			$encoding === null ?
 
-			$encoding = $golem->options( 'String', 'encoding' );
+				  $golem->options( 'String', 'encoding' )
+				: $encoding
+		);
+
+
+
+		$codePoint = $golem->validator()->number()
+
+			->type    ( 'integer'  )
+			->sanitize( $codePoint )
+
+		;
 
 
 		$raw = mb_convert_encoding( pack( "N", $codePoint ), $encoding, 'UTF-32' );
@@ -85,9 +112,18 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function raw( $value = null )
 	{
+		// Getter
+		//
 		if( $value === null )
 
 			return $this->raw;
+
+
+		// Setter
+		//
+		if( $value instanceof self )
+
+			$value = $value->copy()->convert( $this->encoding() )->raw();
 
 
 		if( ! is_string( $value ) )
@@ -115,6 +151,11 @@ implements Iterator, ArrayAccess, Countable
 
 
 
+	/**
+	 * Safely convert a string from one encoding to another. We cannot use StringRule to validate parameters
+	 * because this is used in String construction, leading to an endless loop.
+	 *
+	 */
 	protected
 	function sanitizeEncoding( $input, $from, $to )
 	{
@@ -195,6 +236,9 @@ implements Iterator, ArrayAccess, Countable
 				"Encoding passed in not supported by the mbstring extension: [$encoding]"
 			)
 		;
+
+
+		return $encoding;
 	}
 
 
@@ -264,21 +308,34 @@ implements Iterator, ArrayAccess, Countable
 	/**
 	 * Splits a string into an array of characters. See also str_split()
 	 *
-	 * @param string $string The string to split into characters.
+	 * @param integer $chunksize The size of the chunks in characters.
+	 * @param string  $raw       Whether to return raw php strings instead of String objects (default false).
 	 *
 	 * @return array $result An array containing one element per character in the string.
 	 *
 	 */
 	public
-	function split( $chunksize = 1 )
+	function split( $chunksize = 1, $raw = false )
 	{
-		$stop = $this->length();
+		$chunksize = $this->golem->validator()->number()
+
+			-> type    ( 'integer' )
+			-> min     ( 1         )
+
+			-> validate( $chunksize, 'Parameter $chunksize' )
+		;
 
 
-		for( $i = 0, $result = []; $i < $stop; $i += $chunksize )
+		$raw = $this->golem->validator()->boolean()->validate( $raw, 'Parameter $raw' );
 
-			// $result[] = new self( mb_substr( $this->raw, $i, $chunksize, $this->encoding() ), $this->options() );
-			$result[] = mb_substr( $this->raw, $i, $chunksize, $this->encoding() );
+
+		for( $i = 0, $result = []; $i < $this->length(); $i += $chunksize )
+
+			$result[] = $raw ?
+
+				                          mb_substr( $this->raw, $i, $chunksize, $this->encoding() )
+				: new self( $this->golem, mb_substr( $this->raw, $i, $chunksize, $this->encoding() ), $this->options() )
+			;
 
 
 		return $result;
@@ -297,6 +354,15 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function pop( $amount = 1 )
 	{
+		$amount = $this->golem->validator()->number()
+
+			-> type    ( 'integer' )
+			-> min     ( 1         )
+
+			-> validate( $amount, 'Parameter $amount' )
+		;
+
+
 		$amount = min( $amount, $this->length() );
 
 		$result = mb_substr( $this->raw, $this->length() - $amount, $amount, $this->encoding() );
@@ -319,6 +385,15 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function shift( $amount = 1 )
 	{
+		$amount = $this->golem->validator()->number()
+
+			-> type    ( 'integer' )
+			-> min     ( 1         )
+
+			-> validate( $amount, 'Parameter $amount' )
+		;
+
+
 		$amount = min( $amount, $this->length() );
 
 		$result = mb_substr( $this->raw, 0, $amount, $this->encoding() );
@@ -448,14 +523,11 @@ implements Iterator, ArrayAccess, Countable
 	 *
 	 */
 	public
-	function offsetExists( $i )
+	function offsetExists( $index )
 	{
-		if( ! is_int( $i ) )
+		$index = $this->posIntRule->validate( $index, 'Parameter $index' );
 
-			$this->log->invalidArgumentException( 'Index should be of type int' );
-
-
-		return $i >= 0  &&  $i < $this->length();
+		return $index >= 0  &&  $index < $this->length();
 	}
 
 
@@ -465,14 +537,16 @@ implements Iterator, ArrayAccess, Countable
 	 *
 	 */
 	public
-	function offsetGet( $i )
+	function offsetGet( $index )
 	{
-		// if( ! $this->offsetExists( $i ) )
+		$index = $this->posIntRule->copy()
 
-		// 	return '';
+			-> max     ( max( 0, $this->length() - 1 )        )
+			-> validate( $index, 'Parameter $index' )
+		;
 
 
-		$raw = mb_substr( $this->raw(), $i, 1, $this->encoding() );
+		$raw = mb_substr( $this->raw(), $index, 1, $this->encoding() );
 
 		return new self( $this->golem, $raw, [ 'encoding' => $this->encoding() ] );
 	}
@@ -484,23 +558,35 @@ implements Iterator, ArrayAccess, Countable
 	 *
 	 */
 	public
-	function offsetSet( $i , $value )
+	function offsetSet( $index , $value )
 	{
-		// TODO: Input validation (of $value)
+		$index = $this->posIntRule->copy()
 
-		if( $i < 0 || $i > $this->length() )
+			-> max      ( $this->length() )
+			-> allowNull( true                )
 
-			$this->log->OutOfRangeException( "Can only set characters up to the length of the string" );
+			-> validate ( $index, 'Parameter $index' )
+		;
 
 
-		if( is_null( $i ) || $i === $this->length() )
+		$value = $this->golem->validator()->string()
 
-			$this->push( $value );
+			-> type  ( 'Golem\Data\String' )
+			-> length( 1      )
+
+			-> validate( $index, 'Parameter $value' )
+		;
+
+
+
+		if( is_null( $index ) || $index === $this->length() )
+
+			$this->append( $value );
 
 
 		else
 
-			$this->splice[ $i ] = $value;
+			$this->splice[ $index ] = $value;
 	}
 
 
@@ -509,14 +595,17 @@ implements Iterator, ArrayAccess, Countable
 	 * @ignore
 	 *
 	 */
-	public function offsetUnset( $i )
+	public function offsetUnset( $index )
 	{
-		if( $this->sealed() )
+		$index = $this->posIntRule
 
-			$this->log->logicException( "Cannot change sealed options object." );
+			-> copy()
+			-> max ( max( 0, $this->length() - 1 ) )
+			-> validate( $index, 'Parameter $index' )
+		;
 
 
-		unset( $this->parsed[ $i ] );
+		$this->splice( $index, 1 );
 	}
 
 
@@ -528,10 +617,17 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function splice( $offset, $amount, String $replacement = null )
 	{
-		// TODO: Input validation
+		$amount = $this->posIntRule->validate( $amount, 'Parameter $amount' );
+
+		$offset = $this->posIntRule
+
+			-> copy()
+			-> max ( $this->length() )
+			-> validate( $offset, 'Parameter $offset' )
+		;
+
 
 		$first  = $this->substr( 0                , $offset  );
-		$splice = $this->substr( $offset          , $amount  );
 		$last   = $this->substr( $offset + $amount           );
 
 
@@ -552,7 +648,14 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function substr( $offset, $length = null )
 	{
-		// TODO: Input validation
+		$offset = $this->posIntRule-> validate( $offset, 'Parameter $offset' );
+
+		$length = $this->posIntRule->copy()
+
+			-> allowNull( true            )
+			-> validate( $length, 'Parameter $length' )
+		;
+
 
 		return
 
@@ -560,10 +663,7 @@ implements Iterator, ArrayAccess, Countable
 
 				-> copy()
 
-				-> raw
-				   (
-				      mb_substr( $this->raw(), $offset, $length, $this->encoding() )
-				   )
+				-> raw( mb_substr( $this->raw(), $offset, $length, $this->encoding() ) )
 		;
 	}
 }

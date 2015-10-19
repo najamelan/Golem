@@ -107,6 +107,8 @@ Encoder: []
 
 Validation:
 
+   Validator: []
+
    StringRule:
 
       # Any php strings passed to the StringRule object will be assumed and sanitized to be of this encoding
@@ -158,12 +160,21 @@ Validation:
       # type:
 
 
-   NumberRule:
+   NumberRule: []
 
       # The type of the variable. The validation rule will return your value as this type. Also if using validation and not
       # sanitation if your input is not of the correct type, it won't be cast, but an exception will be thrown.
       # Possible values are 'integer', 'float', 'double'.
       #
       # type:
+
+      # The minimum value of the number
       #
-      dummy:
+      # min:
+
+      # The maximum value of the number
+      #
+      # max:
+
+
+   BooleanRule: []

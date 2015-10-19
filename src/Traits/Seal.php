@@ -68,4 +68,14 @@ trait Seal
 	{
 		return $this->sealed;
 	}
+
+
+
+	protected
+	function checkSeal()
+	{
+		if( $this->sealed )
+
+			$this->log( "Cannot change option on sealed object." );
+	}
 }

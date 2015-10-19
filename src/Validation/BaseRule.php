@@ -23,7 +23,7 @@ use
 ;
 
 /**
- * The basic string rule.
+ * The mother of all rules.
  *
  */
 abstract
@@ -58,58 +58,87 @@ function __construct( Golem $golem, array $defaults = [], array $options = [] )
 
 
 
-protected
-function validateOptions()
+public
+function copy()
 {
-	if( isset( $this->options[ 'in' ] ) )
-
-		$this->options[ 'in' ] = $this->validateOptionIn( $this->options[ 'in' ] );
-
-
-	if( isset( $this->options[ 'type' ] ) )
-
-		$this->options[ 'type' ] = $this->validateOptiontype( $this->options[ 'type' ] );
+	$c = clone $this;
+	$c->sealed = false;
+	return $c;
 }
 
 
 
 protected
-function validateOptionIn( $option )
+function validateOptions()
 {
-	if( ! is_array( $option ) )
+	$o = &$this->options;
+
+	isset( $o[ 'in'   ] )  &&  $this->validateOptionIn  ();
+	isset( $o[ 'type' ] )  &&  $this->validateOptiontype();
+}
+
+
+
+protected
+function validateOptionIn()
+{
+	$o = &$this->options[ 'in' ];
+
+
+	if( ! is_array( $o ) )
 
 		$this->log->invalidArgumentException
 		(
 			  "Option 'in' should be an array. Got: "
-			. var_export( $option, /* return = */ true )
+			. var_export( $o, /* return = */ true )
 		)
 	;
 
 
-	foreach( $option as $key => $allowed )
+	foreach( $o as $key => $allowed )
 
-		$option[ $key ] = $this->ensureType( $allowed );
-
-
-	return $option;
+		$o[ $key ] = $this->ensureType( $allowed )
+	;
 }
 
 
 
 protected
-function validateOptionType( $option )
+function validateOptionAllowNull()
 {
-	if( ! is_string( $option ) && ! $option instanceof String )
-
-		$this->log->invalidArgumentException
-		(
-			  "Option 'type' should be an a string or a Golem\Data\String. Got: "
-			. var_export( $option, /* return = */ true )
-		)
-	;
+	$o = &$this->options[ 'allowNull' ];
 
 
-	return $option;
+	if( is_bool( $o ) )
+
+		return;
+
+
+	$this->log->invalidArgumentException
+	(
+		  "Option 'allowNull' should be a boolean. Got: "
+		. var_export( $o, /* return = */ true )
+	);
+}
+
+
+
+protected
+function validateOptionType()
+{
+	$o = &$this->options[ 'type' ];
+
+
+	if( is_string( $o ) || $o instanceof String )
+
+		return;
+
+
+	$this->log->invalidArgumentException
+	(
+		  "Option 'type' should be an a string or a Golem\Data\String. Got: "
+		. var_export( $o, /* return = */ true )
+	);
 }
 
 
@@ -145,6 +174,28 @@ function validate( $input, $context )
 
 
 public
+function allowNull( $value = null )
+{
+	// getter
+	//
+	if( $value === null )
+
+		return $this->options[ 'allowNull' ];
+
+
+	// setter
+	//
+	$this->checkSeal();
+
+	$this->options[ 'allowNull' ] = $value;
+	$this->validateOptionAllowNull();
+
+	return $this;
+}
+
+
+
+public
 function in()
 {
 	$args = func_get_args();
@@ -160,12 +211,15 @@ function in()
 	// setter
 	// if list is passed as array
 	//
+	$this->checkSeal();
+
 	if( is_array( $args[ 0 ] ) )
 
 		$args = $args[ 0 ];
 
 
-	$this->options[ 'in' ] = $this->validateOptionIn( $args );
+	$this->options[ 'in' ] = $args;
+	$this->validateOptionIn();
 
 	return $this;
 }
@@ -235,9 +289,6 @@ function isValidIn( $input )
 public
 function type( $type = null )
 {
-	$args = func_get_args();
-
-
 	// getter
 	//
 	if( $type === null )
@@ -247,7 +298,10 @@ function type( $type = null )
 
 	// setter
 	//
-	$this->options[ 'type' ] = $this->validateOptionType( $type );
+	$this->checkSeal();
+
+	$this->options[ 'type' ] = $type;
+	$this->validateOptionType();
 
 	return $this;
 }
@@ -308,6 +362,20 @@ function isValidType( $type )
 
 
 	return false;
+}
+
+
+
+protected
+function annotateContext( $context )
+{
+	return
+
+		  debug_backtrace()[ 2 ][ 'class' ]
+		. debug_backtrace()[ 2 ][ 'type'  ]
+		. debug_backtrace()[ 2 ][ 'function' ] . '() -- '
+		. $context
+	;
 }
 
 

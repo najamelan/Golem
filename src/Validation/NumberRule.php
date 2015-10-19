@@ -13,24 +13,19 @@ use
 
 	, Golem\iFace\ValidationRule
 
-	, Golem\Data\String
-
 	, Golem\Validation\BaseRule
 
 	, Golem\Util
 ;
 
 /**
- * The basic string rule.
+ * The basic number rule.
  *
  */
 class      NumberRule
 extends    BaseRule
 implements ValidationRule
 {
-
-
-private $encodingUsed = false;
 
 
 
@@ -47,51 +42,76 @@ function validateOptions()
 {
 	parent::validateOptions();
 
+	$o = &$this->options;
 
-	if( isset( $this->options[ 'encoding' ] ) )
-
-		$this->options[ 'encoding' ] = $this->validateOptionEncoding( $this->options[ 'encoding' ] );
-
-
-	if( isset( $this->options[ 'length' ] ) )
-
-		$this->options[ 'length' ] = $this->validateOptionLength( $this->options[ 'length' ] );
+	isset( $o[ 'min' ] )  &&  $this->validateOptionMin();
+	isset( $o[ 'max' ] )  &&  $this->validateOptionMax();
 }
 
 
 
 protected
-function validateOptionEncoding( $option )
+function validateOptionMin()
 {
-	if( ! String::encodingSupported( $option ) )
+	$o = &$this->options[ 'min' ];
 
-		$this->log->unexpectedValueException
+
+	if( ! is_numeric( $o ) )
+
+		$this->log->invalidArgumentException
 		(
-			"Encoding passed in not supported by the mbstring extension: [$option]"
+			  'Validation misconfiguration - expected numeric $min. Got: '
+			. var_export( $o, /* return = */ true )
 		)
 	;
 
-	return $option;
+
+	$max = &$this->options[ 'max' ];
+
+	if( isset( $max )  &&  $o > $max )
+
+		$this->log->invalidArgumentException
+		(
+			  "Validation misconfiguration - \$min must be smaller or equal than \$max ($max). Got: "
+			. var_export( $o, /* return = */ true )
+		)
+	;
+
+
+	$o = (int) $o;
 }
 
 
 
 protected
-function validateOptionType( $option )
+function validateOptionMax()
 {
-	$option = parent::validateOptionType( $option );
+	$o = &$this->options[ 'max' ];
 
 
-	if( ! in_array( $option, [ 'integer', 'float', 'double' ] ) )
+	if( ! is_numeric( $o ) )
 
-		$this->log->unexpectedValueException
+		$this->log->invalidArgumentException
 		(
-			"Unsupported type [$option]. Should be one of: 'integer', 'float' or 'double'."
+			  'Validation misconfiguration - expected numeric $max. Got: '
+			. var_export( $o, /* return = */ true )
 		)
 	;
 
 
-	return $option;
+	$min = &$this->options[ 'min' ];
+
+	if( isset( $min )  &&  $o < $min )
+
+		$this->log->invalidArgumentException
+		(
+			  "Validation misconfiguration - \$max must be bigger or equal than \$min ($min). Got: "
+			. var_export( $o, /* return = */ true )
+		)
+	;
+
+
+	$o = (int) $o;
 }
 
 
@@ -110,17 +130,17 @@ function ensureType( $number )
 
 	switch( $type )
 	{
-		case 'integer'   : $number = (int)    $number;
-		               break;
+		case 'integer' : $number = (int)    $number;
+		                 break;
 
-		case 'float' : $number = (float)  $number;
-		               break;
+		case 'float'   : $number = (float)  $number;
+		                 break;
 
-		case null    :
-		case 'double': $number = (double) $number;
-		               break;
+		case null      :
+		case 'double'  : $number = (double) $number;
+		                 break;
 
-		default      : $this->log->unexpectedValueException( "Unsupported type [$type]. Should be one of: 'integer', 'float' or 'double'." );
+		default        : $this->log->unexpectedValueException( "Unsupported type [$type]. Should be one of: 'integer', 'float' or 'double'." );
 	}
 
 
@@ -129,6 +149,9 @@ function ensureType( $number )
 
 
 
+/**
+ * Needed for BaseRule
+ */
 protected
 function areEqual( $a, $b )
 {
@@ -145,7 +168,12 @@ function sanitize( $input, $context )
 		return null;
 
 
+	$context = $this->annotateContext( $context );
+
 	$input = parent::sanitize( $input, $context );
+
+	$input = $this->sanitizeMin( $input, $context );
+	$input = $this->sanitizeMax( $input, $context );
 
 	return $this->validate( $input );
 }
@@ -160,10 +188,167 @@ function validate( $input, $context )
 		return null;
 
 
+	$context = $this->annotateContext( $context );
+
 	$input = parent::validate( $input, $context );
+
+	$input = $this->validateMin( $input, $context );
+	$input = $this->validateMax( $input, $context );
+
 
 	return $input;
 }
 
+
+
+public
+function min( $min )
+{
+	// getter
+	//
+	if( $min === null )
+
+		return $this->options[ 'min' ];
+
+
+	// setter
+	//
+	$this->checkSeal();
+
+	$this->options[ 'min' ] = $min;
+	$this->validateOptionMin();
+
+	return $this;
+}
+
+
+
+public
+function max( $max )
+{
+	// getter
+	//
+	if( $max === null )
+
+		return $this->options[ 'max' ];
+
+
+	// setter
+	//
+	$this->checkSeal();
+
+	$this->options[ 'max' ] = $max;
+	$this->validateOptionmax();
+
+	return $this;
+}
+
+
+
+protected
+function sanitizeMin( $input, $context )
+{
+	if( $this->isValidMin( $input ) )
+
+		return $input;
+
+
+	$min     = $this->options( 'min' );
+	$default = isset( $this->options[ 'default' ] )  ?  $this->options[ 'default' ]  :  $min;
+
+
+	if( $input < $min )
+
+		return $this->validateMin( $default );
+}
+
+
+
+protected
+function validateMin( $input, $context )
+{
+	if( $this->isValidMin( $input ) )
+
+		return $input;
+
+
+	$this->log->validationException
+	(
+		  "$context: Input value [$input] is smaller than the minimum allowed, should be bigger or equal than: "
+		. var_export( $this->options( 'min' ), /* return = */ true )
+	);
+}
+
+
+
+public
+function isValidMin( $input )
+{
+	if( ! isset( $this->options[ 'min' ] ) )
+
+		return true;
+
+
+	if( $input >= $this->options( 'min' ) )
+
+		return true;
+
+
+	return false;
+}
+
+
+
+protected
+function sanitizeMax( $input, $context )
+{
+	if( $this->isValidMax( $input ) )
+
+		return $input;
+
+
+	$max     = $this->options( 'max' );
+	$default = isset( $this->options[ 'default' ] )  ?  $this->options[ 'default' ]  :  $max;
+
+
+	if( $input > $max )
+
+		return $this->validateMax( $default );
+}
+
+
+
+protected
+function validateMax( $input, $context )
+{
+	if( $this->isValidMax( $input ) )
+
+		return $input;
+
+
+	$this->log->validationException
+	(
+		  "$context: Input value [$input] is bigger than the maximum allowed, should be smaller or equal than: "
+		. var_export( $this->options( 'max' ), /* return = */ true )
+	);
+}
+
+
+
+public
+function isValidMax( $input )
+{
+	if( ! isset( $this->options[ 'max' ] ) )
+
+		return true;
+
+
+	if( $input <= $this->options( 'max' ) )
+
+		return true;
+
+
+	return false;
+}
 
 }

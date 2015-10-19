@@ -372,7 +372,7 @@ implements iLogger
 		{
 			if( $this->sealed() )
 
-				$this->exception( "Cannot changes sealed options object." );
+				$this->exception( "Cannot change option on sealed object." );
 
 
 			else

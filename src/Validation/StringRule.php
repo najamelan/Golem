@@ -47,69 +47,69 @@ function validateOptions()
 {
 	parent::validateOptions();
 
+	$o = &$this->options;
 
-	if( isset( $this->options[ 'encoding' ] ) )
-
-		$this->options[ 'encoding' ] = $this->validateOptionEncoding( $this->options[ 'encoding' ] );
-
-
-	if( isset( $this->options[ 'length' ] ) )
-
-		$this->options[ 'length' ] = $this->validateOptionLength( $this->options[ 'length' ] );
+	isset( $o[ 'encoding' ] )  &&  $this->validateOptionEncoding();
+	isset( $o[ 'length'   ] )  &&  $this->validateOptionLength  ();
 }
 
 
 
 protected
-function validateOptionEncoding( $option )
+function validateOptionEncoding()
 {
-	if( ! String::encodingSupported( $option ) )
+	$o = &$this->options[ 'encoding' ];
+
+
+	if( ! String::encodingSupported( $o ) )
+
+		$this->log->unexpectedValueException( "Encoding passed in not supported by the mbstring extension: [$o]" );
+
+}
+
+
+
+protected
+function validateOptionLength()
+{
+	$o = &$this->options[ 'length' ];
+
+
+	if( is_numeric( $o ) )
+	{
+		$o = (int) $o;
+		return;
+	}
+
+
+	$this->log->invalidArgumentException
+	(
+		  'Validation misconfiguration - expected numeric $length. Got: '
+		. var_export( $o, /* return = */ true )
+	);
+}
+
+
+
+protected
+function validateOptionType()
+{
+	parent::validateOptionType();
+
+	$o = &$this->options[ 'type' ];
+
+
+
+	if( ! in_array( $o, [ 'string', 'Golem\Data\String' ] ) )
 
 		$this->log->unexpectedValueException
 		(
-			"Encoding passed in not supported by the mbstring extension: [$option]"
-		)
-	;
-
-	return $option;
-}
-
-
-
-protected
-function validateOptionLength( $option )
-{
-	if( ! is_numeric( $option ) )
-
-		$this->log->invalidArgumentException
-		(
-			  'Validation misconfiguration - length expected numeric $length. Got: '
-			. var_export( $option, /* return = */ true )
+			"Unsupported type [$o]. Should be one of: 'int', 'float' or 'double'."
 		)
 	;
 
 
-	return (int) $option;
-}
-
-
-
-protected
-function validateOptionType( $option )
-{
-	$option = parent::validateOptionType( $option );
-
-
-	if( ! in_array( $option, [ 'string', 'Golem\Data\String' ] ) )
-
-		$this->log->unexpectedValueException
-		(
-			"Unsupported type [$option]. Should be one of: 'int', 'float' or 'double'."
-		)
-	;
-
-
-	return $option;
+	return $o;
 }
 
 
@@ -134,6 +134,9 @@ function ensureType( $string )
 
 
 
+/**
+ * Needed for BaseRule
+ */
 protected
 function areEqual( String $a, String $b )
 {
@@ -154,12 +157,15 @@ function encoding( $encoding = null )
 
 	// setter
 	//
+	$this->checkSeal();
+
 	if( $this->encodingUsed )
 
 		$this->log->logicException( 'Already used encoding to interprete scalar strings, cannot change anymore' );
 
 
-	$this->options[ 'encoding' ] = $this->validateOptionEncoding( $encoding );
+	$this->options[ 'encoding' ] = $encoding;
+	$this->validateOptionEncoding();
 
 	return $this;
 }
@@ -173,6 +179,8 @@ function sanitize( $input, $context )
 
 		return null;
 
+
+	$context = $this->annotateContext( $context );
 
 	$input = parent::sanitize( $input, $context );
 
@@ -190,6 +198,8 @@ function validate( $input, $context )
 
 		return null;
 
+
+	$context = $this->annotateContext( $context );
 
 	$input = parent::validate( $input, $context );
 
@@ -212,7 +222,10 @@ function length( $length )
 
 	// setter
 	//
-	$this->options[ 'length' ] = $this->validateOptionLength( $length );
+	$this->checkSeal();
+
+	$this->options[ 'length' ] = $length;
+	$this->validateOptionLength();
 
 	return $this;
 }

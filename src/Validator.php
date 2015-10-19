@@ -10,6 +10,8 @@ use
 	  Golem\Golem
 
 	, Golem\Validation\StringRule
+	, Golem\Validation\NumberRule
+	, Golem\Validation\BooleanRule
 
 	, Golem\Traits\Seal
 	, Golem\Traits\HasOptions
@@ -38,19 +40,12 @@ class Validator
 	{
 		$this->golem = $golem;
 
-		$this->setupOptions( (array) $golem->options( 'Validation' ), $options );
+		$this->setupOptions( (array) $golem->options( 'Validation', 'Validator' ), $options );
 	}
 
 
 
-	public
-	function string( $input )
-	{
-		if( ! isset( $this->rules[ 'StringRule' ] ) )
-
-			$this->rules[ 'StringRule' ] = new StringRule( $this->golem, $this->options( 'StringRule' ) );
-
-
-		return $this->rules[ 'StringRule' ]->validate( $input );
-	}
+	public function string ( $options = [] ){ return new StringRule ( $this->golem, $options ); }
+	public function number ( $options = [] ){ return new NumberRule ( $this->golem, $options ); }
+	public function boolean( $options = [] ){ return new BooleanRule( $this->golem, $options ); }
 }

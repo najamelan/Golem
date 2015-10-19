@@ -201,27 +201,6 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Sanitizer.
-	 *
-	 * @return \Golem\Sanitizer
-	 *
-	 * @api
-	 *
-	 */
-	public
-	function sanitizer()
-	{
-		if( ! $this->sanitizer )
-
-			$this->sanitizer = new Sanitizer( $this );
-
-
-		return $this->sanitizer;
-	}
-
-
-
-	/**
 	 * Get a \Golem\Validator.
 	 *
 	 * @return \Golem\Validator

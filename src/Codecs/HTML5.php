@@ -60,7 +60,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	// Parameter Validation
 	//
-	$this->options[ 'context' ] = $context	= $this->golem->stringRule()
+	$this->options[ 'context' ] = $context	= $this->golem->validator()->string()
 
 		->encoding( $this->cfgEnc                   )
 		->in      ( 'text'  , 'attribute'           )
@@ -77,7 +77,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	$this->options[ 'immune' ] =
 
-		array_merge( $this->golem->string( $immune, $this->cfgEnc )->split(), Codec::$ALPHANUMERICS )
+		array_merge( $this->golem->string( $immune, $this->cfgEnc )->split( 1, /* raw = */ true ), Codec::$ALPHANUMERICS )
 	;
 }
 
@@ -102,7 +102,7 @@ function encodeCharacter( String $c )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->stringRule()
+	$c = $this->golem->validator()->string()
 
 		->length  ( 1                  )
 		->validate( $c, 'parameter $c' )
@@ -165,7 +165,7 @@ function allowedInEntity( $codePoint )
 
 	// Parameter Validation
 	//
-	$codePoint = $this->golem->numberRule()
+	$codePoint = $this->golem->validator()->number()
 
 		->type    ( 'integer'                           )
 		->validate( $codePoint, 'parameter: $codePoint' )
@@ -244,7 +244,7 @@ function decodeNumericEntity( String $input, $type = 'dec' )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->stringRule()
+	$c = $this->golem->validator()->string()
 
 		->encoding( $this->cfgEnc             )
 		->in      ( 'hex', 'dec'              )

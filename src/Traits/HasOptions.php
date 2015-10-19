@@ -89,8 +89,9 @@ trait HasOptions
 			{
 				$e = new UnexpectedValueException
 				(
-						'Called with invalid keys: ' . print_r( func_get_args(), true )
-					.  ' from: ' . basename( debug_backtrace()[ 0 ][ 'file' ] ) . ":" . debug_backtrace()[ 0 ][ 'line' ]
+					  'Called with invalid keys: ' . print_r( func_get_args(), true )
+					. ' from: ' . basename( debug_backtrace()[ 0 ][ 'file' ] ) . ":" . debug_backtrace()[ 0 ][ 'line' ] . " -- "
+					. debug_backtrace()[ 1 ][ 'class' ] . debug_backtrace()[ 1 ][ 'type' ] . debug_backtrace()[ 1 ][ 'function' ] . '()'
 				);
 
 
