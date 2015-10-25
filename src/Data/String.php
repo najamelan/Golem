@@ -50,15 +50,15 @@ implements Iterator, ArrayAccess, Countable
 
 
 	public
-	function __construct( Golem $golem, $content = '', $options = [] )
+	function __construct( Golem $golem, $content = '', array $options = [] )
 	{
 		$this->golem = $golem;
 
 
 		$this->posIntRule = $this->golem->validator()->number()
 
-			-> type( 'integer'           )
-			-> min ( 0                   )
+			-> type( 'integer' )
+			-> min ( 0         )
 			-> seal()
 		;
 
@@ -66,8 +66,8 @@ implements Iterator, ArrayAccess, Countable
 		$this->setupOptions( $this->golem->options( 'String' ), $options );
 		$this->setupLog();
 
-		$this->ensureValidEncoding( $this->options( 'encoding' ) );
-		$this->raw                ( $content                     );
+		self::ensureValidEncoding( $this->golem, $this->options( 'encoding' ) );
+		$this->raw               ( $content );
 	}
 
 
@@ -76,12 +76,14 @@ implements Iterator, ArrayAccess, Countable
 	static
 	function fromUniCodePoint( Golem $golem, $codePoint, $encoding = null )
 	{
-		$encoding = $this->ensureValidEncoding
+		$encoding = self::ensureValidEncoding
 		(
-			$encoding === null ?
+			  $golem
 
-				  $golem->options( 'String', 'encoding' )
-				: $encoding
+			, $encoding === null ?
+
+			      $golem->options( 'String', 'encoding' )
+			    : $encoding
 		);
 
 
@@ -89,14 +91,14 @@ implements Iterator, ArrayAccess, Countable
 		$codePoint = $golem->validator()->number()
 
 			->type    ( 'integer'  )
-			->sanitize( $codePoint )
+			->sanitize( $codePoint, 'fromUniCodePoint: parameter $codePoint' );
 
 		;
 
 
-		$raw = mb_convert_encoding( pack( "N", $codePoint ), $encoding, 'UTF-32' );
+		$utf32 = new self( $golem, pack( "N", $codePoint ), [ 'encoding' => 'UTF-32' ] );
 
-		return new self( $golem, $raw, [ 'encoding' => $encoding ] );
+		return $utf32->convert( $encoding );
 	}
 
 
@@ -161,22 +163,23 @@ implements Iterator, ArrayAccess, Countable
 	{
 		$substitute = mb_substitute_character();
 
+		mb_substitute_character( $this->sanitizeSubstitute() );
 
-		mb_substitute_character( $this->verifySubstitute() );
 
-
-		// Sending wrong input to mbstring will cause a warning, and if someone turns warnings into exceptions,
-		// The substitute char won't be set back unless we call finally.
+		// Sending wrong input to mbstring will cause a warning, and if someone turns warnings into exceptions
+		// (eg. phpunit), the substitute char won't be set back unless we call finally.
 		//
 		try
 		{
 			$sane = mb_convert_encoding( $input, $to, $from );
 		}
 
+
 		catch( Exception $e )
 		{
 			$this->log->trow( $e );
 		}
+
 
 		finally
 		{
@@ -202,7 +205,7 @@ implements Iterator, ArrayAccess, Countable
 	 *
 	 */
 	protected
-	function verifySubstitute()
+	function sanitizeSubstitute()
 	{
 		$sub = $this->options( 'substitute' );
 
@@ -227,11 +230,12 @@ implements Iterator, ArrayAccess, Countable
 
 
 	public
-	function ensureValidEncoding( $encoding )
+	static
+	function ensureValidEncoding( Golem $golem, $encoding )
 	{
 		if( ! self::encodingSupported( $encoding ) )
 
-			$this->log->unexpectedValueException
+			$golem->log->unexpectedValueException
 			(
 				"Encoding passed in not supported by the mbstring extension: [$encoding]"
 			)
@@ -251,7 +255,7 @@ implements Iterator, ArrayAccess, Countable
 			return $this;
 
 
-		$this->ensureValidEncoding( $toEncoding );
+		self::ensureValidEncoding( $this->golem, $toEncoding );
 
 		$oldEncoding = $this->encoding();
 		$this->options[ 'encoding' ] = $toEncoding;
@@ -322,7 +326,7 @@ implements Iterator, ArrayAccess, Countable
 			-> type    ( 'integer' )
 			-> min     ( 1         )
 
-			-> validate( $chunksize, 'Parameter $chunksize' )
+			-> validate( $chunksize, 'Split: parameter $chunksize' )
 		;
 
 

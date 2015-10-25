@@ -175,7 +175,7 @@ function sanitize( $input, $context )
 	$input = $this->sanitizeMin( $input, $context );
 	$input = $this->sanitizeMax( $input, $context );
 
-	return $this->validate( $input );
+	return $this->validate( $input, $context );
 }
 
 

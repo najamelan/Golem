@@ -136,6 +136,61 @@ function	testContructorParamObj()
 public
 function	testFromUniCodePoint()
 {
+	$g   = self::$golem;
+	$enc = $g->options( 'Golem', 'configEncoding' );
+
+	// Make sure fromUniCodePoint->uniCodePoint() returns the same number as we sent in
+
+	// nul byte
+	//
+	$cp = 0;
+	$s  = String::fromUniCodePoint( $g, $cp );
+	$this->assertEquals( $cp, $s->uniCodePoint()[ 0 ] );
+	$this->assertEquals( "\0", $s->raw() );
+
+	// U+10330 gothic letter ahsa
+	//
+	$cp = 0x10330;
+	$s  = String::fromUniCodePoint( $g, $cp );
+	$this->assertEquals( $cp, $s->uniCodePoint()[ 0 ] );
+	$this->assertEquals( '𐌰', $s->raw() );
+
+	// U+20FFFF Point beyond unicode standard
+	//
+	$cp = 0x20FFFF;
+	$s  = String::fromUniCodePoint( $g, $cp );
+	$this->assertEquals( $g->options( 'String', 'substitute' ), $s->uniCodePoint()[ 0 ] );
+
+
+	// U+10330 gothic letter ahsa, try to get ascii
+	//
+	$cp = 0x10330;
+	$s  = String::fromUniCodePoint( $g, $cp, 'ASCII' );
+	$this->assertEquals( '?', $s->raw() );
+
+
+	$this->markTestIncomplete();
+}
+
+
+
+public
+function	testCopy()
+{
+	// Verify copy returns a different object
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$sc = $s->copy();
+
+	$this->assertNotSame( $s, $sc );
+	$this->assertEquals ( $s->raw(), $sc->raw() );
+
+
+	// Verify options are different
+	//
+	$s->convert( 'UTF-32' );
+	$this->assertNotEquals( $s->encoding(), $sc->encoding() );
+
 
 	$this->markTestIncomplete();
 }
@@ -181,17 +236,6 @@ function	testRaw()
 	// Test setter functionality
 	// Test sanitation
 	// Should return $this, not a new string object
-}
-
-
-
-public
-function	testCopy()
-{
-	$this->markTestIncomplete();
-
-	// Return type should be a new object
-	// Test all properties are of the correct type (reference or copies)
 }
 
 
