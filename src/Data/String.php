@@ -166,7 +166,7 @@ function encoding( $toEncoding = null )
 
 	self::ensureValidEncoding( $this->golem, $toEncoding );
 
-	$oldEncoding = $this->encoding();
+	$oldEncoding                 = $this->encoding();
 	$this->options[ 'encoding' ] = $toEncoding;
 
 	$this->raw( $this->sanitizeEncoding( $this->raw(), $oldEncoding, $toEncoding ) );
@@ -279,6 +279,7 @@ function __toString()
 {
 	return $this->copy()->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 }
+
 
 
 public

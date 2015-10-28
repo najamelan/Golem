@@ -242,9 +242,29 @@ function	testEncoding()
 	$s = new String( self::$golem, '', [ 'encoding' => 'UTF-8' ] );
 	$this->assertEquals( 'UTF-8', $s->encoding() );
 
+	// Getter functionality
+
 	// Test Parameter validation (type and content)
+	//
+
 	// Check encoding gets set to the new encoding
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertFalse( mb_check_encoding( $s->raw(), 'UTF-16' ) );
+
+	$s->encoding( 'UTF-16' );
+	$this->assertEquals( 'UTF-16', $s->encoding() );
+	$this->assertTrue( mb_check_encoding( $s->raw(), 'UTF-16' ) );
+
 	// Make sure conversion is in place (no new String object should be created)
+	//
+	$this->assertSame( $s, $s->encoding( 'UTF-8' ) );
+
+	// Test return types
+	//
+	$this->assertInternalType( 'string'           , $s->encoding()           );
+	$this->assertInstanceOf  ( 'Golem\Data\String', $s->encoding( 'UTF-32' ) );
+
 	// Test actual conversion
 
 	$this->markTestIncomplete();
@@ -255,12 +275,28 @@ function	testEncoding()
 public
 function	testHex()
 {
-	$this->markTestIncomplete();
-
-	// Test Parameter validation (type and content)
 	// Test hex values for empty string, and some different encodings
+	//
+	$s = new String( self::$golem, '', self::$enc );
+	$this->assertEquals( '', $s->hex() );
+
+
+	// Test valid strings
+	//
+	$s = new String( self::$golem, "\x0", self::$enc );
+	$this->assertEquals( '00', $s->hex() );
+
+	$s = new String( self::$golem, "\x58", self::$enc );
+	$this->assertEquals( '58', $s->hex() );
+
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( 'cebae1bdb9cf83cebcceb5', $s->hex() );
+
+
 	// Test prettify
-	// Return type should be is_string in all cases
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( 'ce ba e1 bd b9 cf 83 ce bc ce b5', $s->hex( true ) );
 }
 
 
@@ -268,11 +304,20 @@ function	testHex()
 public
 function	testLength()
 {
-	$this->markTestIncomplete();
-
 	// Test empty string
+	//
+	$s = new String( self::$golem, '', self::$enc );
+	$this->assertEquals( 0, $s->length() );
+
+	// Test a utf-8 string
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( 5, $s->length() );
+
 	// Test different encodings
-	// return type should be positive is_int
+	//
+	$s->encoding( 'UTF-7' );
+	$this->assertEquals( 5, $s->length() );
 }
 
 
