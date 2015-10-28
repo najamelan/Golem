@@ -12,6 +12,12 @@ Golem:
    # and make sure it's actually utf-8. If really there is a reason utf-8 would not be a good idea,
    # file an issue on github so we can all learn something, otherwise stick with it!
    #
+   # Golem assumes all files on the server, that means php files and Golem configuration files are in this
+   # encoding. It has the following consequences:
+   # - all values string values read from configuration files will be interpreted as being encoded with this encoding
+   # - all literal strings in the php files of Golem will be considered to be in this encoding
+   # - the Golem\String class method __toString() will return strings in this encoding
+   #
    configEncoding: 'UTF-8'
 
 
