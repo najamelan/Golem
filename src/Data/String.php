@@ -653,6 +653,18 @@ function splice( $offset, $amount, String $replacement = null )
  *
  */
 public
+function insert( $offset, String $replacement )
+{
+	$this->splice( $offset, 0, $replacement );
+}
+
+
+
+/**
+ * @ignore
+ *
+ */
+public
 function substr( $offset, $length = null )
 {
 	$offset = $this->posIntRule-> validate( $offset, 'Parameter $offset' );
