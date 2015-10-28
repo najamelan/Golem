@@ -126,7 +126,7 @@ function ensureType( $string )
 
 	elseif( $string->encoding() !== $this->encoding() )
 
-		$string->convert( $this->encoding() );
+		$string->encoding( $this->encoding() );
 
 
 	return $string;

@@ -10,6 +10,7 @@ namespace Golem\Data;
 use
 
 	  Golem\Golem
+	, Golem\Util
 
 	, Golem\Traits\Seal
 	, Golem\Traits\HasOptions
@@ -98,7 +99,7 @@ implements Iterator, ArrayAccess, Countable
 
 		$utf32 = new self( $golem, pack( "N", $codePoint ), [ 'encoding' => 'UTF-32' ] );
 
-		return $utf32->convert( $encoding );
+		return $utf32->encoding( $encoding );
 	}
 
 
@@ -125,10 +126,10 @@ implements Iterator, ArrayAccess, Countable
 		//
 		if( $value instanceof self )
 
-			$value = $value->copy()->convert( $this->encoding() )->raw();
+			$value = $value->copy()->encoding( $this->encoding() )->raw();
 
 
-		if( ! is_string( $value ) )
+		if( ! Util::canBeString( $value ) )
 
 			$this->log->warning
 			(
@@ -146,9 +147,30 @@ implements Iterator, ArrayAccess, Countable
 
 
 	public
-	function encoding()
+	function encoding( $toEncoding = null )
 	{
-		return $this->options( 'encoding' );
+		// getter
+		//
+		if( $toEncoding === null )
+
+			return $this->options( 'encoding' );
+
+
+		// setter
+		//
+		if( $toEncoding === $this->encoding() )
+
+			return $this;
+
+
+		self::ensureValidEncoding( $this->golem, $toEncoding );
+
+		$oldEncoding = $this->encoding();
+		$this->options[ 'encoding' ] = $toEncoding;
+
+		$this->raw( $this->sanitizeEncoding( $this->raw(), $oldEncoding, $toEncoding ) );
+
+		return $this;
 	}
 
 
@@ -247,26 +269,6 @@ implements Iterator, ArrayAccess, Countable
 
 
 
-	public
-	function convert( $toEncoding )
-	{
-		if( $toEncoding === $this->encoding() )
-
-			return $this;
-
-
-		self::ensureValidEncoding( $this->golem, $toEncoding );
-
-		$oldEncoding = $this->encoding();
-		$this->options[ 'encoding' ] = $toEncoding;
-
-		$this->raw( $this->sanitizeEncoding( $this->raw(), $oldEncoding, $toEncoding ) );
-
-		return $this;
-	}
-
-
-
 	/**
 	 * We convert to the configEncoding, which should be the encoding all php files are in.
 	 *
@@ -274,7 +276,7 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function __toString()
 	{
-		return $this->copy()->convert( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
+		return $this->copy()->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 	}
 
 
@@ -420,7 +422,7 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function append( String $new )
 	{
-		$this->raw( $this->raw() . $new->copy()->convert( $this->encoding() )->raw() );
+		$this->raw( $this->raw() . $new->copy()->encoding( $this->encoding() )->raw() );
 
 		return $this;
 	}
@@ -438,7 +440,7 @@ implements Iterator, ArrayAccess, Countable
 	public
 	function prepend( String $new )
 	{
-		$this->raw( $new->copy()->convert( $this->encoding() )->raw() . $this->raw() );
+		$this->raw( $new->copy()->encoding( $this->encoding() )->raw() . $this->raw() );
 
 		return $this;
 	}
@@ -447,7 +449,7 @@ implements Iterator, ArrayAccess, Countable
 
 	function uniCodePoint()
 	{
-		$utf32  = $this->copy()->convert( 'UTF-32' );
+		$utf32  = $this->copy()->encoding( 'UTF-32' );
 		$result = [];
 
 
@@ -466,7 +468,7 @@ implements Iterator, ArrayAccess, Countable
 	{
 		if( $input->encoding() !== $this->encoding() )
 
-			$input = $input->copy()->convert( $this->encoding() );
+			$input = $input->copy()->encoding( $this->encoding() );
 
 
 		return $this->raw() === $input->raw();

@@ -188,9 +188,41 @@ function	testCopy()
 
 	// Verify options are different
 	//
-	$s->convert( 'UTF-32' );
+	$s->encoding( 'UTF-32' );
 	$this->assertNotEquals( $s->encoding(), $sc->encoding() );
 
+
+	$this->markTestIncomplete();
+}
+
+
+
+public
+function	testRaw()
+{
+	// Test getter functionality (is_string)
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertTrue( is_string( $s->raw() ) );
+
+	// Test on empty strings
+	//
+	$s = new String( self::$golem, '', self::$enc );
+	$this->assertTrue( is_string( $s->raw() ) );
+
+
+	// Test setter functionality
+	// Test Parameter validation (type and content)
+	// Should return $this, not a new string object
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$r = new String( self::$golem, 'ｶｷｸ'  , self::$enc );
+
+	$this->assertEquals( 'ｶｷｸ'  , $s->raw( $r      )->raw() );
+	$this->assertEquals( 'κόσμε', $s->raw( 'κόσμε' )->raw() );
+	$this->assertEquals( '54'   , $s->raw( 54      )->raw() );
+
+	$this->assertSame  ( $s, $s->raw( 'olé' ) );
 
 	$this->markTestIncomplete();
 }
@@ -202,40 +234,20 @@ function	testEncoding()
 {
 	// Test it returns a the same encoding as set in constructor
 	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( self::$cfgEnc, $s->encoding() );
 
-
-	// Test it returns a valid mbstring encoding on a valid string
 	// Test it returns a valid encoding on an empty string
-	$this->markTestIncomplete();
-}
-
-
-
-public
-function	testConvert()
-{
-	$this->markTestIncomplete();
+	//
+	$s = new String( self::$golem, '', [ 'encoding' => 'UTF-8' ] );
+	$this->assertEquals( 'UTF-8', $s->encoding() );
 
 	// Test Parameter validation (type and content)
 	// Check encoding gets set to the new encoding
 	// Make sure conversion is in place (no new String object should be created)
 	// Test actual conversion
-}
 
-
-
-public
-function	testRaw()
-{
 	$this->markTestIncomplete();
-
-	// Test Parameter validation (type and content)
-	// Test getter functionality (is_string)
-	// Test on empty strings
-
-	// Test setter functionality
-	// Test sanitation
-	// Should return $this, not a new string object
 }
 
 
@@ -368,7 +380,7 @@ function	testAppend()
 
 	$this->assertEquals( 'ｶｷｸ'   , $a->raw() );
 	$this->assertEquals( 'UTF-8'   , $a->encoding() );
-	$this->assertEquals( '???'   , $a->convert( 'ASCII' )->raw() );
+	$this->assertEquals( '???'   , $a->encoding( 'ASCII' )->raw() );
 	$this->assertEquals( 'abc???', $s->raw() );
 	$this->assertTrue  ( $s === $t           );
 
@@ -379,12 +391,12 @@ function	testAppend()
 	$s  = new String( self::$golem, 'abc', self::$enc );
 	$a  = new String( self::$golem, 'ｶｷｸ', self::$enc );
 
-	$s->convert( 'UTF-8'  );
-	$a->convert( 'UTF-32' );
+	$s->encoding( 'UTF-8'  );
+	$a->encoding( 'UTF-32' );
 	$t = $s->append( $a );
 
 	$this->assertEquals( 'abcｶｷｸ', $s ->raw() );
-	$this->assertEquals( 'ｶｷｸ'   , $a->convert( self::$cfgEnc )->raw()  );
+	$this->assertEquals( 'ｶｷｸ'   , $a->encoding( self::$cfgEnc )->raw()  );
 	$this->assertTrue  ( $s === $t            );
 
 
@@ -456,12 +468,12 @@ function	testPrepend()
 	$s  = new String( self::$golem, 'abc', self::$enc );
 	$a  = new String( self::$golem, 'ｶｷｸ', self::$enc );
 
-	$s->convert( 'UTF-8'  );
-	$a->convert( 'UTF-32' );
+	$s->encoding( 'UTF-8'  );
+	$a->encoding( 'UTF-32' );
 	$t = $s->prepend( $a );
 
 	$this->assertEquals( 'ｶｷｸabc', $s ->raw()                          );
-	$this->assertEquals( 'ｶｷｸ'   , $a->convert( self::$cfgEnc )->raw() );
+	$this->assertEquals( 'ｶｷｸ'   , $a->encoding( self::$cfgEnc )->raw() );
 	$this->assertTrue  ( $s === $t                                     );
 
 

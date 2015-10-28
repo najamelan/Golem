@@ -111,7 +111,7 @@ function encodeCharacter( String $c )
 
 	// Get a version of the character in the correct encoding to compare to hardcoded values.
 	//
-	$charCfgEnc = $c->copy()->convert( $this->cfgEnc )->raw();
+	$charCfgEnc = $c->copy()->encoding( $this->cfgEnc )->raw();
 
 
 	// Check for immune characters.
@@ -272,7 +272,7 @@ function decodeNumericEntity( String $input, $type = 'dec' )
 	// get a config encoded string to compare to hard coded values
 	// Since the number should never be more than 32 bytes, we need at most 12 chars to work with
 	//
-	$inputCfgEnc = $input      ->substr( 0, 12        )->convert( $this->cfgEnc );
+	$inputCfgEnc = $input      ->substr( 0, 12        )->encoding( $this->cfgEnc );
 	$start       = $inputCfgEnc->shift ( $startLength )->raw();
 
 
@@ -355,7 +355,7 @@ private function decodeNamedEntity( String $input )
 
 	// get a config encoded string to compare to hard coded values
 	//
-	$inputCfgEnc = $input->substr( 0, self::LONGEST_ENTITY + 2 )->convert( $this->cfgEnc );
+	$inputCfgEnc = $input->substr( 0, self::LONGEST_ENTITY + 2 )->encoding( $this->cfgEnc );
 
 
 	if( $inputCfgEnc->shift()->raw() !== '&' )
@@ -404,7 +404,7 @@ private function decodeNamedEntity( String $input )
 
 	$result = String::fromUniCodePoint( $this->golem, HTML5_ENTITY_MAP[ $name->raw() ], $this->cfgEnc );
 
-	return $result->convert( $input->encoding() );
+	return $result->encoding( $input->encoding() );
 }
 
 
