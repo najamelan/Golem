@@ -36,14 +36,19 @@ trait HasLog
 	 *
 	 */
 	private
-	function setupLog( $name = null, array $options = [] )
+	function setupLog( $name = null, array $options = [], $golem = null )
 	{
 		if( $name === null )
 
 			$name = __CLASS__ ;
 
 
-		$this->log = $this->golem->logger( $name, $options );
+		if( ! $golem )
+
+			$golem = $this->golem;
+
+
+		$this->log = $golem->logger( $name, $options );
 
 		return $this;
 	}
