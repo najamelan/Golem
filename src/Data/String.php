@@ -130,7 +130,7 @@ function raw( $value = null )
 		$value = $value->copy()->encoding( $this->encoding() )->raw();
 
 
-	if( ! Util::canBeString( $value ) )
+	if( ! self::canBeString( $value ) )
 
 		$this->log->warning
 		(
@@ -686,5 +686,38 @@ function substr( $offset, $length = null )
 			-> raw( mb_substr( $this->raw(), $offset, $length, $this->encoding() ) )
 	;
 }
+
+
+
+/**
+ * Tells you whether some variable can automatically be converted to a string
+ * (eg. strings, numbers and objects which implement __toString)
+ *
+ * @param mixed $value The variable to test
+ *
+ * @return bool Returns TRUE if it can be used as a string or FALSE otherwise.
+ *
+ * @internal
+ *
+ */
+public
+static
+function canBeString( $value )
+{
+	if
+	(
+		   is_string ( $value )
+		|| is_numeric( $value )
+		|| is_object ( $value )  &&  method_exists( $value, '__toString' )
+	)
+	{
+		return true;
+	}
+
+
+	return false;
+}
+
+
 
 }
