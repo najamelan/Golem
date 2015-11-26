@@ -76,6 +76,6 @@ trait Seal
 	{
 		if( $this->sealed )
 
-			$this->log( "Cannot change option on sealed object." );
+			$this->log->runTimeException( "Cannot change option on sealed object." );
 	}
 }
