@@ -338,12 +338,11 @@ function split( $chunksize = 1, $raw = false )
 
 
 	for( $i = 0, $result = []; $i < $this->length(); $i += $chunksize )
+	{
+		$ss = $this->substr( $i, $chunksize );
 
-		$result[] = $raw ?
-
-			                          mb_substr( $this->raw, $i, $chunksize, $this->encoding() )
-			: new self( $this->golem, mb_substr( $this->raw, $i, $chunksize, $this->encoding() ), $this->options() )
-		;
+		$result[] = $raw ? $ss->raw() : $ss;
+	}
 
 
 	return $result;
@@ -372,12 +371,11 @@ function pop( $amount = 1 )
 
 
 	$amount = min( $amount, $this->length() );
-
-	$result = mb_substr( $this->raw, $this->length() - $amount, $amount, $this->encoding() );
+	$result = $this->substr( $this->length() - $amount, $amount );
 
 	$this->raw( mb_substr( $this->raw, 0, $this->length() - $amount, $this->encoding() ) );
 
-	return new String( $this->golem, $result, $this->options() );
+	return $result;
 }
 
 
@@ -404,11 +402,11 @@ function shift( $amount = 1 )
 
 	$amount = min( $amount, $this->length() );
 
-	$result = mb_substr( $this->raw, 0, $amount, $this->encoding() );
+	$result = $this->substr( 0, $amount );
 
 	$this->raw( mb_substr( $this->raw, $amount, $this->length() - $amount, $this->encoding() ) );
 
-	return new String( $this->golem, $result, $this->options() );
+	return $result;
 }
 
 
@@ -554,9 +552,7 @@ function offsetGet( $index )
 	;
 
 
-	$raw = mb_substr( $this->raw(), $index, 1, $this->encoding() );
-
-	return new self( $this->golem, $raw, [ 'encoding' => $this->encoding() ] );
+	return $this->substr( $index, 1 );
 }
 
 
