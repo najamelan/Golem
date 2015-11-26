@@ -72,13 +72,10 @@ trait HasOptions
 	 * @api
 	 *
 	 */
-	public
-	function options()
+	private
+	function getOpts( $pointer, $args )
 	{
-		$pointer = $this->options;
-
-
-		foreach( func_get_args() as $param )
+		foreach( $args as $param )
 		{
 			if( isset( $pointer[ $param ] ) )
 
@@ -116,6 +113,21 @@ trait HasOptions
 
 
 	/**
+	 * Get the options in use for this class.
+	 *
+	 * @return array The default options.
+	 *
+	 * @api
+	 *
+	 */
+	public function options()
+	{
+		return $this->getOpts( $this->options, func_get_args() );
+	}
+
+
+
+	/**
 	 * Get the set of values that where the defaults for this class.
 	 *
 	 * @return array The default options.
@@ -125,7 +137,7 @@ trait HasOptions
 	 */
 	public function defaults()
 	{
-		return $this->defaults;
+		return $this->getOpts( $this->defaults, func_get_args() );
 	}
 
 
@@ -140,6 +152,6 @@ trait HasOptions
 	 */
 	public function userset()
 	{
-		return $this->userset;
+		return $this->getOpts( $this->userset, func_get_args() );
 	}
 }
