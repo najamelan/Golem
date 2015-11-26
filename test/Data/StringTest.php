@@ -325,13 +325,63 @@ function	testLength()
 public
 function	testSplit()
 {
-	$this->markTestIncomplete();
-
 	// Test Parameter validation (type and content)
-	// Return type should be array
+
 	// Test empty string
+	//
+	$s = new String( self::$golem, '', self::$enc );
+	$this->assertEquals( [], $s->split() );
+
+	// Test simple string (raw)
+	//
+	$control = [ 'κ', 'ό', 'σ', 'μ', 'ε' ];
+	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( $control, $s->split( 1, true ) );
+
+	// Test simple string
+	//
+	$s     = new String( self::$golem, 'κόσμε', self::$enc );
+	$split = $s->split();
+
+	for( $i = 0; $i < count( $split ); ++$i )
+	{
+		$this->assertEquals( $control[ $i ], $split[ $i ]->raw() );
+		$this->assertEquals( $s->options(), $split[ $i ]->options() );
+	}
+
+
+	// Test different chunk sizes (2)
+	//
+	$control = [ 'κό', 'σμ', 'ε' ];
+	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( $control, $s->split( 2, true ) );
+
+
+	// Test different chunk sizes (string length)
+	//
+	$control = [ 'κόσμε' ];
+	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+	$this->assertEquals( $control, $s->split( 5, true ) );
+
+
 	// Test different encodings
-	// Test different chunk sizes
+
+
+	$this->markTestIncomplete();
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ */
+public
+function testSplitInvalidParam()
+{
+	// Test different chunk sizes (0)
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s->split( 0 );
 }
 
 
