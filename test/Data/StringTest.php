@@ -254,6 +254,8 @@ function	testEncoding()
 
 	$s->encoding( 'UTF-16' );
 	$this->assertEquals( 'UTF-16', $s->encoding() );
+	$this->assertEquals( 'UTF-16', $s->options( 'encoding' ) );
+	$this->assertEquals( 'UTF-16', $s->userset( 'encoding' ) );
 	$this->assertTrue( mb_check_encoding( $s->raw(), 'UTF-16' ) );
 
 	// Make sure conversion is in place (no new String object should be created)
