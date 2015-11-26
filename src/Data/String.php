@@ -258,7 +258,7 @@ function ensureValidEncoding( Golem $golem, $encoding )
 {
 	if( ! self::encodingSupported( $encoding ) )
 
-		$golem->log->unexpectedValueException
+		$golem->logger( __CLASS__ )->unexpectedValueException
 		(
 			"Encoding passed in not supported by the mbstring extension: [$encoding]"
 		)
