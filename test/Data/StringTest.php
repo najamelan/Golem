@@ -291,6 +291,22 @@ function	testEncoding()
 
 
 
+/**
+ * @expectedException RuntimeException
+ */
+public
+function testSetEncodingOnSealed()
+{
+	// Test different chunk sizes (0)
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s->seal();
+
+	$s->encoding( 'UTF-32' );
+}
+
+
+
 public
 function	testHex()
 {

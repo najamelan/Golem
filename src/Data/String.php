@@ -166,6 +166,7 @@ function encoding( $toEncoding = null )
 		return $this;
 
 
+	$this->checkSeal();
 	self::ensureValidEncoding( $this->golem, $toEncoding );
 
 	$oldEncoding                 = $this->encoding();
