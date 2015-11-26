@@ -60,8 +60,7 @@ function joinAssociativeArray( array $defaults, array ...$options )
 
 		foreach( $array as $key => $value )  // Loop through array key/value pairs
 
-
-			// Value is an array with numeric keys
+			// Value is an associative array
 			// Traverse the array; replace or add result to original array
 			//
 			if
