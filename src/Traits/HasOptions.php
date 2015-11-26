@@ -87,11 +87,12 @@ trait HasOptions
 
 			else
 			{
-				$e = new UnexpectedValueException
+				$bt = debug_backtrace();
+				$e  = new UnexpectedValueException
 				(
 					  'Called with invalid keys: ' . print_r( func_get_args(), true )
-					. ' from: ' . basename( debug_backtrace()[ 0 ][ 'file' ] ) . ":" . debug_backtrace()[ 0 ][ 'line' ] . " -- "
-					. debug_backtrace()[ 1 ][ 'class' ] . debug_backtrace()[ 1 ][ 'type' ] . debug_backtrace()[ 1 ][ 'function' ] . '()'
+					. ' from: ' . basename( $bt[ 0 ][ 'file' ] ) . ":" . $bt[ 0 ][ 'line' ] . " -- "
+					. $bt[ 1 ][ 'class' ] . $bt[ 1 ][ 'type' ] . $bt[ 1 ][ 'function' ] . '()'
 				);
 
 

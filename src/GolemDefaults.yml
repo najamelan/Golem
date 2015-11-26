@@ -1,8 +1,9 @@
 # This is the default configuration file for Golem.
 #
 # DO NOT CHANGE THIS FILE
+# This file is  part of the software, if you change it, consider yourself a Golem developper, not a user.
 #
-# Rather, make a copy of it and keep just the values you want to change from the defaults, and then pass the
+# Users: make a copy of it and keep just the values you want to change from the defaults, and then pass the
 # filename of your own configuration file to the constructor of Golem. Your values will override the values
 # in this file.
 #
@@ -33,6 +34,7 @@ String:
    # mb_substitute_character()
    #
    # Note that when the character doesn't exist in target encoding mbstring will just remove the invalid characters.
+   # To prevent this Golem will try to change it. In ascii it will become a question mark '?'.
    # eg. The unicode replacement character doesn't exist in ascii.
    #
    substitute: 0xfffd  # �

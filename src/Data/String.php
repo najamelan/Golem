@@ -334,7 +334,7 @@ function split( $chunksize = 1, $raw = false )
 	;
 
 
-	$raw = $this->golem->validator()->boolean()->validate( $raw, 'Parameter $raw' );
+	$raw = $this->golem->validator()->boolean()->validate( $raw, 'Split: parameter $raw' );
 
 
 	for( $i = 0, $result = []; $i < $this->length(); $i += $chunksize )
@@ -354,7 +354,7 @@ function split( $chunksize = 1, $raw = false )
 /**
  * Pops a number of characters off the end of a string.
  *
- * @param int $amount The number of characters to pop.
+ * @param int $amount The number of characters to pop. If amount is bigger than $this->length(), the whole string is popped.
  *
  * @return String $result A new String consisting of just the popped characters of the original string.
  *
@@ -550,7 +550,7 @@ function offsetGet( $index )
 	$index = $this->posIntRule->copy()
 
 		-> max     ( max( 0, $this->length() - 1 )        )
-		-> validate( $index, 'Parameter $index' )
+		-> validate( $index, 'offsetGet: Parameter $index' )
 	;
 
 

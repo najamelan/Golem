@@ -86,7 +86,7 @@ class Golem
 	 *
 	 * @throws \Exception When the input parameter is of wrong type.
 	 * @throws \Exception When the filename passed is no existing file.
-	 * @throws \Exception When the file passed does not parse correctly.
+	 * @throws \Exception When the file     passed does not parse correctly.
 	 *
 	 */
 	public

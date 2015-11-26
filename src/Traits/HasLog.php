@@ -6,8 +6,6 @@ use
 
 	  Golem\Util
 
-	, Exception
-
 ;
 
 

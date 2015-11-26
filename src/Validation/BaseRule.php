@@ -208,11 +208,12 @@ function in()
 		return $this->options[ 'in' ];
 
 
+	$this->checkSeal();
+
+
 	// setter
 	// if list is passed as array
 	//
-	$this->checkSeal();
-
 	if( is_array( $args[ 0 ] ) )
 
 		$args = $args[ 0 ];

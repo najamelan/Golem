@@ -123,7 +123,6 @@ function encodeCharacter( String $c )
 
 	$codePoint = $c->uniCodePoint()[ 0 ];
 
-
 	// Check for illegal characters
 	//
 	if( ! $this->allowedInEntity( $codePoint ) )
