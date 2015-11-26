@@ -86,6 +86,8 @@ Within the script execution (script that generates your website), There is a num
 
 Golem is designed so that you can guarantee settings don't change during script execution. That's why you have to instantiate a Golem library object rather than access things statically. The inconvenience in this is that every class in Golem needs a golem object to get hold of it's default settings, adding an extra parameter to the constructor. However if you keep these objects private and pass them to constructors of objects that need them, you know they cannot be changed by any other included code. You can count on them.
 
+Disable runkit, reflection...
+
 
 
 
