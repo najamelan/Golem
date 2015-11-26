@@ -339,11 +339,29 @@ function	testSplit()
 public
 function	testUniCodePoint()
 {
-	$this->markTestIncomplete();
-
-	// Result type should be array
 	// Test empty string
+	//
+	$s = new String( self::$golem, '', self::$enc );
+	$cp = $s->uniCodePoint();
+
+	$this->assertInternalType( 'array', $cp          );
+	$this->assertEquals      ( 0      , count( $cp ) );
+
+
+	// Test utf-8 character
+	//
+	$s = new String( self::$golem, 'ê', self::$enc );
+	$cp = $s->uniCodePoint();
+
+	$this->assertInternalType( 'array', $cp          );
+	$this->assertEquals      ( 1      , count( $cp ) );
+	$this->assertEquals      ( 234    , $cp[ 0 ]     );
+
+
 	// Test some different encodings
+	// Test illegal encodings
+
+	$this->markTestIncomplete();
 }
 
 
