@@ -108,7 +108,9 @@ function fromUniCodePoint( Golem $golem, $codePoint, $encoding = null )
 public
 function copy()
 {
-	return clone $this;
+	$c = clone $this;
+	$c->sealed = false;
+	return $c;
 }
 
 

@@ -194,6 +194,14 @@ function	testCopy()
 	$this->assertNotEquals( $s->encoding(), $sc->encoding() );
 
 
+	// Verify returned copy is not sealed
+	//
+	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s->seal();
+
+	$sc = $s->copy();
+	$this->assertFalse( $sc->sealed(), 'Verify String copy isn\'t sealed.' );
+
 	$this->markTestIncomplete();
 }
 
