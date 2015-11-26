@@ -148,12 +148,14 @@ function	testFromUniCodePoint()
 	$this->assertEquals( $cp, $s->uniCodePoint()[ 0 ] );
 	$this->assertEquals( "\0", $s->raw() );
 
+
 	// U+10330 gothic letter ahsa
 	//
 	$cp = 0x10330;
 	$s  = String::fromUniCodePoint( $g, $cp );
 	$this->assertEquals( $cp, $s->uniCodePoint()[ 0 ] );
 	$this->assertEquals( '𐌰', $s->raw() );
+
 
 	// U+20FFFF Point beyond unicode standard
 	//
@@ -205,6 +207,7 @@ function	testRaw()
 	$s = new String( self::$golem, 'κόσμε', self::$enc );
 	$this->assertTrue( is_string( $s->raw() ) );
 
+
 	// Test on empty strings
 	//
 	$s = new String( self::$golem, '', self::$enc );
@@ -237,10 +240,12 @@ function	testEncoding()
 	$s = new String( self::$golem, 'κόσμε', self::$enc );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
 
+
 	// Test it returns a valid encoding on an empty string
 	//
 	$s = new String( self::$golem, '', [ 'encoding' => 'UTF-8' ] );
 	$this->assertEquals( 'UTF-8', $s->encoding() );
+
 
 	// Getter functionality
 
@@ -253,19 +258,23 @@ function	testEncoding()
 	$this->assertFalse( mb_check_encoding( $s->raw(), 'UTF-16' ) );
 
 	$s->encoding( 'UTF-16' );
-	$this->assertEquals( 'UTF-16', $s->encoding() );
-	$this->assertEquals( 'UTF-16', $s->options( 'encoding' ) );
-	$this->assertEquals( 'UTF-16', $s->userset( 'encoding' ) );
-	$this->assertTrue( mb_check_encoding( $s->raw(), 'UTF-16' ) );
+
+	$this->assertEquals( 'UTF-16'                    , $s->encoding(            ) );
+	$this->assertEquals( 'UTF-16'                    , $s->options ( 'encoding' ) );
+	$this->assertEquals( 'UTF-16'                    , $s->userset ( 'encoding' ) );
+	$this->assertTrue  ( mb_check_encoding( $s->raw(), 'UTF-16'                 ) );
+
 
 	// Make sure conversion is in place (no new String object should be created)
 	//
 	$this->assertSame( $s, $s->encoding( 'UTF-8' ) );
 
+
 	// Test return types
 	//
 	$this->assertInternalType( 'string'           , $s->encoding()           );
 	$this->assertInstanceOf  ( 'Golem\Data\String', $s->encoding( 'UTF-32' ) );
+
 
 	// Test actual conversion
 
@@ -311,10 +320,12 @@ function	testLength()
 	$s = new String( self::$golem, '', self::$enc );
 	$this->assertEquals( 0, $s->length() );
 
+
 	// Test a utf-8 string
 	//
 	$s = new String( self::$golem, 'κόσμε', self::$enc );
 	$this->assertEquals( 5, $s->length() );
+
 
 	// Test different encodings
 	//
@@ -334,11 +345,14 @@ function	testSplit()
 	$s = new String( self::$golem, '', self::$enc );
 	$this->assertEquals( [], $s->split() );
 
+
 	// Test simple string (raw)
 	//
 	$control = [ 'κ', 'ό', 'σ', 'μ', 'ε' ];
 	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+
 	$this->assertEquals( $control, $s->split( 1, true ) );
+
 
 	// Test simple string
 	//
@@ -356,6 +370,7 @@ function	testSplit()
 	//
 	$control = [ 'κό', 'σμ', 'ε' ];
 	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+
 	$this->assertEquals( $control, $s->split( 2, true ) );
 
 
@@ -363,11 +378,11 @@ function	testSplit()
 	//
 	$control = [ 'κόσμε' ];
 	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+
 	$this->assertEquals( $control, $s->split( 5, true ) );
 
 
 	// Test different encodings
-
 
 	$this->markTestIncomplete();
 }
@@ -493,11 +508,11 @@ function	testAppend()
 
 	$t = $s->append( $a );
 
-	$this->assertEquals( 'ｶｷｸ'   , $a->raw() );
-	$this->assertEquals( 'UTF-8'   , $a->encoding() );
+	$this->assertEquals( 'ｶｷｸ'   , $a->raw     (         )        );
+	$this->assertEquals( 'UTF-8' , $a->encoding(         )        );
 	$this->assertEquals( '???'   , $a->encoding( 'ASCII' )->raw() );
-	$this->assertEquals( 'abc???', $s->raw() );
-	$this->assertTrue  ( $s === $t           );
+	$this->assertEquals( 'abc???', $s->raw     (         )        );
+	$this->assertTrue  ( $s === $t                                );
 
 
 	// Combine UTF-8 with UTF-32
@@ -510,9 +525,9 @@ function	testAppend()
 	$a->encoding( 'UTF-32' );
 	$t = $s->append( $a );
 
-	$this->assertEquals( 'abcｶｷｸ', $s ->raw() );
+	$this->assertEquals( 'abcｶｷｸ', $s ->raw    (               )         );
 	$this->assertEquals( 'ｶｷｸ'   , $a->encoding( self::$cfgEnc )->raw()  );
-	$this->assertTrue  ( $s === $t            );
+	$this->assertTrue  ( $s === $t                                       );
 
 
 	// Test Parameter validation (type and content)
@@ -587,9 +602,9 @@ function	testPrepend()
 	$a->encoding( 'UTF-32' );
 	$t = $s->prepend( $a );
 
-	$this->assertEquals( 'ｶｷｸabc', $s ->raw()                          );
+	$this->assertEquals( 'ｶｷｸabc', $s ->raw()                           );
 	$this->assertEquals( 'ｶｷｸ'   , $a->encoding( self::$cfgEnc )->raw() );
-	$this->assertTrue  ( $s === $t                                     );
+	$this->assertTrue  ( $s === $t                                      );
 
 
 	// Test Parameter validation (type and content)
