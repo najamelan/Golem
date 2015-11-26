@@ -24,7 +24,6 @@ use
  */
 class      NumberRule
 extends    BaseRule
-implements ValidationRule
 {
 
 
@@ -32,7 +31,9 @@ implements ValidationRule
 public
 function __construct( Golem $golem, array $options = [] )
 {
-	parent::__construct( $golem, $golem->options( 'Validation', 'NumberRule' ), $options );
+	parent::__construct( $golem );
+
+	$this->setupOptions( $golem->options( 'Validation', 'NumberRule' ), $options );
 }
 
 

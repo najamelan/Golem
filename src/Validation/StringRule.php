@@ -14,7 +14,6 @@ use
 	, Golem\iFace\ValidationRule
 
 	, Golem\Data\String
-
 	, Golem\Validation\BaseRule
 
 	, Golem\Util
@@ -26,7 +25,6 @@ use
  */
 class      StringRule
 extends    BaseRule
-implements ValidationRule
 {
 
 
@@ -37,7 +35,9 @@ private $encodingUsed = false;
 public
 function __construct( Golem $golem, array $options = [] )
 {
-	parent::__construct( $golem, $golem->options( 'Validation', 'StringRule' ), $options );
+	parent::__construct( $golem );
+
+	$this->setupOptions( $golem->options( 'Validation', 'StringRule' ), $options );
 }
 
 

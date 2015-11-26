@@ -24,14 +24,15 @@ use
  */
 class      BooleanRule
 extends    BaseRule
-implements ValidationRule
 {
 
 
 public
 function __construct( Golem $golem, array $options = [] )
 {
-	parent::__construct( $golem, $golem->options( 'Validation', 'BooleanRule' ), $options );
+	parent::__construct( $golem );
+
+	$this->setupOptions( $golem->options( 'Validation', 'BooleanRule' ), $options );
 }
 
 

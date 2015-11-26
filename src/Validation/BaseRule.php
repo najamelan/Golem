@@ -46,11 +46,11 @@ abstract protected function ensureType( $value );
 
 
 public
-function __construct( Golem $golem, array $defaults = [], array $options = [] )
+function __construct( Golem $golem, array $options = [] )
 {
 	$this->golem = $golem;
 
-	$this->setupOptions( $defaults, $options );
+	$this->setupOptions( $golem->options( 'Validation', 'BaseRule' ), $options );
 	$this->setupLog();
 
 	$this->validateOptions();

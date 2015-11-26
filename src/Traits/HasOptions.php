@@ -44,21 +44,21 @@ trait HasOptions
 
 	/**
 	 * Helper for constructors of classes that have options. Does basic merging of defaults
-	 * with userset options.
+	 * with userset options. For subclasses you should call parent::__construct before calling
+	 * this method, so your options will override those set by the parent class.
 	 *
-	 * @param \Golem $golem The library object which will provide the defaults
-	 * @param array  $options The options passed in to the constructor.
+	 * @param array  $defaults The default options for this class.
+	 * @param array  $userset  The options passed in to the constructor.
 	 *
 	 * @return $this.
 	 *
 	 */
-	private
-	function setupOptions( array $defaults, array $options )
+	protected
+	function  setupOptions( array $defaults, array $userset )
 	{
-		$this->defaults = $defaults;
-		$this->userset  = $options;
-
-		$this->options = Util::joinAssociativeArray( $this->defaults, $this->userset );
+		$this->defaults = Util::joinAssociativeArray( $this->defaults, $defaults      );
+		$this->userset  = Util::joinAssociativeArray( $this->userset , $userset       );
+		$this->options  = Util::joinAssociativeArray( $this->defaults, $this->userset );
 
 		return $this;
 	}
