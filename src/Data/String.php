@@ -287,18 +287,6 @@ function ensureValidEncoding( Golem $golem, $encoding )
 
 
 
-/**
- * We convert to the configEncoding, which should be the encoding all php files are in.
- *
- */
-public
-function __toString()
-{
-	return $this->copy()->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
-}
-
-
-
 public
 function hex( $prettify = false )
 {
@@ -729,6 +717,25 @@ function canBeString( $value )
 
 
 	return false;
+}
+
+
+
+/**
+ * Magic Methods
+ */
+
+
+
+/**
+ * We convert to the configEncoding, which should be the encoding all php files are in. This will be convenient
+ * for comparing to hard coded strings.
+ *
+ */
+public
+function __toString()
+{
+	return $this->copy()->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 }
 
 
