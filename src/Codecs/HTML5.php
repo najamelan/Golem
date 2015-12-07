@@ -121,17 +121,16 @@ function encodeCharacter( String $c )
 		return $c;
 
 
-	$codePoint = $c->uniCodePoint()[ 0 ];
-
 	// Check for illegal characters
 	//
+	$codePoint = $c->uniCodePoint()[ 0 ];
+
 	if( ! $this->allowedInEntity( $codePoint ) )
 
 		return
 
 			$this->golem->string( $this->options( 'substitute' ), $this->cfgEnc )
 		;
-
 
 
 	// Check if there's a defined entity
@@ -145,10 +144,7 @@ function encodeCharacter( String $c )
 
 	// Else return a hex entity of the unicode code point
 	//
-	return
-
-		$this->golem->string( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc )
-	;
+	return $this->golem->string( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc );
 }
 
 

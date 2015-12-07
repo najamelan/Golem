@@ -112,6 +112,8 @@ function	testConstructor()
 
 
 /**
+ * Try to set the string content to an array
+ *
  * @expectedException PHPUnit_Framework_Error
  */
 public
@@ -123,6 +125,8 @@ function	testContructorParamArray()
 
 
 /**
+ * Try to set the string content to an object
+ *
  * @expectedException PHPUnit_Framework_Error
  */
 public

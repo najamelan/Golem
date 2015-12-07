@@ -61,8 +61,9 @@ function __construct( Golem $golem, array $options = [] )
 public
 function copy()
 {
-	$c = clone $this;
-	$c->sealed = false;
+	$c         = clone $this;
+	$c->sealed = false      ;
+
 	return $c;
 }
 
