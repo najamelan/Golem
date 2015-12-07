@@ -733,4 +733,19 @@ function canBeString( $value )
 
 
 
+public
+function __debugInfo()
+{
+	return
+	[
+		  'raw'      => $this->raw
+		, 'position' => $this->position
+		, 'sealed'   => $this->sealed ? 'true' : 'false'
+		, 'options'  => $this->options
+		, 'defaults' => $this->defaults
+		, 'userset'  => $this->userset
+	];
+}
+
+
 }
