@@ -4,7 +4,7 @@ namespace Golem\Traits;
 
 use
 
-	Exception
+	RunTimeException
 
 ;
 
@@ -74,8 +74,19 @@ function sealed()
 protected
 function checkSeal()
 {
-	if( $this->sealed )
+	$error = 'Cannot change option on sealed object.';
 
-		$this->log->runTimeException( "Cannot change option on sealed object." );
+
+	if( $this->sealed )
+	{
+		if( $this->log )
+
+			$this->log->runTimeException( $error );
+
+		else
+
+			throw new RunTimeException( $error );
+	}
 }
+
 }
