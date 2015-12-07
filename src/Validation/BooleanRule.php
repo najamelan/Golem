@@ -50,21 +50,10 @@ function ensureType( $input )
 
 
 
-/**
- * Needed for BaseRule
- */
-protected
-function areEqual( $a, $b )
-{
-	return $a === $b;
-}
-
-
-
 public
 function sanitize( $input, $context )
 {
-	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( $this->validNull( $input ) )
 
 		return null;
 
@@ -81,7 +70,7 @@ function sanitize( $input, $context )
 public
 function validate( $input, $context )
 {
-	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( $this->validNull( $input ) )
 
 		return null;
 
@@ -92,6 +81,9 @@ function validate( $input, $context )
 
 	return $input;
 }
+
+
+protected function validateOptions() {}
 
 
 }

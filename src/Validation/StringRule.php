@@ -35,9 +35,26 @@ private $encodingUsed = false;
 public
 function __construct( Golem $golem, array $options = [] )
 {
+	// Since the user can send in a mix of options concerning all levels of the class hierarchy,
+	// we do not send them to the superclasses. First every class sets their default options in order
+	// and afterwards we will override all with the user options.
+	//
 	parent::__construct( $golem );
 
+
+	// Thus, $options will be empty unless this is this is the last subclass and the user
+	// sets options through the constructor.
+	//
 	$this->setupOptions( $golem->options( 'Validation', 'StringRule' ), $options );
+
+
+	// This shouldn't be done in superclasses, because it needs to be done
+	// after all constructors have run and after the userset options are
+	// merged in.
+	//
+	if( __CLASS__ === get_class( $this ) )
+
+		$this->validateOptions();
 }
 
 
@@ -45,66 +62,146 @@ function __construct( Golem $golem, array $options = [] )
 protected
 function validateOptions()
 {
+	// Always call this, since all the way up to BaseRule there are options to validate.
+	// Every class takes care of validating it's own supported options.
+	//
 	parent::validateOptions();
+
 
 	$o = &$this->options;
 
-	isset( $o[ 'encoding' ] )  &&  $this->validateOptionEncoding();
-	isset( $o[ 'length'   ] )  &&  $this->validateOptionLength  ();
+	isset( $o[ 'encoding'  ] )  &&  $o[ 'encoding'  ] = $this->validateOptionEncoding( $o[ 'encoding'  ] );
+	isset( $o[ 'type'      ] )  &&  $o[ 'type'      ] = $this->validateOptionType    ( $o[ 'type'      ] );
+
+	isset( $o[ 'length'    ] )  &&  $o[ 'length'    ] = $this->validateOptionLength( $o[ 'length'    ]              );
+	isset( $o[ 'minLength' ] )  &&  $o[ 'minLength' ] = $this->validateOptionLength( $o[ 'minLength' ], 'minLength' );
+	isset( $o[ 'maxLength' ] )  &&  $o[ 'maxLength' ] = $this->validateOptionLength( $o[ 'maxLength' ], 'maxLength' );
+
+	$this->compareLengths();
 }
 
 
 
 protected
-function validateOptionEncoding()
+function validateOptionEncoding( $o )
 {
-	$o = &$this->options[ 'encoding' ];
+	if( ! is_string( $o ) )
+
+		$this->log->invalidArgumentException
+		(
+			"Option [encoding] should be given as a php native string. Got: " . Util::getType( $o )
+		)
+	;
 
 
 	if( ! String::encodingSupported( $o ) )
 
-		$this->log->unexpectedValueException( "Encoding passed in not supported by the mbstring extension: [$o]" );
+		$this->log->invalidArgumentException( "Encoding passed in not supported by the mbstring extension: [$o]" );
 
+
+	return $o;
 }
 
 
 
 protected
-function validateOptionLength()
+function validateOptionLength( $o, $param = 'length' )
 {
-	$o = &$this->options[ 'length' ];
+	if( $o === 'PHP_INT_MAX' )
+
+		$o = PHP_INT_MAX;
 
 
-	if( is_numeric( $o ) )
-	{
-		$o = (int) $o;
-		return;
-	}
+	// It must be a positive integer
+	//
+	if( ! is_int( $o ) || $o < 0 )
+
+		$this->log->invalidArgumentException
+		(
+			  "Validation misconfiguration - expected positive integer $param. Got: "
+			. var_export( $o, /* return = */ true )
+		)
+	;
 
 
-	$this->log->invalidArgumentException
+	return $o;
+}
+
+
+
+protected
+function compareLengths()
+{
+	// maxlength shouldn't be smaller than minlength
+	//
+	if
 	(
-		  'Validation misconfiguration - expected numeric $length. Got: '
-		. var_export( $o, /* return = */ true )
-	);
+		   isset( $this->options[ 'minLength' ] )
+		&& isset( $this->options[ 'maxLength' ] )
+		&& $this->options[ 'maxLength' ] < $this->options[ 'minLength' ]
+	)
+
+		$this->log->invalidArgumentException
+		(
+			  "Validation misconfiguration - expected maxLength to be bigger than "
+			. "minLength [{$this->options[ 'minLength' ]}]. Got: {$this->options[ 'minLength' ]}"
+		)
+	;
+
+
+	// length shouldn't be smaller than minlength
+	//
+	if
+	(
+		   isset( $this->options[ 'minLength' ] )
+		&& isset( $this->options[ 'length'    ] )
+		&& $this->options[ 'length' ] < $this->options[ 'minLength' ]
+	)
+
+		$this->log->invalidArgumentException
+		(
+			  "Validation misconfiguration - expected length to be bigger than "
+			. "minLength [{$this->options[ 'minLength' ]}]. Got: {$this->options[ 'length' ]}"
+		)
+	;
+
+
+	// length shouldn't be bigger than maxlength
+	//
+	if
+	(
+		   isset( $this->options[ 'maxLength' ] )
+		&& isset( $this->options[ 'length'    ] )
+		&& $this->options[ 'length' ] > $this->options[ 'maxLength' ]
+	)
+
+		$this->log->invalidArgumentException
+		(
+			  "Validation misconfiguration - expected length to be smaller or equal than"
+			. "maxLength [{$this->options[ 'maxLength' ]}]. Got: {$this->options[ 'length' ]}"
+		)
+	;
 }
 
 
 
 protected
-function validateOptionType()
+function validateOptionType( $o )
 {
-	parent::validateOptionType();
+	if( ! is_string( $o ) )
 
-	$o = &$this->options[ 'type' ];
-
+		$this->log->invalidArgumentException
+		(
+			"Option [type] should be given as a php native string. Got: " . Util::getType( $o )
+		)
+	;
 
 
 	if( ! in_array( $o, [ 'string', 'Golem\Data\String' ] ) )
 
-		$this->log->unexpectedValueException
+		$this->log->invalidArgumentException
 		(
-			"Unsupported type [$o]. Should be one of: 'int', 'float' or 'double'."
+			"Unsupported type [$o]. Should be one of: 'string', 'Golem\Data\String'."
 		)
 	;
 
@@ -138,7 +235,7 @@ function ensureType( $string )
  * Needed for BaseRule
  */
 protected
-function areEqual( String $a, String $b )
+function areEqual( $a, $b )
 {
 	return $a->equals( $b );
 }
@@ -159,13 +256,13 @@ function encoding( $encoding = null )
 	//
 	$this->checkSeal();
 
+
 	if( $this->encodingUsed )
 
 		$this->log->logicException( 'Already used encoding to interprete scalar strings, cannot change anymore' );
 
 
-	$this->options[ 'encoding' ] = $encoding;
-	$this->validateOptionEncoding();
+	$this->options[ 'encoding' ] = $this->validateOptionEncoding( $encoding );
 
 	return $this;
 }
@@ -175,16 +272,15 @@ function encoding( $encoding = null )
 public
 function sanitize( $input, $context )
 {
-	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context );
+	$context = $this->annotateContext( $context         );
+	$input   = parent::sanitize      ( $input, $context );
 
-	$input = parent::sanitize( $input, $context );
-
-	$input = $this->sanitizeLength( $input, $context );
+	$input   = $this->sanitizeLength ( $input, $context );
 
 	return $this->validate( $input );
 }
@@ -194,24 +290,27 @@ function sanitize( $input, $context )
 public
 function validate( $input, $context )
 {
-	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context );
+	$context = $this->annotateContext( $context         );
+	$input   = parent::validate      ( $input, $context );
 
-	$input = parent::validate( $input, $context );
-
-	$input = $this->validateLength( $input, $context );
+	$input   = $this->validateLength ( $input, $context );
 
 	return $input;
 }
 
 
+/**
+ * Length validation
+ *
+ */
 
 public
-function length( $length )
+function length( $length = null )
 {
 	// getter
 	//
@@ -224,8 +323,8 @@ function length( $length )
 	//
 	$this->checkSeal();
 
-	$this->options[ 'length' ] = $length;
-	$this->validateOptionLength();
+	$this->options[ 'length' ] = $this->validateOptionLength( $length );
+	$this->compareLengths();
 
 	return $this;
 }
@@ -246,7 +345,7 @@ function sanitizeLength( $input, $context )
 
 	if( $length > $allowedLength )
 
-		return $this->validateLength( $input->substr( 0, $allowedLength ) );
+		return $input->substr( 0, $allowedLength );
 
 
 	// length is < allowedLength
@@ -259,7 +358,7 @@ function sanitizeLength( $input, $context )
 	$this->log->validationException
 	(
 		  "$context: No default value set and input value [$input] is shorter than allowed length: "
-		. var_export( $this->options( 'length' ), /* return = */ true ) . " characters, got: {$input->length()}"
+		. var_export( $this->options( 'length' ), /* return = */ true ) . " characters, got: $length"
 	);
 
 }
@@ -286,12 +385,11 @@ function validateLength( $input, $context )
 public
 function isValidLength( $input )
 {
-	if( ! isset( $this->options[ 'length' ] ) )
-
-		return true;
-
-
-	if( $input->length() === $this->options( 'length' ) )
+	if
+	(
+		   ! isset( $this->options[ 'length' ] )
+		|| $input->length() === $this->options[ 'length' ]
+	)
 
 		return true;
 
@@ -300,8 +398,164 @@ function isValidLength( $input )
 }
 
 
+/**
+ * minLength validation
+ *
+ */
+
+public
+function minLength( $length = null )
+{
+	// getter
+	//
+	if( $length === null )
+
+		return $this->options[ 'minLength' ];
 
 
+	// setter
+	//
+	$this->checkSeal();
+
+	$this->options[ 'minLength' ] = $this->validateOptionLength( $length, 'minLength' );
+	$this->compareLengths();
+
+	return $this;
+}
+
+
+
+protected
+function sanitizeMinLength( $input, $context )
+{
+	if( $this->isValidMinLength( $input ) )
+
+		return $input;
+
+
+	// length is < minLength
+	//
+	if( isset( $this->options[ 'defaultValue' ] ) )
+
+		return $this->validate( $this->options[ 'defaultValue' ], $context );
+
+
+	$this->log->validationException
+	(
+		  "$context: No default value set and input value [$input] is shorter than allowed minLength: "
+		. var_export( $this->options( 'minLength' ), /* return = */ true ) . " characters, got: {$input->length()}"
+	);
+
+}
+
+
+
+protected
+function validateMinLength( $input, $context )
+{
+	if( $this->isValidMinLength( $input ) )
+
+		return $input;
+
+
+	$this->log->validationException
+	(
+		  "$context: Input value [$input] is shorter than allowed minLength: "
+		. var_export( $this->options( 'minLength' ), /* return = */ true ) . " characters, got: {$input->length()}"
+	);
+}
+
+
+
+public
+function isValidMinLength( $input )
+{
+	if
+	(
+		   ! isset( $this->options[ 'minLength' ] )
+		|| $input->length() >= $this->options[ 'minLength' ]
+	)
+
+		return true;
+
+
+	return false;
+}
+
+
+/**
+ * maxLength validation
+ *
+ */
+
+public
+function maxLength( $length = null )
+{
+	// getter
+	//
+	if( $length === null )
+
+		return $this->options[ 'maxLength' ];
+
+
+	// setter
+	//
+	$this->checkSeal();
+
+	$this->options[ 'maxLength' ] = $this->validateOptionLength( $length, 'maxLength' );
+	$this->compareLengths();
+
+	return $this;
+}
+
+
+
+protected
+function sanitizeMaxLength( $input, $context )
+{
+	if( $this->isValidMaxLength( $input ) )
+
+		return $input;
+
+
+	// length is > maxLength
+	//
+	return $this->validate( $input->substr( 0, $this->options( 'maxLength' ) ), $context );
+}
+
+
+
+protected
+function validateMaxLength( $input, $context )
+{
+	if( $this->isValidMaxLength( $input ) )
+
+		return $input;
+
+
+	$this->log->validationException
+	(
+		  "$context: Input value [$input] is longer than allowed maxLength: "
+		. var_export( $this->options( 'maxLength' ), /* return = */ true ) . " characters, got: {$input->length()}"
+	);
+}
+
+
+
+public
+function isValidMaxLength( $input )
+{
+	if
+	(
+		   ! isset( $this->options[ 'maxLength' ] )
+		|| $input->length() <= $this->options[ 'maxLength' ]
+	)
+
+		return true;
+
+
+	return false;
+}
 
 
 

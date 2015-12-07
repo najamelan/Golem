@@ -117,6 +117,19 @@ Validation:
 
    Validator: []
 
+   BaseRule :
+
+      # Whether a null value validates
+      #
+      allowNull: false
+
+      # A set of values from which the input needs to be one in order to validate (sanitize will return defaultValue on invalid input)
+      # It usually doesn't make sense to set a default value for this option, but for documentation purposes it's included here.
+      # This value should be an array in the configuration file, but when calling the setter, you can also pass each value as a separate parameter.
+      #
+      # in: [ 'hi', 'hello' ]
+
+
    StringRule:
 
       # Any php strings passed to the StringRule object will be assumed and sanitized to be of this encoding
@@ -126,22 +139,12 @@ Validation:
       #
       encoding : *globalEncoding
 
-      # Whether a null value validates
-      #
-      allowNull: false
-
       # The default value, certain sanitize routines will use this in case the input is invalid.
       # This value must be conform all the constraints set on the validation, otherwise an exception will be thrown.
       # It usually doesn't make sense to set a default value for this option, but for documentation purposes it's included here.
       # If set, minLength and maxLength will be ignored.
       #
       # defaultValue :
-
-      # A set of values from which the input needs to be one in order to validate (sanitize will return defaultValue on invalid input)
-      # It usually doesn't make sense to set a default value for this option, but for documentation purposes it's included here.
-      # This value should be an array in the configuration file, but when calling the setter, you can also pass each value as a separate parameter.
-      #
-      # in: [ 'hi', 'hello' ]
 
       # The exact length in characters the string should have (sanitize will truncate if the value is to long, and try to use the defaultValue if it's to short).
       # You SHOULDN'T set a default value for this option, but for documentation purposes it's included here.
@@ -161,8 +164,8 @@ Validation:
       #
       maxLength: PHP_INT_MAX
 
-      # The type of the variable. The validation rule will return your value as this type. Also if using validation and not
-      # sanitation if your input is not of the correct type, it won't be cast, but an exception will be thrown.
+      # The type of the variable. Sanitation will return your value as this type. Validation will throw an
+      # exception if your value is not of the correct type. The option itself should be passed in as a php native string.
       # Possible values are 'Golem\Data\String' or 'string' for native php strings.
       #
       # type:
@@ -177,12 +180,36 @@ Validation:
       # type:
 
       # The minimum value of the number
+      # One special value is allowed in configuration files: '-PHP_INT_MAX' which will be translated
+      # to the negative of the php constant.
       #
       # min:
 
       # The maximum value of the number
+      # One special value is allowed in configuration files: 'PHP_INT_MAX' which will be translated to the php constant.
       #
       # max:
 
 
    BooleanRule: []
+   FileRule   : []
+
+
+Mat:
+
+   enabled: false
+   binary : '/usr/bin/mat'
+
+
+Driver:
+
+   BaseDriver:
+
+      metaBackend: 'Mat'
+      antiVirus  : 'maldet'
+
+
+   jpeg: []
+   Yaml: []
+
+

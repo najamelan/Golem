@@ -27,13 +27,29 @@ extends    BaseRule
 {
 
 
-
 public
 function __construct( Golem $golem, array $options = [] )
 {
+	// Since the user can send in a mix of options concerning all levels of the class hierarchy,
+	// we do not send them to the superclasses. First every class sets their default options in order
+	// and afterwards we will override all with the user options.
+	//
 	parent::__construct( $golem );
 
+
+	// Thus, $options will be empty unless this is this is the last subclass and the user
+	// sets options through the constructor.
+	//
 	$this->setupOptions( $golem->options( 'Validation', 'NumberRule' ), $options );
+
+
+	// This shouldn't be done in superclasses, because it needs to be done
+	// after all constructors have run and after the userset options are
+	// merged in.
+	//
+	if( __CLASS__ === get_class( $this ) )
+
+		$this->validateOptions();
 }
 
 
@@ -41,22 +57,24 @@ function __construct( Golem $golem, array $options = [] )
 protected
 function validateOptions()
 {
+	// Always call this, since all the way up to BaseRule there are options to validate.
+	// Every class takes care of validating it's own supported options.
+	//
 	parent::validateOptions();
+
 
 	$o = &$this->options;
 
-	isset( $o[ 'min' ] )  &&  $this->validateOptionMin();
-	isset( $o[ 'max' ] )  &&  $this->validateOptionMax();
+	isset( $o[ 'min'  ] )  &&  $o[ 'min'  ] = $this->validateOptionEncoding( $o[ 'min'  ] );
+	isset( $o[ 'max'  ] )  &&  $o[ 'max'  ] = $this->validateOptionLength  ( $o[ 'max'  ] );
+	isset( $o[ 'type' ] )  &&  $o[ 'type' ] = $this->validateOptionType    ( $o[ 'type' ] );
 }
 
 
 
 protected
-function validateOptionMin()
+function validateOptionMin( $o )
 {
-	$o = &$this->options[ 'min' ];
-
-
 	if( ! is_numeric( $o ) )
 
 		$this->log->invalidArgumentException
@@ -67,29 +85,14 @@ function validateOptionMin()
 	;
 
 
-	$max = &$this->options[ 'max' ];
-
-	if( isset( $max )  &&  $o > $max )
-
-		$this->log->invalidArgumentException
-		(
-			  "Validation misconfiguration - \$min must be smaller or equal than \$max ($max). Got: "
-			. var_export( $o, /* return = */ true )
-		)
-	;
-
-
-	$o = (int) $o;
+	return (int) $o;
 }
 
 
 
 protected
-function validateOptionMax()
+function validateOptionMax( $o )
 {
-	$o = &$this->options[ 'max' ];
-
-
 	if( ! is_numeric( $o ) )
 
 		$this->log->invalidArgumentException
@@ -112,7 +115,24 @@ function validateOptionMax()
 	;
 
 
-	$o = (int) $o;
+	return (int) $o;
+}
+
+
+
+protected
+function validateOptionType( $o )
+{
+	if( ! in_array( $o, [ 'integer', 'float', 'double' ] ) )
+
+		$this->log->unexpectedValueException
+		(
+			"Unsupported type [$o]. Should be one of: 'integer', 'float', 'double'."
+		)
+	;
+
+
+	return $o;
 }
 
 
@@ -150,21 +170,10 @@ function ensureType( $number )
 
 
 
-/**
- * Needed for BaseRule
- */
-protected
-function areEqual( $a, $b )
-{
-	return $a === $b;
-}
-
-
-
 public
 function sanitize( $input, $context )
 {
-	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( $this->validNull( $input ) )
 
 		return null;
 
@@ -184,7 +193,7 @@ function sanitize( $input, $context )
 public
 function validate( $input, $context )
 {
-	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+	if( $this->validNull( $input ) )
 
 		return null;
 
@@ -216,8 +225,7 @@ function min( $min )
 	//
 	$this->checkSeal();
 
-	$this->options[ 'min' ] = $min;
-	$this->validateOptionMin();
+	$this->options[ 'min' ] = $this->validateOptionMin( $min );
 
 	return $this;
 }
@@ -238,8 +246,7 @@ function max( $max )
 	//
 	$this->checkSeal();
 
-	$this->options[ 'max' ] = $max;
-	$this->validateOptionmax();
+	$this->options[ 'max' ] = $this->validateOptionMin( $max );
 
 	return $this;
 }

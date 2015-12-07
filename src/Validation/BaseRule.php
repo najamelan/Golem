@@ -52,8 +52,6 @@ function __construct( Golem $golem, array $options = [] )
 
 	$this->setupOptions( $golem->options( 'Validation', 'BaseRule' ), $options );
 	$this->setupLog();
-
-	$this->validateOptions();
 }
 
 
@@ -74,18 +72,16 @@ function validateOptions()
 {
 	$o = &$this->options;
 
-	isset( $o[ 'in'   ] )  &&  $this->validateOptionIn  ();
-	isset( $o[ 'type' ] )  &&  $this->validateOptiontype();
+	isset( $o[ 'in'        ] )  &&  $o[ 'in'        ] = $this->validateOptionEncoding ( $o[ 'in'        ] );
+	isset( $o[ 'type'      ] )  &&  $o[ 'type'      ] = $this->validateOptionType     ( $o[ 'type'      ] );
+	isset( $o[ 'allowNull' ] )  &&  $o[ 'allowNull' ] = $this->validateOptionAllowNull( $o[ 'allowNull' ] );
 }
 
 
 
 protected
-function validateOptionIn()
+function validateOptionIn( $o )
 {
-	$o = &$this->options[ 'in' ];
-
-
 	if( ! is_array( $o ) )
 
 		$this->log->invalidArgumentException
@@ -100,19 +96,19 @@ function validateOptionIn()
 
 		$o[ $key ] = $this->ensureType( $allowed )
 	;
+
+
+	return $o;
 }
 
 
 
 protected
-function validateOptionAllowNull()
+function validateOptionAllowNull( $o )
 {
-	$o = &$this->options[ 'allowNull' ];
-
-
 	if( is_bool( $o ) )
 
-		return;
+		return $o;
 
 
 	$this->log->invalidArgumentException
@@ -125,14 +121,11 @@ function validateOptionAllowNull()
 
 
 protected
-function validateOptionType()
+function validateOptionType( $o )
 {
-	$o = &$this->options[ 'type' ];
-
-
 	if( is_string( $o ) || $o instanceof String )
 
-		return;
+		return $o;
 
 
 	$this->log->invalidArgumentException
@@ -188,8 +181,8 @@ function allowNull( $value = null )
 	//
 	$this->checkSeal();
 
-	$this->options[ 'allowNull' ] = $value;
-	$this->validateOptionAllowNull();
+	$this->options[ 'allowNull' ] = $this->validateOptionAllowNull( $value );
+
 
 	return $this;
 }
@@ -209,9 +202,6 @@ function in()
 		return $this->options[ 'in' ];
 
 
-	$this->checkSeal();
-
-
 	// setter
 	// if list is passed as array
 	//
@@ -220,8 +210,9 @@ function in()
 		$args = $args[ 0 ];
 
 
-	$this->options[ 'in' ] = $args;
-	$this->validateOptionIn();
+	$this->checkSeal();
+
+	$this->options[ 'in' ] = $this->validateOptionIn( $args );
 
 	return $this;
 }
@@ -288,6 +279,14 @@ function isValidIn( $input )
 
 
 
+protected
+function areEqual( $a, $b )
+{
+	return $a === $b;
+}
+
+
+
 public
 function type( $type = null )
 {
@@ -302,8 +301,7 @@ function type( $type = null )
 	//
 	$this->checkSeal();
 
-	$this->options[ 'type' ] = $type;
-	$this->validateOptionType();
+	$this->options[ 'type' ] = $this->validateOptionType( $type );
 
 	return $this;
 }
@@ -371,13 +369,34 @@ function isValidType( $type )
 protected
 function annotateContext( $context )
 {
+	// only do it once
+	//
+	if( preg_match( '/called from: /', $context ) === 1 )
+
+		return $context;
+
+
 	return
 
-		  debug_backtrace()[ 2 ][ 'class' ]
+		  $context
+		. 'called from: '
+		. debug_backtrace()[ 2 ][ 'class' ]
 		. debug_backtrace()[ 2 ][ 'type'  ]
-		. debug_backtrace()[ 2 ][ 'function' ] . '() -- '
-		. $context
+		. debug_backtrace()[ 2 ][ 'function' ] . "(); \n"
 	;
+}
+
+
+
+protected
+function validNull( $input )
+{
+	if( isset( $this->options[ 'allowNull' ] )  &&  $this->options[ 'allowNull' ] === true  &&  $input === null )
+
+		return true;
+
+
+	return false;
 }
 
 
