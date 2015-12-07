@@ -247,10 +247,23 @@ function sanitizeSubstitute()
 
 
 
+/**
+ * Checks whether a certain encoding is supported by this class.
+ *
+ * @param  string|Golem\Data\String $encoding The encoding to check.
+ *
+ * @return bool Whether it's supported
+ *
+ */
 public
 static
 function encodingSupported( $encoding )
 {
+	if( $encoding instanceof self )
+
+		$encoding = $encoding->encoding( mb_internal_encoding() )->raw();
+
+
 	return in_array( $encoding, mb_list_encodings(), /* strict = */ true );
 }
 
