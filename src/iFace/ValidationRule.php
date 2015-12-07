@@ -23,8 +23,8 @@ use
  */
 interface ValidationRule
 {
-	const INVALID = 'INVALID';
+const INVALID = 'INVALID';
 
-	public function sanitize( $input, $context );
-	public function validate( $input, $context );
+public function sanitize( $input, $context );
+public function validate( $input, $context );
 }

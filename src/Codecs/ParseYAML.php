@@ -30,21 +30,21 @@ class      ParseYAML
 implements \Golem\iFace\Codec
 {
 
-	public
-	function	decode( $data )
-	{
-		$parser = new Parser();
-		$parsed = $parser->parse( $data );
+public
+function	decode( $data )
+{
+	$parser = new Parser();
+	$parsed = $parser->parse( $data );
 
 
-		return $parsed;
-	}
+	return $parsed;
+}
 
 
-	/**
-	 * @codeCoverageIgnore
-	 */
-	public function encode( $data )
-	{
-	}
+/**
+ * @codeCoverageIgnore
+ */
+public function encode( $data )
+{
+}
 }

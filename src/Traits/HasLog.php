@@ -17,37 +17,37 @@ trait HasLog
 {
 
 
-	/**
-	 * @var The logger object this class uses.
-	 *
-	 */
-	protected $log;
+/**
+ * @var The logger object this class uses.
+ *
+ */
+protected $log;
 
 
 
-	/**
-	 * Helper for constructors of classes that have a logger.
-	 *
-	 * @param array  $options The options passed in to the constructor of the logger.
-	 *
-	 * @return $this.
-	 *
-	 */
-	private
-	function setupLog( $name = null, array $options = [], $golem = null )
-	{
-		if( $name === null )
+/**
+ * Helper for constructors of classes that have a logger.
+ *
+ * @param array  $options The options passed in to the constructor of the logger.
+ *
+ * @return $this.
+ *
+ */
+private
+function setupLog( $name = null, array $options = [], $golem = null )
+{
+	if( $name === null )
 
-			$name = __CLASS__ ;
-
-
-		if( ! $golem )
-
-			$golem = $this->golem;
+		$name = __CLASS__ ;
 
 
-		$this->log = $golem->logger( $name, $options );
+	if( ! $golem )
 
-		return $this;
-	}
+		$golem = $this->golem;
+
+
+	$this->log = $golem->logger( $name, $options );
+
+	return $this;
+}
 }

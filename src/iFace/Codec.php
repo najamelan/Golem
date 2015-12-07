@@ -10,7 +10,7 @@ namespace Golem\iFace;
  */
 interface Codec
 {
-	// public function __construct( mixed  $data   );
-	public function encode( $data );
-	public function decode( $data );
+// public function __construct( mixed  $data   );
+public function encode( $data );
+public function decode( $data );
 }
