@@ -254,17 +254,12 @@ function encoding( $encoding = null )
 
 	// setter
 	//
-	$this->checkSeal();
-
-
 	if( $this->encodingUsed )
 
 		$this->log->logicException( 'Already used encoding to interprete scalar strings, cannot change anymore' );
 
 
-	$this->options[ 'encoding' ] = $this->validateOptionEncoding( $encoding );
-
-	return $this;
+	return $this->setOpt( 'encoding', $this->validateOptionEncoding( $encoding ) );
 }
 
 
@@ -321,9 +316,7 @@ function length( $length = null )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'length' ] = $this->validateOptionLength( $length );
+	$this->setOpt( 'length', $this->validateOptionLength( $length ) );
 	$this->compareLengths();
 
 	return $this;
@@ -415,9 +408,7 @@ function minLength( $length = null )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'minLength' ] = $this->validateOptionLength( $length, 'minLength' );
+	$this->setOpt( 'minLength', $this->validateOptionLength( $length, 'minLength' ) );
 	$this->compareLengths();
 
 	return $this;
@@ -500,9 +491,7 @@ function maxLength( $length = null )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'maxLength' ] = $this->validateOptionLength( $length, 'maxLength' );
+	$this->setOpt( 'maxLength', $this->validateOptionLength( $length, 'maxLength' ) );
 	$this->compareLengths();
 
 	return $this;

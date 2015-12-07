@@ -179,12 +179,7 @@ function allowNull( $value = null )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'allowNull' ] = $this->validateOptionAllowNull( $value );
-
-
-	return $this;
+	return $this->setOpt( 'allowNull', $this->validateOptionAllowNull( $value ) );
 }
 
 
@@ -210,11 +205,7 @@ function in()
 		$args = $args[ 0 ];
 
 
-	$this->checkSeal();
-
-	$this->options[ 'in' ] = $this->validateOptionIn( $args );
-
-	return $this;
+	return $this->setOpt( 'in', $this->validateOptionIn( $args ) );
 }
 
 
@@ -299,11 +290,7 @@ function type( $type = null )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'type' ] = $this->validateOptionType( $type );
-
-	return $this;
+	return $this->setOpt( 'type', $this->validateOptionType( $type ) );
 }
 
 

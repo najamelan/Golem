@@ -113,6 +113,26 @@ function getOpts( $pointer, $args )
 
 
 /**
+ * Allows setting an option, checking if the object is sealed.
+ * Currently only supports one level of depth.
+ */
+protected
+function setOpt( $name, $value )
+{
+	if( method_exists( $this, 'checkSeal' ) )
+
+		$this->checkSeal();
+
+
+	$this->options[ $name ] = $value;
+	$this->userset[ $name ] = $value;
+
+	return $this;
+}
+
+
+
+/**
  * Get the options in use for this class.
  *
  * @return array The default options.

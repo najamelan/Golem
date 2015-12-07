@@ -166,15 +166,16 @@ function encoding( $toEncoding = null )
 		return $this;
 
 
-	$this->checkSeal();
 	self::ensureValidEncoding( $this->golem, $toEncoding );
 
-	$oldEncoding                 = $this->encoding();
-	$this->options[ 'encoding' ] = $this->userset[ 'encoding' ] = $toEncoding;
+	$oldEncoding = $this->encoding();
 
-	$this->raw( $this->sanitizeEncoding( $this->raw(), $oldEncoding, $toEncoding ) );
 
-	return $this;
+	return $this
+
+		->setOpt( 'encoding', $toEncoding )
+		->raw   ( $this->sanitizeEncoding( $this->raw(), $oldEncoding, $toEncoding ) )
+	;
 }
 
 

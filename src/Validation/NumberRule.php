@@ -223,11 +223,7 @@ function min( $min )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'min' ] = $this->validateOptionMin( $min );
-
-	return $this;
+	return $this->setOpt( 'min', $this->validateOptionMin( $min ) );
 }
 
 
@@ -244,11 +240,7 @@ function max( $max )
 
 	// setter
 	//
-	$this->checkSeal();
-
-	$this->options[ 'max' ] = $this->validateOptionMin( $max );
-
-	return $this;
+	return $this->setOpt( 'max', $this->validateOptionMax( $max ) );
 }
 
 
