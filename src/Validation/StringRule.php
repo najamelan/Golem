@@ -264,7 +264,7 @@ function sanitize( $input, $context )
 
 	$input   = $this->sanitizeLength ( $input, $context );
 
-	return $this->validate( $input );
+	return $this->validate( $input, $context );
 }
 
 
