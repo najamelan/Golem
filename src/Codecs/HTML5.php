@@ -64,11 +64,12 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 		->encoding( $this->cfgEnc                   )
 		->in      ( 'text'  , 'attribute'           )
+		->type    ( 'string'                        )
 		->validate( $context, 'parameter: $context' )
 	;
 
 
-	$immune =   $context->raw() === 'text'  ?
+	$immune = $context === 'text'  ?
 
 		   $this->options( 'immuneText'      )
 		:  $this->options( 'immuneAttribute' )
