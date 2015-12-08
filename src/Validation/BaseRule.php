@@ -367,10 +367,10 @@ function annotateContext( $context )
 	return
 
 		  $context
-		. 'called from: '
+		. ' called from: '
 		. debug_backtrace()[ 2 ][ 'class' ]
 		. debug_backtrace()[ 2 ][ 'type'  ]
-		. debug_backtrace()[ 2 ][ 'function' ] . "(); \n"
+		. debug_backtrace()[ 2 ][ 'function' ] . "() "
 	;
 }
 
