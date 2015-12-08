@@ -217,13 +217,13 @@ function	testRaw()
 	// Test getter functionality (is_string)
 	//
 	$s = new String( self::$golem, 'κόσμε', self::$enc );
-	$this->assertTrue( is_string( $s->raw() ) );
+	$this->assertInternalType( 'string', $s->raw() );
 
 
 	// Test on empty strings
 	//
 	$s = new String( self::$golem, '', self::$enc );
-	$this->assertTrue( is_string( $s->raw() ) );
+	$this->assertInternalType( 'string', $s->raw() );
 
 
 	// Test setter functionality
