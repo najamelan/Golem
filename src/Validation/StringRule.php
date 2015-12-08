@@ -241,9 +241,9 @@ function encoding( $encoding = null )
 
 	// setter
 	//
-	if( $this->encodingUsed )
+	if( $this->encodingUsed && $encoding !== $this->options( 'encoding' ) )
 
-		$this->log->logicException( 'Already used encoding to interprete scalar strings, cannot change anymore' );
+		$this->log->logicException( 'Already used encoding to interprete scalar strings, cannot change anymore. If you want to use an encoding other than the default encoding, call this function before passing in native php strings in methods like [StringRule::in]. In any case with mixed encodings it\'s safer to create Golem\Data\String objects and set the correct encoding for each string. You can then safely mix different encodings for validation and the output for your validated string will be converted to fit the encoding set by this method.' );
 
 
 	return $this->setOpt( 'encoding', $this->validateOptionEncoding( $encoding ) );
