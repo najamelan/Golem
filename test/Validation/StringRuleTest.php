@@ -239,7 +239,7 @@ function testTypeValidation()
 
 
 /**
- * @dataProvider      invalidLengths
+ * @dataProvider      invalidTypeOptions
  * @expectedException InvalidArgumentException
  */
 public
@@ -251,7 +251,7 @@ function	testInvalidOptionType( $type )
 
 
 public
-function invalidTypes()
+function invalidTypeOptions()
 {
 	return
 	[
@@ -278,6 +278,16 @@ function testEncodingValidation()
 
 	$rule = self::$golem->validator()->string( [ 'encoding' => 'ASCII' ] );
 	$this->assertEquals( 'ASCII', $rule->encoding() );
+
+
+	// Send in encoding as Golem\Data\String
+	//
+	$rule = self::$golem->validator()
+
+		->string( [ 'encoding' => self::$golem->string( 'EUC-JP', self::$cfgEnc )->encoding( 'UTF-32' ) ] );
+
+	$this->assertEquals      ( 'EUC-JP', $rule->encoding() );
+	$this->assertInternalType( 'string', $rule->encoding() );
 }
 
 
@@ -312,7 +322,7 @@ function invalidEncodings()
 
 
 public
-function testType()
+function testTypeSanitation()
 {
 	// Ask 'string' and send in 'string'
 	//
@@ -358,7 +368,7 @@ function testType()
 
 
 public
-function testTypeReuseRule()
+function testSanitationTypeReuseRule()
 {
 	// Ask 'string' and send in 'string'
 	//
@@ -399,5 +409,110 @@ function testTypeReuseRule()
 	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
 	$this->assertInstanceOf( 'Golem\Data\String', $result       );
 }
+
+
+
+/**
+ * @dataProvider      invalidTypes
+ * @expectedException Golem\Errors\ValidationException
+ */
+public
+function	testInvalidTypesSanitation( $input )
+{
+	// Ask 'string'
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $rule->sanitize( $input, 'testInvalidTypesSanitation' );
+}
+
+
+
+public
+function invalidTypes()
+{
+	return
+	[
+		  [ -1                  ]
+		, [ -PHP_INT_MAX        ]
+		, [ 3.4                 ]
+		, [ []                  ]
+		, [ new stdClass        ]
+	];
+}
+
+
+
+/**
+ * @dataProvider      invalidTypes
+ * @expectedException Golem\Errors\ValidationException
+ */
+public
+function	testInvalidTypesValidation( $input )
+{
+	// Ask 'string'
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $rule->validate( $input, 'testInvalidTypesValidation' );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ */
+public
+function	testInvalidTypesValidationNativeString()
+{
+	// Ask 'string'
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $rule->validate( self::$golem->string( 'test', self::$cfgEnc ), 'testInvalidTypesValidation' );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ */
+public
+function	testInvalidTypesValidationGolemString()
+{
+	// Ask 'Golem\Data\String'
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'Golem\Data\String' ] );
+	$result = $rule->validate( 'test', 'testInvalidTypesValidation' );
+}
+
+
+
+/**
+ * Make sure exception gets thrown correctly when reusing the rule
+ */
+private $typeValidationReuseRule;
+
+public
+function	prepareInvalidTypesValidationGolemStringReuse()
+{
+	// Ask 'string'
+	//
+	$this->typeValidationReuseRule = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $this->typeValidationReuseRule->validate( 'test', 'testInvalidTypesValidation' );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ * @depends           prepareInvalidTypesValidationGolemStringReuse
+ */
+public
+function	testInvalidTypesValidationGolemStringReuse()
+{
+	// Ask 'Golem\Data\String'
+	//
+	$this->typeValidationReuseRule->type( 'Golem\Data\String' );
+	$result = $this->typeValidationReuseRule->validate( 'test', 'testInvalidTypesValidationGolemStringReuse' );
+}
+
 
 }

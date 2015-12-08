@@ -42,7 +42,7 @@ protected $golem;
 protected $inputType;
 
 
-abstract protected function ensureType( $value );
+abstract protected function ensureType( $value, $context );
 
 
 
@@ -95,7 +95,7 @@ function validateOptionIn( $o )
 
 	foreach( $o as $key => $allowed )
 
-		$o[ $key ] = $this->ensureType( $allowed )
+		$o[ $key ] = $this->ensureType( $allowed, 'validating option: in' )
 	;
 
 
@@ -143,7 +143,7 @@ function sanitize( $input, $context )
 {
 	$this->inputType || $this->inputType = Util::getType( $input );
 
-	$input = $this->ensureType  ( $input           );
+	$input = $this->ensureType  ( $input, $context );
 
 	$input = $this->sanitizeType( $input, $context );
 	$input = $this->sanitizeIn  ( $input, $context );
@@ -158,7 +158,7 @@ function validate( $input, $context )
 {
 	$this->inputType || $this->inputType = Util::getType( $input );
 
-	$input = $this->ensureType  ( $input           );
+	$input = $this->ensureType  ( $input, $context );
 
 	$input = $this->validateType( $input, $context );
 	$input = $this->validateIn  ( $input, $context );

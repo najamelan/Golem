@@ -204,8 +204,18 @@ function validateOptionType( $o )
 
 
 protected
-function ensureType( $string )
+function ensureType( $string, $context )
 {
+	if( ! String::canBeString( $string ) )
+
+		$this->log->validationException
+		(
+			  "$context: Input value is not convertable to a string."
+			. "Got a: " . Util::getType( $string ) . " for input: " . print_r( $string, /* return = */ true )
+		)
+	;
+
+
 	if( ! $string instanceof String )
 	{
 		$string = $this->golem->string( $string, $this->encoding() );

@@ -138,12 +138,12 @@ function validateOptionType( $o )
 
 
 public
-function ensureType( $number )
+function ensureType( $number, $context )
 {
 
 	if( ! is_numeric( $number ) )
 
-		$this->log->validationException( "Cannot turn [$number] into a number." );
+		$this->log->validationException( "$context: Cannot turn [$number] into a number." );
 
 
 	$type = $this->options[ 'type' ];

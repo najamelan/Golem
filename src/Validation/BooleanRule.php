@@ -38,11 +38,11 @@ function __construct( Golem $golem, array $options = [] )
 
 
 public
-function ensureType( $input )
+function ensureType( $input, $context )
 {
 	if( ! is_bool( $input ) )
 
-		$this->log->validationException( "Input should be boolean, got: " . var_export( $input, /* return = */ true ) );
+		$this->log->validationException( "$context: Input should be boolean, got: " . var_export( $input, /* return = */ true ) );
 
 
 	return $input;
