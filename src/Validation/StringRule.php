@@ -295,6 +295,16 @@ function validate( $input, $context )
 
 	$input   = $this->validateLength ( $input, $context );
 
+
+	$outputType = isset( $this->options[ 'type' ] ) ? $this->options[ 'type' ] : $this->inputType;
+
+	if( $outputType === 'string' )
+	{
+		$input = $input->raw();
+		$this->inputType = null;
+	}
+
+
 	return $input;
 }
 
@@ -547,6 +557,42 @@ function isValidMaxLength( $input )
 }
 
 
+/**
+ * Type validation
+ * Most of this is dealt with by BaseRule, but since we internally convert all strings to Golem\Data\String,
+ * we should we make sure both native php strings and Golem Strings pass sanitation.
+ *
+ */
+
+
+public
+function sanitizeType( $input, $context )
+{
+
+	if( $this->inputType === 'string'  ||  $this->inputType === 'Golem\Data\String' )
+	{
+		// Prevent the validation after sanitation to throw because the inputType is not the correct one.
+		//
+		if( isset( $this->options[ 'type' ] ) )
+
+			$this->inputType = $this->options[ 'type' ];
+
+
+		return $input;
+	}
+
+
+	if( isset( $this->options[ 'defaultValue' ] ) )
+
+		return $this->validate( $this->options[ 'defaultValue' ], $context );
+
+
+	$this->log->validationException
+	(
+		  "$context: No default value set and input value [$input] is not of type: {$this->options['type']}, "
+		. "got a: $this->inputType. for input: " . print_r( $input, /* return = */ true )
+	);
+}
 
 
 }

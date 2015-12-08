@@ -36,7 +36,8 @@ use HasOptions, Seal, HasLog;
 protected $golem;
 
 /**
- * Used for input type checking.
+ * Keep track of type of data passed in. This allows certain scalar types to be converted internally (eg. strings) by
+ * OOP classes.
  */
 protected $inputType;
 
@@ -140,7 +141,7 @@ function validateOptionType( $o )
 public
 function sanitize( $input, $context )
 {
-	$this->inputType = Util::getType( $input );
+	$this->inputType || $this->inputType = Util::getType( $input );
 
 	$input = $this->ensureType  ( $input           );
 
@@ -155,7 +156,7 @@ function sanitize( $input, $context )
 public
 function validate( $input, $context )
 {
-	$this->inputType = Util::getType( $input );
+	$this->inputType || $this->inputType = Util::getType( $input );
 
 	$input = $this->ensureType  ( $input           );
 
@@ -298,7 +299,7 @@ function type( $type = null )
 public
 function sanitizeType( $input, $context )
 {
-	if( $this->isValidType( $this->inputType )  ||  $this->isValidType( Util::getType( $input ) ) )
+	if( $this->isValidType() )
 
 		return $input;
 
@@ -311,7 +312,7 @@ function sanitizeType( $input, $context )
 	$this->log->validationException
 	(
 		  "$context: No default value set and input value [$input] is not of type: {$this->options['type']}, "
-		. "got a: $this->inputType. for input: " . var_export( $input, /* return = */ true )
+		. "got a: $this->inputType. for input: " . print_r( $input, /* return = */ true )
 	);
 }
 
@@ -322,7 +323,7 @@ function validateType( $input, $context )
 {
 	// Only check the type when the value came in, not the current one which might have been cast by ensureType.
 	//
-	if( $this->isValidType( $this->inputType ) )
+	if( $this->isValidType() )
 
 		return $input;
 
@@ -330,14 +331,14 @@ function validateType( $input, $context )
 	$this->log->validationException
 	(
 		  "$context: Input value [$input] is not of type: {$this->options['type']}, got a: $this->inputType. "
-		. "for input: " . var_export( $input, /* return = */ true )
+		. "for input: " . print_r( $input, /* return = */ true )
 	);
 }
 
 
 
 public
-function isValidType( $type )
+function isValidType()
 {
 	if
 	(

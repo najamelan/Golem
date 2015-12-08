@@ -310,4 +310,92 @@ function invalidEncodings()
 	];
 }
 
+
+public
+function testType()
+{
+	// Ask 'string' and send in 'string'
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $rule->sanitize( 'test', 'testType' );
+
+	$this->assertEquals      ( 'test'  , $result       );
+	$this->assertEquals      ( 'string', $rule->type() );
+	$this->assertInternalType( 'string', $result       );
+
+
+	// Ask Golem\Data\String and send in string
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'Golem\Data\String' ] );
+	$result = $rule->sanitize( 'test', 'testType2' );
+
+	$this->assertEquals    ( 'test'             , $result       );
+	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+
+
+	// Ask 'string' and send in Golem\Data\String
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType' );
+
+	$this->assertEquals      ( 'test'  , $result       );
+	$this->assertEquals      ( 'string', $rule->type() );
+	$this->assertInternalType( 'string', $result       );
+
+
+	// Ask Golem\Data\String and send in Golem\Data\String
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'Golem\Data\String' ] );
+	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType2' );
+
+	$this->assertEquals    ( 'test'             , $result       );
+	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+}
+
+
+public
+function testTypeReuseRule()
+{
+	// Ask 'string' and send in 'string'
+	//
+	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
+	$result = $rule->sanitize( 'test', 'testType' );
+
+	$this->assertEquals      ( 'test'  , $result       );
+	$this->assertEquals      ( 'string', $rule->type() );
+	$this->assertInternalType( 'string', $result       );
+
+
+	// Ask Golem\Data\String and send in string
+	//
+	$rule->type( 'Golem\Data\String' );
+	$result = $rule->sanitize( 'test', 'testType2' );
+
+	$this->assertEquals    ( 'test'             , $result       );
+	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+
+
+	// Ask 'string' and send in Golem\Data\String
+	//
+	$rule->type( 'string' );
+	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType' );
+
+	$this->assertEquals      ( 'test'  , $result       );
+	$this->assertEquals      ( 'string', $rule->type() );
+	$this->assertInternalType( 'string', $result       );
+
+
+	// Ask Golem\Data\String and send in Golem\Data\String
+	//
+	$rule->type( 'Golem\Data\String' );
+	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType2' );
+
+	$this->assertEquals    ( 'test'             , $result       );
+	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+}
+
 }

@@ -166,7 +166,8 @@ Validation:
 
       # The type of the variable. Sanitation will return your value as this type. Validation will throw an
       # exception if your value is not of the correct type. The option itself should be passed in as a php native string.
-      # Possible values are 'Golem\Data\String' or 'string' for native php strings.
+      # Possible values are 'Golem\Data\String' or 'string' for native php strings. If not set, the type of the input will be
+      # assumed to be the desired type.
       #
       # type:
 
