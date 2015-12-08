@@ -132,53 +132,40 @@ function validateOptionLength( $o, $param = 'length' )
 protected
 function compareLengths()
 {
+	$len = &$this->options[ 'length'    ];
+	$min = &$this->options[ 'minLength' ];
+	$max = &$this->options[ 'maxLength' ];
+
+
 	// maxlength shouldn't be smaller than minlength
 	//
-	if
-	(
-		   isset( $this->options[ 'minLength' ] )
-		&& isset( $this->options[ 'maxLength' ] )
-		&& $this->options[ 'maxLength' ] < $this->options[ 'minLength' ]
-	)
+	if( isset( $min )  &&  isset( $max )  &&  $max < $min )
 
 		$this->log->invalidArgumentException
 		(
-			  "Validation misconfiguration - expected maxLength to be bigger than "
-			. "minLength [{$this->options[ 'minLength' ]}]. Got: {$this->options[ 'minLength' ]}"
+			"StringRule misconfiguration - expected maxLength to be bigger than minLength [$min]. Got: $min"
 		)
 	;
 
 
 	// length shouldn't be smaller than minlength
 	//
-	if
-	(
-		   isset( $this->options[ 'minLength' ] )
-		&& isset( $this->options[ 'length'    ] )
-		&& $this->options[ 'length' ] < $this->options[ 'minLength' ]
-	)
+	if( isset( $min )  &&  isset( $len )  &&  $len < $min )
 
 		$this->log->invalidArgumentException
 		(
-			  "Validation misconfiguration - expected length to be bigger than "
-			. "minLength [{$this->options[ 'minLength' ]}]. Got: {$this->options[ 'length' ]}"
+			"StringRule misconfiguration - expected length to be bigger than minLength [$min]. Got: $len"
 		)
 	;
 
 
 	// length shouldn't be bigger than maxlength
 	//
-	if
-	(
-		   isset( $this->options[ 'maxLength' ] )
-		&& isset( $this->options[ 'length'    ] )
-		&& $this->options[ 'length' ] > $this->options[ 'maxLength' ]
-	)
+	if( isset( $max )  &&  isset( $len )  &&  $len > $max )
 
 		$this->log->invalidArgumentException
 		(
-			  "Validation misconfiguration - expected length to be smaller or equal than"
-			. "maxLength [{$this->options[ 'maxLength' ]}]. Got: {$this->options[ 'length' ]}"
+			"StringRule misconfiguration - expected length to be smaller or equal than maxLength [$max}. Got: $len"
 		)
 	;
 }
