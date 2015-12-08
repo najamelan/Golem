@@ -175,13 +175,18 @@ function compareLengths()
 protected
 function validateOptionType( $o )
 {
-	if( ! is_string( $o ) )
+	if( ! String::canBeString( $o ) )
 
 		$this->log->invalidArgumentException
 		(
-			"Option [type] should be given as a php native string. Got: " . Util::getType( $o )
+			"Option [type] should be given as a php native string or a Golem\Data\String. Got: " . Util::getType( $o )
 		)
 	;
+
+
+	if( $o instanceof String )
+
+		$o = $o->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 
 
 	if( ! in_array( $o, [ 'string', 'Golem\Data\String' ] ) )

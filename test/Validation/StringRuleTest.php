@@ -335,9 +335,10 @@ function testType()
 
 
 	// Ask 'string' and send in Golem\Data\String
+	// Also send in the type parameter itself as a Golem String
 	//
-	$rule   = self::$golem->validator()->string( [ 'type' => 'string' ] );
-	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType' );
+	$rule   = self::$golem->validator()->string( [ 'type' => self::$golem->string( 'string', self::$cfgEnc ) ] );
+	$result = $rule->sanitize( self::$golem->string( 'test', self::$cfgEnc ), 'testType' );
 
 	$this->assertEquals      ( 'test'  , $result       );
 	$this->assertEquals      ( 'string', $rule->type() );
@@ -345,9 +346,10 @@ function testType()
 
 
 	// Ask Golem\Data\String and send in Golem\Data\String
+	// Also send in the type parameter itself as a Golem String
 	//
-	$rule   = self::$golem->validator()->string( [ 'type' => 'Golem\Data\String' ] );
-	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType2' );
+	$rule   = self::$golem->validator()->string( [ 'type' => self::$golem->string( 'Golem\Data\String', self::$cfgEnc ) ] );
+	$result = $rule->sanitize( self::$golem->string( 'test', self::$cfgEnc ), 'testType2' );
 
 	$this->assertEquals    ( 'test'             , $result       );
 	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
