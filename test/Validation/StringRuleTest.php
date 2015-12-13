@@ -415,6 +415,7 @@ function testSanitationTypeReuseRule()
 /**
  * @dataProvider      invalidTypes
  * @expectedException Golem\Errors\ValidationException
+ *
  */
 public
 function	testInvalidTypesSanitation( $input )
@@ -445,6 +446,7 @@ function invalidTypes()
 /**
  * @dataProvider      invalidTypes
  * @expectedException Golem\Errors\ValidationException
+ *
  */
 public
 function	testInvalidTypesValidation( $input )
@@ -459,6 +461,7 @@ function	testInvalidTypesValidation( $input )
 
 /**
  * @expectedException Golem\Errors\ValidationException
+ *
  */
 public
 function	testInvalidTypesValidationNativeString()
@@ -473,6 +476,7 @@ function	testInvalidTypesValidationNativeString()
 
 /**
  * @expectedException Golem\Errors\ValidationException
+ *
  */
 public
 function	testInvalidTypesValidationGolemString()
@@ -487,6 +491,7 @@ function	testInvalidTypesValidationGolemString()
 
 /**
  * Make sure exception gets thrown correctly when reusing the rule
+ *
  */
 private $typeValidationReuseRule;
 
@@ -504,6 +509,7 @@ function	prepareInvalidTypesValidationGolemStringReuse()
 /**
  * @expectedException Golem\Errors\ValidationException
  * @depends           prepareInvalidTypesValidationGolemStringReuse
+ *
  */
 public
 function	testInvalidTypesValidationGolemStringReuse()

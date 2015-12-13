@@ -92,7 +92,7 @@ function fromUniCodePoint( Golem $golem, $codePoint, $encoding = null )
 
 	$codePoint = $golem->validator()->number()
 
-		->type    ( 'integer'  )
+		->type    ( 'integer' )
 		->sanitize( $codePoint, 'fromUniCodePoint: parameter $codePoint' );
 
 	;
