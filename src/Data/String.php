@@ -115,6 +115,20 @@ function copy()
 
 
 
+/**
+ * Get the raw php string, or set the content of the string. When setting, if content is not valid in the
+ * encoding of the String object, it will be modified to be valid. Wrong characters will be replaced with the
+ * substitue character.
+ *
+ * As an alias for this method you can just invoke the String object:
+ * '$myString()'              is equivalent to '$myString->raw()'
+ * '$myString( 'new value' )' is equivalent to '$myString->raw( 'new value' )'
+ *
+ * @param string $value Optional, the new content.
+ *
+ * @return string|$this The raw php string if parameter $value is null, $this when setting a new value.
+ *
+ */
 public
 function raw( $value = null )
 {
@@ -736,6 +750,18 @@ public
 function __toString()
 {
 	return $this->copy()->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
+}
+
+
+
+/**
+ * Alias for String::raw()
+ *
+ */
+public
+function __invoke( $raw = null )
+{
+	return $this->raw( $raw );
 }
 
 
