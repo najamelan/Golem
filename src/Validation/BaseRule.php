@@ -73,9 +73,10 @@ function validateOptions()
 {
 	$o = &$this->options;
 
-	isset( $o[ 'in'        ] )  &&  $o[ 'in'        ] = $this->validateOptionEncoding ( $o[ 'in'        ] );
-	isset( $o[ 'type'      ] )  &&  $o[ 'type'      ] = $this->validateOptionType     ( $o[ 'type'      ] );
-	isset( $o[ 'allowNull' ] )  &&  $o[ 'allowNull' ] = $this->validateOptionAllowNull( $o[ 'allowNull' ] );
+	isset( $o[ 'in'           ] )  &&  $o[ 'in'           ] = $this->validateOptionEncoding    ( $o[ 'in'           ] );
+	isset( $o[ 'type'         ] )  &&  $o[ 'type'         ] = $this->validateOptionType        ( $o[ 'type'         ] );
+	isset( $o[ 'allowNull'    ] )  &&  $o[ 'allowNull'    ] = $this->validateOptionAllowNull   ( $o[ 'allowNull'    ] );
+	isset( $o[ 'defaultValue' ] )  &&  $o[ 'defaultValue' ] = $this->validateOptionDefaultValue( $o[ 'defaultValue' ] );
 }
 
 
@@ -138,6 +139,14 @@ function validateOptionType( $o )
 
 
 
+protected
+function validateOptionDefaultValue( $o )
+{
+	return $this->ensureType( $o, 'validateOptionDefaultValue' );
+}
+
+
+
 public
 function sanitize( $input, $context )
 {
@@ -164,6 +173,23 @@ function validate( $input, $context )
 	$input = $this->validateIn  ( $input, $context );
 
 	return $input;
+}
+
+
+
+public
+function defaultValue( $value = null )
+{
+	// getter
+	//
+	if( $value === null )
+
+		return $this->options[ 'defaultValue' ];
+
+
+	// setter
+	//
+	return $this->setOpt( 'defaultValue', $this->validateOptionDefaultValue( $value ) );
 }
 
 
