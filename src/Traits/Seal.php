@@ -54,6 +54,25 @@ function seal()
 }
 
 
+/**
+ * Unseal the current object so it's options can be changed.
+ *
+ * Since this is a security risk, this function must not be public.
+ *
+ * @return mixed $this.
+ *
+ * @api
+ *
+ */
+protected
+function  unseal()
+{
+	$this->sealed = false;
+
+	return $this;
+}
+
+
 
 /**
  * Tells you whether the current object is sealed.
