@@ -28,10 +28,6 @@ extends    BaseRule
 {
 
 
-private $encodingUsed = false;
-
-
-
 public
 function __construct( Golem $golem, array $options = [] )
 {
@@ -70,12 +66,12 @@ function validateOptions()
 
 	$o = &$this->options;
 
-	isset( $o[ 'encoding'  ] )  &&  $o[ 'encoding'  ] = $this->validateOptionEncoding( $o[ 'encoding'  ] );
-	isset( $o[ 'type'      ] )  &&  $o[ 'type'      ] = $this->validateOptionType    ( $o[ 'type'      ] );
+	isset( $o[ 'encoding'  ] )  &&  $o[ 'encoding'  ] = $this->validateOptionEncoding( $o[ 'encoding'  ]              );
+	isset( $o[ 'type'      ] )  &&  $o[ 'type'      ] = $this->validateOptionType    ( $o[ 'type'      ]              );
 
-	isset( $o[ 'length'    ] )  &&  $o[ 'length'    ] = $this->validateOptionLength( $o[ 'length'    ]              );
-	isset( $o[ 'minLength' ] )  &&  $o[ 'minLength' ] = $this->validateOptionLength( $o[ 'minLength' ], 'minLength' );
-	isset( $o[ 'maxLength' ] )  &&  $o[ 'maxLength' ] = $this->validateOptionLength( $o[ 'maxLength' ], 'maxLength' );
+	isset( $o[ 'length'    ] )  &&  $o[ 'length'    ] = $this->validateOptionLength  ( $o[ 'length'    ]              );
+	isset( $o[ 'minLength' ] )  &&  $o[ 'minLength' ] = $this->validateOptionLength  ( $o[ 'minLength' ], 'minLength' );
+	isset( $o[ 'maxLength' ] )  &&  $o[ 'maxLength' ] = $this->validateOptionLength  ( $o[ 'maxLength' ], 'maxLength' );
 
 	$this->compareLengths();
 }
@@ -85,13 +81,18 @@ function validateOptions()
 protected
 function validateOptionEncoding( $o )
 {
-	if( ! is_string( $o ) )
+	if( ! String::canBeString( $o ) )
 
 		$this->log->invalidArgumentException
 		(
-			"Option [encoding] should be given as a php native string. Got: " . Util::getType( $o )
+			"Option [encoding] should be given as a php native string or a Golem\Data\String. Got: " . Util::getType( $o )
 		)
 	;
+
+
+	if( $o instanceof String )
+
+		$o = $o->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 
 
 	if( ! String::encodingSupported( $o ) )
@@ -218,14 +219,9 @@ function ensureType( $string, $context )
 
 	if( ! $string instanceof String )
 	{
-		$string = $this->golem->string( $string, $this->encoding() );
+		$string = $this->golem->string( $string, $this->golem->options( 'String', 'encoding' ) );
 		$this->encodingUsed = true;
 	}
-
-
-	elseif( $string->encoding() !== $this->encoding() )
-
-		$string->encoding( $this->encoding() );
 
 
 	return $string;
@@ -245,70 +241,78 @@ function areEqual( $a, $b )
 
 
 public
-function encoding( $encoding = null )
-{
-	// getter
-	//
-	if( $encoding === null )
-
-		return $this->options( 'encoding' );
-
-
-	// setter
-	//
-	if( $this->encodingUsed && $encoding !== $this->options( 'encoding' ) )
-
-		$this->log->logicException( 'Already used encoding to interprete scalar strings, cannot change anymore. If you want to use an encoding other than the default encoding, call this function before passing in native php strings in methods like [StringRule::in]. In any case with mixed encodings it\'s safer to create Golem\Data\String objects and set the correct encoding for each string. You can then safely mix different encodings for validation and the output for your validated string will be converted to fit the encoding set by this method.' );
-
-
-	return $this->setOpt( 'encoding', $this->validateOptionEncoding( $encoding ) );
-}
-
-
-
-public
 function sanitize( $input, $context )
 {
+	$context = $this->init( $context );
+
+
 	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context         );
-	$input   = parent::sanitize      ( $input, $context );
+	$input   = parent::sanitize        ( $input, $context );
 
-	$input   = $this->sanitizeLength ( $input, $context );
+	$input   = $this->sanitizeLength   ( $input, $context );
+	$input   = $this->sanitizeMinLength( $input, $context );
+	$input   = $this->sanitizeMaxLength( $input, $context );
+	$input   = $this->sanitizeEncoding ( $input, $context );
 
-	return $this->validate( $input, $context );
+	return $this->_validate( $input, $context );
 }
+
 
 
 
 public
 function validate( $input, $context )
 {
+	$context = $this->init( $context );
+
+	return $this->_validate( $input, $context );
+}
+
+
+
+public
+function _validate( $input, $context )
+{
 	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context         );
-	$input   = parent::validate      ( $input, $context );
+	$input   = parent::_validate       ( $input, $context );
 
-	$input   = $this->validateLength ( $input, $context );
+	$input   = $this->validateLength   ( $input, $context );
+	$input   = $this->validateMinLength( $input, $context );
+	$input   = $this->validateMaxLength( $input, $context );
+	$input   = $this->validateEncoding ( $input, $context );
 
 
-	$outputType = isset( $this->options[ 'type' ] ) ? $this->options[ 'type' ] : $this->inputType;
+	if( __CLASS__ === get_class( $this ) )
 
-	if( $outputType === 'string' )
-	{
-		$input = $input->raw();
-		$this->inputType = null;
-	}
+		return $this->finalize( $input );
 
 
 	return $input;
 }
+
+
+
+protected
+function  finalize( $input )
+{
+	$outputType = isset( $this->options[ 'type' ] ) ? $this->options[ 'type' ] : $this->inputType;
+
+	if( $outputType === 'string' )
+
+		$input = $input->raw();
+
+
+	return $input;
+}
+
 
 
 /**
@@ -595,6 +599,87 @@ function sanitizeType( $input, $context )
 		. "got a: $this->inputType. for input: " . print_r( $input, /* return = */ true )
 	);
 }
+
+
+
+/**
+ * encoding validation
+ *
+ */
+
+
+
+/**
+ * This method set's the encoding for the validation rule. It is used both to interprete scalar strings that you might pass
+ * in, as well as to convert the output of 'sanitize'. It cannot be called to change the encoding after the
+ * rule has used it to interprete scalar strings.
+ *
+ */
+public
+function encoding( $encoding = null )
+{
+	// getter
+	//
+	if( $encoding === null )
+
+		return $this->options( 'encoding' );
+
+
+	// setter
+	//
+	return $this->setOpt( 'encoding', $this->validateOptionEncoding( $encoding ) );
+}
+
+
+
+protected
+function sanitizeEncoding( $input, $context )
+{
+	if( $this->isValidEncoding( $input ) )
+
+		return $input;
+
+
+	// convert to the right encoding
+	//
+	return $input->encoding( $this->options[ 'encoding' ] );
+}
+
+
+
+protected
+function validateEncoding( $input, $context )
+{
+	if( $this->isValidEncoding( $input ) )
+
+		return $input;
+
+
+	$this->log->validationException
+	(
+		  "$context: Input value [$input] is not in the allowed encoding: "
+		. var_export( $this->options( 'encoding' ), /* return = */ true ) . " got: {$input->encoding()}"
+	);
+}
+
+
+
+public
+function isValidEncoding( $input )
+{
+	if
+	(
+		   ! isset( $this->options[ 'encoding' ] )
+		|| $input->encoding() === $this->options[ 'encoding' ]
+	)
+
+		return true;
+
+
+	return false;
+}
+
+
 
 
 }

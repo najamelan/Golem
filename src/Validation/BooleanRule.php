@@ -53,22 +53,34 @@ function ensureType( $input, $context )
 public
 function sanitize( $input, $context )
 {
+	$context = $this->init( $context );
+
+
 	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context );
-
 	$input = parent::sanitize( $input, $context );
 
-	return $this->validate( $input );
+	return $this->_validate( $input );
 }
+
 
 
 
 public
 function validate( $input, $context )
+{
+	$context = $this->init( $context );
+
+	return $this->_validate( $input, $context );
+}
+
+
+
+public
+function _validate( $input, $context )
 {
 	if( $this->validNull( $input ) )
 
@@ -77,7 +89,7 @@ function validate( $input, $context )
 
 	$context = $this->annotateContext( $context );
 
-	$input = parent::validate( $input, $context );
+	$input = parent::_validate( $input, $context );
 
 	return $input;
 }

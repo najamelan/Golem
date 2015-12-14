@@ -270,7 +270,7 @@ function invalidTypeOptions()
 
 
 public
-function testEncodingValidation()
+function testEncodingOptionValidation()
 {
 	$rule = self::$golem->validator()->string( [ 'encoding' => 'UTF-8' ] );
 	$this->assertEquals( 'UTF-8', $rule->encoding() );
@@ -518,6 +518,431 @@ function	testInvalidTypesValidationGolemStringReuse()
 	//
 	$this->typeValidationReuseRule->type( 'Golem\Data\String' );
 	$result = $this->typeValidationReuseRule->validate( 'test', 'testInvalidTypesValidationGolemStringReuse' );
+}
+
+
+
+public
+function testLengthSanitation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 0 ] );
+	$result = $rule->sanitize( '', 'testLengthSanitation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct length
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 4 ] );
+	$result = $rule->sanitize( 'test', 'testLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+
+
+	// send in unicode
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 5 ] );
+	$result = $rule->sanitize( 'ｳﾞｶｷｸ', 'testLengthSanitation' );
+
+	$this->assertEquals( 'ｳﾞｶｷｸ', $result );
+
+
+	// test truncate
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 4 ] );
+	$result = $rule->sanitize( 'tester', 'testLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+
+	// test rule reuse
+	//
+	$rule->length( 6 );
+	$result = $rule->sanitize( 'tester', 'testLengthSanitation' );
+
+	$this->assertEquals( 'tester', $result );
+
+
+	// test default value
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 4, 'defaultValue' => 'test' ] );
+	$result = $rule->sanitize( 't', 'testLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testLengthSanitationToShortNoDefaultValue()
+{
+	// test short string without default Value
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 4 ] );
+	$result = $rule->sanitize( 'te', 'testLengthSanitationToShortNoDefaultValue' );
+}
+
+
+
+public
+function testLengthValidation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 0 ] );
+	$result = $rule->validate( '', 'testLengthValidation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct length
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 4 ] );
+	$result = $rule->validate( 'test', 'testLengthValidation' );
+
+	$this->assertEquals( 'test', $result );
+
+
+	// test rule reuse
+	//
+	$rule->length( 6 );
+	$result = $rule->validate( 'tester', 'testLengthValidation' );
+
+	$this->assertEquals( 'tester', $result );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testLengthValidationToShort()
+{
+	// test short string without default Value
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 4 ] );
+	$result = $rule->validate( 'te', 'testLengthValidationToShort' );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testLengthValidationToLong()
+{
+	// test short string without default Value
+	//
+	$rule   = self::$golem->validator()->string( [ 'length' => 0 ] );
+	$result = $rule->validate( 'te', 'testLengthValidationToLong' );
+}
+
+
+
+public
+function testMinLengthSanitation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 0 ] );
+	$result = $rule->sanitize( '', 'testMinLengthSanitation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct minLength
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 4 ] );
+	$result = $rule->sanitize( 'test', 'testMinLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+
+
+	// send in a string longer than minLength
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 4 ] );
+	$result = $rule->sanitize( 'tester', 'testMinLengthSanitation' );
+
+	$this->assertEquals( 'tester', $result );
+
+
+	// test rule reuse
+	//
+	$rule->minLength( 6 );
+	$result = $rule->sanitize( 'testers', 'testMinLengthSanitation' );
+
+	$this->assertEquals( 'testers', $result );
+
+
+	// test default value
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 4, 'defaultValue' => 'test' ] );
+	$result = $rule->sanitize( 't', 'testMinLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testMinLengthSanitationToShortNoDefaultValue()
+{
+	// test short string without default Value
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 4 ] );
+	$result = $rule->sanitize( 'te', 'testMinLengthSanitationToShortNoDefaultValue' );
+}
+
+
+
+public
+function testMinLengthValidation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 0 ] );
+	$result = $rule->validate( '', 'testMinLengthValidation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct minLength
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 4 ] );
+	$result = $rule->validate( 'tester', 'testMinLengthValidation' );
+
+	$this->assertEquals( 'tester', $result );
+
+
+	// test rule reuse
+	//
+	$rule->minLength( 6 );
+	$result = $rule->validate( 'testers', 'testMinLengthValidation' );
+
+	$this->assertEquals( 'testers', $result );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testMinLengthValidationToShort()
+{
+	// test short string without default Value
+	//
+	$rule   = self::$golem->validator()->string( [ 'minLength' => 4 ] );
+	$result = $rule->validate( 'te', 'testMinLengthValidationToShort' );
+}
+
+
+
+public
+function testMaxLengthSanitation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 0 ] );
+	$result = $rule->sanitize( '', 'testMaxLengthSanitation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct maxLength
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 4 ] );
+	$result = $rule->sanitize( 'test', 'testMaxLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+
+
+	// send in a string shorter than maxLength
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 8 ] );
+	$result = $rule->sanitize( 'tester', 'testMaxLengthSanitation' );
+
+	$this->assertEquals( 'tester', $result );
+
+
+	// test rule reuse
+	//
+	$rule->maxLength( 7 );
+	$result = $rule->sanitize( 'testers', 'testMaxLengthSanitation' );
+
+	$this->assertEquals( 'testers', $result );
+
+
+	// test truncate
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 4 ] );
+	$result = $rule->sanitize( 'tester', 'testMaxLengthSanitation' );
+
+	$this->assertEquals( 'test', $result );
+}
+
+
+
+public
+function testMaxLengthValidation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 0 ] );
+	$result = $rule->validate( '', 'testMaxLengthValidation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct maxLength
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 9 ] );
+	$result = $rule->validate( 'tester', 'testMaxLengthValidation' );
+
+	$this->assertEquals( 'tester', $result );
+
+
+	// test rule reuse
+	//
+	$rule->maxLength( 7 );
+	$result = $rule->validate( 'testers', 'testMaxLengthValidation' );
+
+	$this->assertEquals( 'testers', $result );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testMaxLengthValidationToLong()
+{
+	// test short string without default Value
+	//
+	$rule   = self::$golem->validator()->string( [ 'maxLength' => 4 ] );
+	$result = $rule->validate( 'tester', 'testMaxLengthValidationToShort' );
+}
+
+
+
+public
+function testEncodingSanitation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->sanitize( self::$golem->string( '', self::$cfgEnc ), 'testEncodingSanitation' );
+
+	$this->assertEquals( self::$cfgEnc, $result->encoding() );
+	$this->assertEquals( ''           , $result()           );
+
+
+	// send in a correct encoding
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->sanitize( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
+
+	$this->assertEquals( self::$cfgEnc, $result->encoding() );
+	$this->assertEquals( 'ｳﾞｶｷｸ'      , $result()           );
+
+
+	// send in a different encoding
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => 'UTF-32' ] );
+	$result = $rule->sanitize( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
+
+	$this->assertEquals( 'UTF-32', $result->encoding() );
+	$this->assertEquals( mb_convert_encoding( 'ｳﾞｶｷｸ', 'UTF-32', self::$cfgEnc ), $result() );
+
+
+	// test rule reuse
+	//
+	$rule->encoding( 'UTF-16BE' );
+	$result = $rule->sanitize( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
+
+	$this->assertEquals( 'UTF-16BE', $result->encoding() );
+	$this->assertEquals( mb_convert_encoding( 'ｳﾞｶｷｸ', 'UTF-16BE', self::$cfgEnc ), $result() );
+}
+
+
+
+public
+function testEncodingValidation()
+{
+	// send in an empty string
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->validate( '', 'testEncodingValidation' );
+
+	$this->assertEquals( '', $result );
+
+
+	// send in a correct encoding
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->validate( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingValidation' );
+
+	$this->assertEquals( 'ｳﾞｶｷｸ', $result() );
+
+
+	// test rule reuse
+	//
+	$string =  self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc )->encoding( 'UTF-32' );
+
+	$rule->encoding( 'UTF-32' );
+	$result = $rule->validate( $string, 'testEncodingValidation' );
+
+	$this->assertEquals( $string, $result );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testEncodingValidationWrong()
+{
+	// send in a wrong encoding
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => 'UTF-16' ] );
+	$result = $rule->validate( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingValidationWrong' );
+
+	$this->assertEquals( 'ｳﾞｶｷｸ', $result() );
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ *
+ */
+public
+function	testEncodingValidationWrongNativeString()
+{
+	// send in a wrong encoding
+	//
+	$rule   = self::$golem->validator()->string( [ 'encoding' => 'UTF-16' ] );
+	$result = $rule->validate( 'ｳﾞｶｷｸ', 'testEncodingValidationWrongNativeString' );
+
+	$this->assertEquals( 'ｳﾞｶｷｸ', $result );
 }
 
 

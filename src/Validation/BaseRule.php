@@ -69,6 +69,15 @@ function copy()
 
 
 protected
+function init( $context )
+{
+	$this->inputType = null;
+	$this->annotateContext( $context );
+}
+
+
+
+protected
 function validateOptions()
 {
 	$o = &$this->options;
@@ -163,7 +172,7 @@ function sanitize( $input, $context )
 
 
 public
-function validate( $input, $context )
+function _validate( $input, $context )
 {
 	$this->inputType || $this->inputType = Util::getType( $input );
 
@@ -394,9 +403,9 @@ function annotateContext( $context )
 
 		  $context
 		. ' called from: '
-		. debug_backtrace()[ 2 ][ 'class' ]
-		. debug_backtrace()[ 2 ][ 'type'  ]
-		. debug_backtrace()[ 2 ][ 'function' ] . "() "
+		. debug_backtrace()[ 3 ][ 'class' ]
+		. debug_backtrace()[ 3 ][ 'type'  ]
+		. debug_backtrace()[ 3 ][ 'function' ] . "() "
 	;
 }
 

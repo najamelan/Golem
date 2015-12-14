@@ -173,34 +173,46 @@ function ensureType( $number, $context )
 public
 function sanitize( $input, $context )
 {
+	$context = $this->init( $context );
+
+
 	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context );
 
 	$input = parent::sanitize( $input, $context );
 
 	$input = $this->sanitizeMin( $input, $context );
 	$input = $this->sanitizeMax( $input, $context );
 
-	return $this->validate( $input, $context );
+	return $this->_validate( $input, $context );
 }
+
 
 
 
 public
 function validate( $input, $context )
 {
+	$context = $this->init( $context );
+
+	return $this->_validate( $input, $context );
+}
+
+
+
+public
+function _validate( $input, $context )
+{
 	if( $this->validNull( $input ) )
 
 		return null;
 
 
-	$context = $this->annotateContext( $context );
 
-	$input = parent::validate( $input, $context );
+	$input = parent::_validate( $input, $context );
 
 	$input = $this->validateMin( $input, $context );
 	$input = $this->validateMax( $input, $context );
