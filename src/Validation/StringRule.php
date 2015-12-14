@@ -357,7 +357,7 @@ function sanitizeLength( $input, $context )
 	//
 	if( isset( $this->options[ 'defaultValue' ] ) )
 
-		return $this->validate( $this->options[ 'defaultValue' ], $context );
+		return $this->options[ 'defaultValue' ];
 
 
 	$this->log->validationException
@@ -440,7 +440,7 @@ function sanitizeMinLength( $input, $context )
 	//
 	if( isset( $this->options[ 'defaultValue' ] ) )
 
-		return $this->validate( $this->options[ 'defaultValue' ], $context );
+		return $this->options[ 'defaultValue' ];
 
 
 	$this->log->validationException
@@ -519,9 +519,9 @@ function sanitizeMaxLength( $input, $context )
 		return $input;
 
 
-	// length is > maxLength
+	// length is > maxLength, truncate
 	//
-	return $this->validate( $input->substr( 0, $this->options( 'maxLength' ) ), $context );
+	return $input->substr( 0, $this->options[ 'maxLength' ] );
 }
 
 
