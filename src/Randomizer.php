@@ -63,8 +63,6 @@ function randomString( $numChars, $charset )
 public
 function randomBytes( $amount, $form = 'dec' )
 {
-	$bytes = openssl_random_pseudo_bytes( $amount );
-
 	switch( $form )
 	{
 		case 'hex': return bin2hex( $this->randomBytes( $amount, 'raw' ) );
