@@ -126,6 +126,8 @@ public function randomFloat( $min, $max );
  * the current time, and any other random data available.  The format is a
  * well-defined sequence of 32 hex digits grouped into chunks of 8-4-4-4-12.
  *
+ * https://tools.ietf.org/html/rfc4122#section-4.4
+ *
  * @throws EncryptionException if hashing or encryption fails
  *
  * @return string the GUID

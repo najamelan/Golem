@@ -39,14 +39,17 @@ function __construct( Golem $golem )
 public
 function randomString( $numChars, $charset )
 {
-	if( $numChars < 1 || strlen( $charset ) < 2 )
+	if( $numChars < 0 || strlen( $charset ) < 1 )
 
 		$this->log->exception( new LengthException() );
 
 
-	for( $i = 0, $rs = ''; $i < $numChars; ++$i )
+	$rs     = ''                    ;
+	$setMax = strlen( $charset ) - 1;
 
-		$rs .= $charset[ $this->randomInt( 0, strlen( $charset ) - 1 ) ];
+	for( $i = 0; $i < $numChars; ++$i )
+
+		$rs .= $charset[ $this->randomInt( 0, $setMax ) ];
 
 
 	return $rs;
@@ -127,7 +130,7 @@ function randomFilename( $extension = '' )
 	//
 	return
 
-		$this->randomString( 16, 'abcdefghijklmnopqrstuvxyz0123456789' ) . $extension
+		$this->randomString( 16, 'abcdefghijklmnopqrstuvxyz0123456789' ) . '.' . $extension
 	;
 }
 
