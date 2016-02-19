@@ -25,16 +25,16 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	function	testConstructor()
 	{
 		$file = new File( self::$golem, 'tester.php' );
-		$this->assertEquals( $file->filename(), 'tester.php' );
+		$this->assertEquals( $file->name(), 'tester.php' );
 	}
 
 
 
 	public
-	function	testReadFile()
+	function	testContent()
 	{
 		$file = new File( self::$golem, __DIR__ . '/../TestData/someData' );
-		$this->assertEquals( $file->readFile(), "12345\n" );
+		$this->assertEquals( $file->content(), "12345\n" );
 	}
 
 
@@ -44,10 +44,10 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 *
 	 */
 	public
-	function	testReadFileNoExist()
+	function	testContentNoExist()
 	{
 		$file = new File( self::$golem, 'doesntexist.php' );
-		$contents = $file->readFile();
+		$contents = $file->content();
 	}
 
 

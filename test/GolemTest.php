@@ -41,7 +41,7 @@ class GolemTest extends \PHPUnit_Framework_TestCase
 		// Override an option using another golem
 		//
 		$golem  = new Golem( [ 'Logger' => [ 'name' => 'Will' ] ] );
-		$golem2 = new Golem( $golem );
+		$golem2 = new Golem( $golem->userset() );
 		$this->assertEquals( $golem2->options()[ 'Logger' ][ 'name' ], 'Will' );
 
 

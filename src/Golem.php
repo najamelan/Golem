@@ -21,6 +21,8 @@ use
    , Golem\Sanitizer
    , Golem\Validator
 
+   , Golem\Codecs\ParseYAML
+
    , Golem\Validation\StringRule
    , Golem\Validation\NumberRule
 
@@ -31,6 +33,7 @@ use
    , Golem\Traits\HasOptions
 
    , Exception
+   , RuntimeException
    , InvalidArgumentException
 ;
 
@@ -81,8 +84,8 @@ class Golem
 	 * to be made by code included later in your application. See the documentation on sealing
 	 * for limitations of this approach.
 	 *
-	 * @param array|string|Golem/Golem $options Filename for an options
-	 *        file or array or Golem/Golem with values to override defaults.
+	 * @param array|string $options Filename for an options
+	 *        file or array with values to override the defaults.
 	 *
 	 * @throws \Exception When the input parameter is of wrong type.
 	 * @throws \Exception When the filename passed is no existing file.
@@ -92,16 +95,26 @@ class Golem
 	public
 	function __construct( $options = [] )
 	{
-		$defaultsFile   = new File( $this, self::DEFAULT_OPTIONS_FILE );
-		$defaults = $defaultsFile->parse();
+		// parameter validation
+		//
+		if( ! file_exists( self::DEFAULT_OPTIONS_FILE ) )
+
+			throw new RuntimeException( "Cannot open options file: " . self::DEFAULT_OPTIONS_FILE );
+
+
+		if( is_string( $options ) && ! file_exists( $options ) )
+
+			throw new RuntimeException( "Cannot open options file: " . $options );
+
+
+		$parser   = new ParseYAML;
+		$defaults = $parser->decode( file_get_contents( self::DEFAULT_OPTIONS_FILE ) );
+
 
 		switch( Util::getType( $options ) )
 		{
-			case 'string'                           : $options = ( new File( $this, $options ) )->parse();
-			case 'array'                            : break;
-
-			case 'Golem\Golem'                      : $options = $options->options;
-			                                          break;
+			case 'string' : $options = $parser->decode( file_get_contents( $options ) );
+			case 'array'  : break;
 
 			default: throw new InvalidArgumentException( "Cannot get valid options from a: " . Util::getType( $options ) );
 		}
@@ -143,7 +156,7 @@ class Golem
 
 		if( ! isset( $this->loggers[ $name ] ) )
 		{
-			$options[ 'name' ] = $name;
+			$options[ 'name' ]      = $name;
 			$this->loggers[ $name ] = new Logger( $this, $options );
 		}
 
@@ -241,6 +254,22 @@ class Golem
 	}
 
 
-	public function stringRule( $options = [] ){ return new StringRule( $this, $options ); }
-	public function numberRule( $options = [] ){ return new NumberRule( $this, $options ); }
+
+	/**
+	 * Get a \Golem\Data\File.
+	 *
+	 * @return \Golem\Data\File
+	 *
+	 * @api
+	 *
+	 */
+	public
+	function file( $path )
+	{
+		return new File( $this, $path );
+	}
+
+
+	public function stringRule( array $options = [] ){ return new StringRule( $this, $options ); }
+	public function numberRule( array $options = [] ){ return new NumberRule( $this, $options ); }
 }

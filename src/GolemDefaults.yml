@@ -198,8 +198,11 @@ Validation:
 
 Mat:
 
-   enabled: false
    binary : '/usr/bin/mat'
+
+   # If true, will make a backup with the suffix '.bak'. It will overwrite existing files without warning.
+   #
+   backup : false
 
 
 Driver:
