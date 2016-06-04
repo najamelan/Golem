@@ -184,8 +184,8 @@ function sanitize( $input, $context )
 
 	$input = parent::sanitize( $input, $context );
 
-	$input = $this->sanitizeMin( $input, $context );
-	$input = $this->sanitizeMax( $input, $context );
+	if( $this->options( 'min' ) !== null ) $input = $this->sanitizeMin( $input, $context );
+	if( $this->options( 'max' ) !== null ) $input = $this->sanitizeMax( $input, $context );
 
 	return $this->_validate( $input, $context );
 }
@@ -214,8 +214,8 @@ function _validate( $input, $context )
 
 	$input = parent::_validate( $input, $context );
 
-	$input = $this->validateMin( $input, $context );
-	$input = $this->validateMax( $input, $context );
+	if( $this->options( 'min' ) !== null ) $input = $this->validateMin( $input, $context );
+	if( $this->options( 'max' ) !== null ) $input = $this->validateMax( $input, $context );
 
 
 	return $input;
@@ -296,11 +296,6 @@ function validateMin( $input, $context )
 public
 function isValidMin( $input )
 {
-	if( ! isset( $this->options[ 'min' ] ) )
-
-		return true;
-
-
 	if( $input >= $this->options( 'min' ) )
 
 		return true;
@@ -350,11 +345,6 @@ function validateMax( $input, $context )
 public
 function isValidMax( $input )
 {
-	if( ! isset( $this->options[ 'max' ] ) )
-
-		return true;
-
-
 	if( $input <= $this->options( 'max' ) )
 
 		return true;

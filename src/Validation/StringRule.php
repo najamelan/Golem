@@ -253,10 +253,10 @@ function sanitize( $input, $context )
 
 	$input   = parent::sanitize        ( $input, $context );
 
-	$input   = $this->sanitizeLength   ( $input, $context );
-	$input   = $this->sanitizeMinLength( $input, $context );
-	$input   = $this->sanitizeMaxLength( $input, $context );
-	$input   = $this->sanitizeEncoding ( $input, $context );
+	if( $this->options( 'length'    ) !== null ) $input = $this->sanitizeLength   ( $input, $context );
+	if( $this->options( 'minLength' ) !== null ) $input = $this->sanitizeMinLength( $input, $context );
+	if( $this->options( 'maxLength' ) !== null ) $input = $this->sanitizeMaxLength( $input, $context );
+	if( $this->options( 'encoding'  ) !== null ) $input = $this->sanitizeEncoding ( $input, $context );
 
 	return $this->_validate( $input, $context );
 }
@@ -284,10 +284,10 @@ function _validate( $input, $context )
 
 	$input   = parent::_validate       ( $input, $context );
 
-	$input   = $this->validateLength   ( $input, $context );
-	$input   = $this->validateMinLength( $input, $context );
-	$input   = $this->validateMaxLength( $input, $context );
-	$input   = $this->validateEncoding ( $input, $context );
+	if( $this->options( 'length'    ) !== null ) $input = $this->validateLength   ( $input, $context );
+	if( $this->options( 'minLength' ) !== null ) $input = $this->validateMinLength( $input, $context );
+	if( $this->options( 'maxLength' ) !== null ) $input = $this->validateMaxLength( $input, $context );
+	if( $this->options( 'encoding'  ) !== null ) $input = $this->validateEncoding ( $input, $context );
 
 
 	if( __CLASS__ === get_class( $this ) )
@@ -327,7 +327,7 @@ function length( $length = null )
 	//
 	if( $length === null )
 
-		return $this->options[ 'length' ];
+		return $this->options( 'length' );
 
 
 	// setter
@@ -394,11 +394,7 @@ function validateLength( $input, $context )
 public
 function isValidLength( $input )
 {
-	if
-	(
-		   ! isset( $this->options[ 'length' ] )
-		|| $input->length() === $this->options[ 'length' ]
-	)
+	if( $input->length() === $this->options( 'length' ) )
 
 		return true;
 
@@ -477,11 +473,7 @@ function validateMinLength( $input, $context )
 public
 function isValidMinLength( $input )
 {
-	if
-	(
-		   ! isset( $this->options[ 'minLength' ] )
-		|| $input->length() >= $this->options[ 'minLength' ]
-	)
+	if( $input->length() >= $this->options( 'minLength' ) )
 
 		return true;
 
@@ -550,11 +542,7 @@ function validateMaxLength( $input, $context )
 public
 function isValidMaxLength( $input )
 {
-	if
-	(
-		   ! isset( $this->options[ 'maxLength' ] )
-		|| $input->length() <= $this->options[ 'maxLength' ]
-	)
+	if( $input->length() <= $this->options( 'maxLength' ) )
 
 		return true;
 
@@ -667,11 +655,7 @@ function validateEncoding( $input, $context )
 public
 function isValidEncoding( $input )
 {
-	if
-	(
-		   ! isset( $this->options[ 'encoding' ] )
-		|| $input->encoding() === $this->options[ 'encoding' ]
-	)
+	if( $input->encoding() === $this->options( 'encoding' ) )
 
 		return true;
 
