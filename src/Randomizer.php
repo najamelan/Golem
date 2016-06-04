@@ -61,6 +61,7 @@ function randomString( $numChars, $charset )
  * {@inheritDoc}
  *
  * @todo check for out of bounds on integers and others.
+ * @todo check for crypto_strong value returned by openssl_random_pseudo_bytes
  *
  */
 public
@@ -96,11 +97,22 @@ function randomBool()
 
 /**
  * {@inheritDoc}
+ *
+ * TODO: parameter validation
  */
 public
-function randomInt( $min, $max )
+function randomInt( $min = 0, $max = PHP_INT_MAX )
 {
-	$factor = $this->randomBytes( 4 ) / 0xFFFFFFFF;
+	// If full range is desired, not only does the formula below not work,
+	// but actually we don't have to calculate anything so return immediately.
+	// TODO: write a neat formula that always works.
+	//
+	if( $min === 0  &&  $max === PHP_INT_MAX )
+
+		return $this->randomBytes( 4, 'dec' );
+
+
+	$factor = $this->randomBytes( 4, 'dec' ) / 0xFFFFFFFF;
 
 	// floor will return a double by default, so cast to int
 	//
@@ -115,7 +127,7 @@ function randomInt( $min, $max )
 public
 function randomLong()
 {
-	return $this->randomBytes( 8 );
+	return $this->randomBytes( 8, 'dec' );
 }
 
 
