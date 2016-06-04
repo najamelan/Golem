@@ -274,7 +274,7 @@ function validate( $input, $context )
 
 
 
-public
+protected
 function _validate( $input, $context )
 {
 	if( $this->validNull( $input ) )

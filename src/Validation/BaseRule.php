@@ -171,7 +171,7 @@ function sanitize( $input, $context )
 
 
 
-public
+protected
 function _validate( $input, $context )
 {
 	$this->inputType || $this->inputType = Util::getType( $input );
