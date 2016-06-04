@@ -192,8 +192,56 @@ Validation:
       # max:
 
 
-   BooleanRule: []
-   FileRule   : []
+   BooleanRule : []
+
+
+   # File validation
+   #
+   FileRule: []
+
+      # Whether it's an existing file (when sanitizing will be created if not existing)
+      #
+      # exists: true/false
+      #
+      #
+      # Whether the file should be a directory (implies exists: true)
+      #
+      # isDir: true/false
+      #
+      #
+      # Whether the file should be empty (will be emptied on sanitation, implies exists: true)
+      #
+      # isEmpty: true/false
+      #
+      #
+      # Wheter the file should be executable (implies exists: true)
+      #
+      # executable: true/false
+      #
+      #
+      # Whether the file should be readable by the current user (implies exists: true)
+      #
+      # readable: true/false
+      #
+      #
+      # Whether the file should be writeable by the current user (implies exists: true)
+      #
+      # writable: true/false
+      #
+      #
+      # Which user should own the file (implies exists: true)
+      #
+      # owner:
+      #
+      #
+      # Which group should own the file (implies exists: true)
+      #
+      # group:
+      #
+      #
+      # Which permissions the file should have in octal (implies exists: true)
+      #
+      # permissions:
 
 
 Mat:

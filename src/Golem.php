@@ -25,6 +25,7 @@ use
 
    , Golem\Validation\StringRule
    , Golem\Validation\NumberRule
+   , Golem\Validation\FileRule
 
    , Golem\Data\File
    , Golem\Data\String
@@ -271,5 +272,6 @@ class Golem
 
 
 	public function stringRule( array $options = [] ){ return new StringRule( $this, $options ); }
+	public function fileRule  ( array $options = [] ){ return new FileRule  ( $this, $options ); }
 	public function numberRule( array $options = [] ){ return new NumberRule( $this, $options ); }
 }

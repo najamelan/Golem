@@ -57,6 +57,7 @@ function __construct( Golem $golem, $path )
 }
 
 
+
 /**
  * Returns the filename.
  *
@@ -88,6 +89,7 @@ function extension()
 }
 
 
+
 /**
  * Returns whether the file exists on the filesystem.
  *
@@ -107,16 +109,33 @@ function exists()
 }
 
 
+
 /**
  * Returns the absolute path to the file.
  *
- * @return string Absolue path including filename
+ * @return string Absolute path including filename
  *
  * @api
  *
  */
 public
 function path()
+{
+	return $this->path;
+}
+
+
+
+/**
+ * Returns the absolute path to the file.
+ *
+ * @return string Absolute path including filename
+ *
+ * @api
+ *
+ */
+public
+function __toString()
 {
 	return $this->path;
 }
@@ -228,6 +247,7 @@ function driver( iFileDriver $driver = null )
 }
 
 
+
 /**
  * Getter/Setter for the contents of the file.
  *
@@ -320,6 +340,18 @@ function touch( $time = null, $atime = null )
 
 
 	return $this;
+}
+
+
+
+/**
+ * @return string The metadata contained in the file.
+ *
+ */
+public
+function hasMetaData()
+{
+	return $this->driver()->hasMetaData();
 }
 
 
