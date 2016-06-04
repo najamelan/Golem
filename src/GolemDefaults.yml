@@ -115,8 +115,6 @@ Encoder: []
 
 Validation:
 
-   Validator: []
-
    BaseRule :
 
       # Whether a null value validates

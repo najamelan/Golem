@@ -57,7 +57,7 @@ function __construct( Golem $golem, $content = '', array $options = [] )
 	$this->golem = $golem;
 
 
-	$this->posIntRule = $this->golem->validator()->number()
+	$this->posIntRule = $this->golem->numberRule()
 
 		-> type( 'integer' )
 		-> min ( 0         )
@@ -90,7 +90,7 @@ function fromUniCodePoint( Golem $golem, $codePoint, $encoding = null )
 
 
 
-	$codePoint = $golem->validator()->number()
+	$codePoint = $golem->numberRule()
 
 		->type    ( 'integer' )
 		->sanitize( $codePoint, 'fromUniCodePoint: parameter $codePoint' );
@@ -344,7 +344,7 @@ function count()
 public
 function split( $chunksize = 1, $raw = false )
 {
-	$chunksize = $this->golem->validator()->number()
+	$chunksize = $this->golem->numberRule()
 
 		-> type    ( 'integer' )
 		-> min     ( 1         )
@@ -353,7 +353,7 @@ function split( $chunksize = 1, $raw = false )
 	;
 
 
-	$raw = $this->golem->validator()->boolean()->validate( $raw, 'Split: parameter $raw' );
+	$raw = $this->golem->booleanRule()->validate( $raw, 'Split: parameter $raw' );
 
 
 	for( $i = 0, $result = []; $i < $this->length(); $i += $chunksize )
@@ -380,7 +380,7 @@ function split( $chunksize = 1, $raw = false )
 public
 function pop( $amount = 1 )
 {
-	$amount = $this->golem->validator()->number()
+	$amount = $this->golem->numberRule()
 
 		-> type    ( 'integer' )
 		-> min     ( 1         )
@@ -410,7 +410,7 @@ function pop( $amount = 1 )
 public
 function shift( $amount = 1 )
 {
-	$amount = $this->golem->validator()->number()
+	$amount = $this->golem->numberRule()
 
 		-> type    ( 'integer' )
 		-> min     ( 1         )
@@ -592,7 +592,7 @@ function offsetSet( $index , $value )
 	;
 
 
-	$value = $this->golem->validator()->string()
+	$value = $this->golem->stringRule()
 
 		-> type  ( 'Golem\Data\String' )
 		-> length( 1      )

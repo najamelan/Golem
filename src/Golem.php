@@ -216,27 +216,6 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Validator.
-	 *
-	 * @return \Golem\Validator
-	 *
-	 * @api
-	 *
-	 */
-	public
-	function validator()
-	{
-		if( ! $this->validator )
-
-			$this->validator = new Validator( $this );
-
-
-		return $this->validator;
-	}
-
-
-
-	/**
 	 * Get a \Golem\Data\String.
 	 *
 	 * @return \Golem\Data\String

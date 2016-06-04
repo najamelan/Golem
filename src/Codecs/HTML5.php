@@ -60,7 +60,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	// Parameter Validation
 	//
-	$this->options[ 'context' ] = $context	= $this->golem->validator()->string()
+	$this->options[ 'context' ] = $context	= $this->golem->stringRule()
 
 		->encoding( $this->cfgEnc                   )
 		->in      ( 'text'  , 'attribute'           )
@@ -103,7 +103,7 @@ function encodeCharacter( String $c )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->validator()->string()
+	$c = $this->golem->stringRule()
 
 		->length  ( 1                  )
 		->validate( $c, 'parameter $c' )
@@ -161,7 +161,7 @@ function allowedInEntity( $codePoint )
 
 	// Parameter Validation
 	//
-	$codePoint = $this->golem->validator()->number()
+	$codePoint = $this->golem->numberRule()
 
 		->type    ( 'integer'                           )
 		->validate( $codePoint, 'parameter: $codePoint' )
@@ -240,7 +240,7 @@ function decodeNumericEntity( String $input, $type = 'dec' )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->validator()->string()
+	$c = $this->golem->stringRule()
 
 		->encoding( $this->cfgEnc             )
 		->in      ( 'hex', 'dec'              )
