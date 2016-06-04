@@ -87,7 +87,7 @@ function getOpts( $pointer, $args )
 			$bt = debug_backtrace();
 			$e  = new UnexpectedValueException
 			(
-				  'Called with invalid keys: ' . print_r( func_get_args(), true )
+				  'Called with invalid or unexisting keys: ' . print_r( func_get_args(), true )
 				. ' from: ' . basename( $bt[ 0 ][ 'file' ] ) . ":" . $bt[ 0 ][ 'line' ] . " -- "
 				. $bt[ 1 ][ 'class' ] . $bt[ 1 ][ 'type' ] . $bt[ 1 ][ 'function' ] . '()'
 			);
