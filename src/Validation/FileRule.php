@@ -95,7 +95,7 @@ function ensureType( $file, $context )
 		$this->log->validationException
 		(
 			  "$context: Input value is not of type Golem::File."
-			. "Got a: " . Util::getType( $file ) . " for input: " . print_r( $file, /* return = */ true )
+			. " Got a: " . Util::getType( $file ) . " for input: " . print_r( $file, /* return = */ true )
 		)
 	;
 
@@ -205,12 +205,22 @@ function exists( $exists = null )
 protected
 function sanitizeExists( $input, $context )
 {
-	if( $this->isValidExists( $input ) )
+	if( ! $this->isValidExists( $input ) )
+	{
 
-		return $input;
+		if( $this->options( 'exists' ) )
+
+			$input->touch();
 
 
-	$input->touch();
+		else
+
+			$input->rm();
+
+	}
+
+
+	return $input;
 }
 
 
@@ -223,10 +233,14 @@ function validateExists( $input, $context )
 		return $input;
 
 
-	$this->log->validationException
-	(
+	$error = $this->options( 'exists' ) ?
+
 		  "$context: File [$input] does not exist."
-	);
+		: "$context: File [$input] exist but it shouldn't."
+	;
+
+
+	$this->log->validationException( $error );
 }
 
 
@@ -236,8 +250,8 @@ function isValidExists( $input )
 {
 	if
 	(
-		   ! isset( $this->options[ 'exists' ] )
-		|| $input->exists() === $this->options[ 'exists' ]
+		   isset( $this->options[ 'exists' ] )
+		&& $input->exists() === $this->options[ 'exists' ]
 	)
 
 		return true;

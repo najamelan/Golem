@@ -90,11 +90,130 @@ function invalidExists()
  * @expectedException Golem\Errors\ValidationException
  */
 public
-function	testUnexistingFile()
+function	testUnexistingFileInvalidate()
 {
 	$rule = self::$golem->fileRule( [ 'exists' => true ] );
 
-	$rule->validate( self::$golem->file( 'doesnotexists' ), 'FileRuleTest::testUnexistingFile()' );
+	$rule->validate( self::$golem->file( 'doesnotexists' ), 'Unit Testing' );
+}
+
+
+
+/**
+ *
+ */
+public
+function	testUnexistingFileValidate()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => false ] );
+
+	$this->assertInstanceOf
+	(
+		  'Golem\Data\File'
+		, $rule->validate( self::$golem->file( 'doesnotexists' ), 'Unit Testing' )
+	);
+}
+
+
+
+/**
+ * @expectedException Golem\Errors\ValidationException
+ */
+public
+function	testExistingFileInvalidate()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => false ] );
+
+	$rule->validate( self::$golem->file( __DIR__ . '/../TestData/someData' ), 'Unit Testing' );
+}
+
+
+
+/**
+ *
+ */
+public
+function	testExistingFileValidate()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => true ] );
+
+	$this->assertInstanceOf
+	(
+		  'Golem\Data\File'
+		, $rule->validate( self::$golem->file( __DIR__ . '/../TestData/someData' ), 'Unit Testing' )
+	);
+}
+
+
+
+
+
+
+/**
+ *
+ */
+public
+function	testUnexistingFileSanitizeCreate()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => true ] );
+	$file = $rule->sanitize( self::$golem->file( 'doesnotexists' ), 'Unit Testing' );
+
+	$this->assertInstanceOf( 'Golem\Data\File', $file );
+	$this->assertTrue      ( $file->exists()          );
+
+	$file->rm();
+}
+
+
+
+/**
+ *
+ */
+public
+function	testUnexistingFileSanitize()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => false ] );
+
+	$this->assertInstanceOf
+	(
+		  'Golem\Data\File'
+		, $rule->sanitize( self::$golem->file( 'doesnotexists' ), 'Unit Testing' )
+	);
+}
+
+
+
+/**
+ *
+ */
+public
+function	testExistingFileSanitizeDelete()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => false ] );
+	$file = self::$golem->file    ( __DIR__ . '/newFile'  );
+
+	$file->touch();
+
+	$rule->sanitize   ( $file, 'Unit Testing' );
+	$this->assertFalse( $file->exists()       );
+
+}
+
+
+
+/**
+ *
+ */
+public
+function	testExistingFileSanitize()
+{
+	$rule = self::$golem->fileRule( [ 'exists' => true ] );
+
+	$this->assertInstanceOf
+	(
+		  'Golem\Data\File'
+		, $rule->sanitize( self::$golem->file( __DIR__ . '/../TestData/someData' ), 'Unit Testing' )
+	);
 }
 
 }

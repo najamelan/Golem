@@ -331,12 +331,34 @@ public
 function touch( $time = null, $atime = null )
 {
 	$args = func_get_args();
-	$args = unshif( $this->path );
+	array_unshift( $args, $this->path );
 
 
 	if( ! call_user_func_array( 'touch', $args ) )
 
 		$this->log->exception( new RuntimeException( 'Touch failed on ' . $this->path ) );
+
+
+	return $this;
+}
+
+
+
+/**
+ * Removes a file.
+ *
+ */
+public
+function rm()
+{
+	if( ! $this->exists() )
+
+		return $this;
+
+
+	if( ! unlink( $this->path ) )
+
+		$this->log->exception( new RuntimeException( 'unlink failed on ' . $this->path ) );
 
 
 	return $this;
