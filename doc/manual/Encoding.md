@@ -64,12 +64,14 @@ or:
 $golem = new Golem( [ 'String' => [ 'encoding' => 'UTF-16' ] ] );
 ```
 
-### Case 1: You use 1 and only 1 character encoding all throughout your application
+### Case 2: You mix different encodings throughout your application. 
 
-
+You will need to pass the encoding of newly created strings that aren't in the default encoding to the constructor of Golem\String to override the default encoding.
 
 ## What if my users send data in the wrong encoding?
 
 As you take (potentially malicious) user input, it might not be encoded the way you expect it to be. There's nothing you can do about it, it's user input after all. Every string passed to Golem will be sanitized to be valid in the encoding you specified, and if that's impossible an exception is thrown. Under no circumstances will Golem work with or return to you a string that is not valid in the encoding you specified.
 
-Sanitizing means that if you send in a string in an encoding different than the encoding you specify, Golem might ruin you string (eg. replace characters with the Unicode replacement character). If this happens in a legit scenario, there is a programming error somewhere which needs to be fixed, and if the input is malicious, you shouldn't be worried about the string getting mangled in the first place.
+Sanitizing means that if you send in a string in an encoding different than the encoding you specify, Golem might ruin your string (eg. replace characters with the Unicode replacement character). If this happens in a legit scenario, there is a programming error somewhere which needs to be fixed, and if the input is malicious, you shouldn't be worried about the string getting mangled in the first place.
+
+It's your call wether you allow user input with the unicode replacement character into your database, or whether you let the exception end the script.
