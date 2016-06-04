@@ -83,27 +83,8 @@ function getOpts( $pointer, $args )
 
 
 		else
-		{
-			$bt = debug_backtrace();
-			$e  = new UnexpectedValueException
-			(
-				  'Called with invalid or unexisting keys: ' . print_r( func_get_args(), true )
-				. ' from: ' . basename( $bt[ 0 ][ 'file' ] ) . ":" . $bt[ 0 ][ 'line' ] . " -- "
-				. $bt[ 1 ][ 'class' ] . $bt[ 1 ][ 'type' ] . $bt[ 1 ][ 'function' ] . '()'
-			);
 
-
-			// Golem itself uses this function, so $this->golem doesn't necessarily exist
-			// TODO: check that __CLASS__ doesn't return the name of the trait
-			//
-			if( property_exists( $this, 'golem' ) )
-
-				$this->golem->logger( __CLASS__ )->exception( $e );
-
-			else
-
-				throw $e;
-		}
+			return null;
 	}
 
 
