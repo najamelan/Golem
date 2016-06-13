@@ -15,7 +15,7 @@ use
 
 	, Golem\Data\Drivers\Mat
 	, Golem\Data\Drivers\BaseDriver
-	, Golem\Data\String
+	, Golem\Data\Text
 	, Golem\Data\File
 
 	, RuntimeException

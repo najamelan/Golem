@@ -5,14 +5,14 @@ use
 
 	  Golem\Golem
 
-	, Golem\Data\String
+	, Golem\Data\Text
 
 	, stdClass
 
 ;
 
 
-class   StringRuleTest
+class   TextRuleTest
 extends \PHPUnit_Framework_TestCase
 {
 
@@ -39,12 +39,12 @@ function setUpBeforeClass()
 public
 function	testConstructor()
 {
-	$rule = self::$golem->stringRule();
+	$rule = self::$golem->textRule();
 
 	$this->assertEquals( 0                                            , $rule->options( 'minLength' ) );
 	$this->assertEquals( PHP_INT_MAX                                  , $rule->options( 'maxLength' ) );
 	$this->assertEquals( false                                        , $rule->options( 'allowNull' ) );
-	$this->assertEquals( self::$golem->options( 'String', 'encoding' ), $rule->options( 'encoding'  ) );
+	$this->assertEquals( self::$golem->options( 'Text', 'encoding' ), $rule->options( 'encoding'  ) );
 }
 
 
@@ -56,7 +56,7 @@ function	testConstructor()
 public
 function	testValidateOptionLength( $length )
 {
-	$rule = self::$golem->stringRule( [ 'length' => $length ] );
+	$rule = self::$golem->textRule( [ 'length' => $length ] );
 	$this->assertEquals( $length, $rule->length() );
 }
 
@@ -69,7 +69,7 @@ function	testValidateOptionLength( $length )
 public
 function	testValidateOptionMinLength( $length )
 {
-	$rule = self::$golem->stringRule( [ 'minLength' => $length ] );
+	$rule = self::$golem->textRule( [ 'minLength' => $length ] );
 	$this->assertEquals( $length, $rule->minLength() );
 }
 
@@ -82,7 +82,7 @@ function	testValidateOptionMinLength( $length )
 public
 function	testValidateOptionMaxLength( $length )
 {
-	$rule = self::$golem->stringRule( [ 'maxLength' => $length ] );
+	$rule = self::$golem->textRule( [ 'maxLength' => $length ] );
 	$this->assertEquals( $length, $rule->maxLength() );
 }
 
@@ -110,7 +110,7 @@ function validLengths()
 public
 function	testInvalidOptionLength( $length )
 {
-	$rule = self::$golem->stringRule( [ 'length' => $length ] );
+	$rule = self::$golem->textRule( [ 'length' => $length ] );
 }
 
 
@@ -122,7 +122,7 @@ function	testInvalidOptionLength( $length )
 public
 function	testInvalidOptionMinLength( $length )
 {
-	$rule = self::$golem->stringRule( [ 'minLength' => $length ] );
+	$rule = self::$golem->textRule( [ 'minLength' => $length ] );
 }
 
 
@@ -134,7 +134,7 @@ function	testInvalidOptionMinLength( $length )
 public
 function	testInvalidOptionMaxLength( $length )
 {
-	$rule = self::$golem->stringRule( [ 'maxLength' => $length ] );
+	$rule = self::$golem->textRule( [ 'maxLength' => $length ] );
 }
 
 
@@ -162,7 +162,7 @@ function invalidLengths()
 public
 function	testOptionMaxLengthSmallerThanMinLength()
 {
-	$rule = self::$golem->stringRule( [ 'minLength' => 3, 'maxLength' => 2 ] );
+	$rule = self::$golem->textRule( [ 'minLength' => 3, 'maxLength' => 2 ] );
 }
 
 
@@ -173,7 +173,7 @@ function	testOptionMaxLengthSmallerThanMinLength()
 public
 function	testOptionMaxLengthSmallerThanMinLength2()
 {
-	$rule = self::$golem->stringRule( [ 'maxLength' => 2 ] );
+	$rule = self::$golem->textRule( [ 'maxLength' => 2 ] );
 	$rule->minLength( 3 );
 }
 
@@ -185,7 +185,7 @@ function	testOptionMaxLengthSmallerThanMinLength2()
 public
 function	testOptionLengthSmallerThanMinLength()
 {
-	$rule = self::$golem->stringRule( [ 'minLength' => 3, 'length' => 2 ] );
+	$rule = self::$golem->textRule( [ 'minLength' => 3, 'length' => 2 ] );
 }
 
 
@@ -196,7 +196,7 @@ function	testOptionLengthSmallerThanMinLength()
 public
 function	testOptionLengthSmallerThanMinLength2()
 {
-	$rule = self::$golem->stringRule( [ 'length' => 2 ] );
+	$rule = self::$golem->textRule( [ 'length' => 2 ] );
 	$rule->minLength( 3 );
 }
 
@@ -208,7 +208,7 @@ function	testOptionLengthSmallerThanMinLength2()
 public
 function	testOptionLengthBiggerThanMaxLength()
 {
-	$rule = self::$golem->stringRule( [ 'maxLength' => 3, 'length' => 4 ] );
+	$rule = self::$golem->textRule( [ 'maxLength' => 3, 'length' => 4 ] );
 }
 
 
@@ -219,7 +219,7 @@ function	testOptionLengthBiggerThanMaxLength()
 public
 function	testOptionLengthBiggerThanMaxLength2()
 {
-	$rule = self::$golem->stringRule( [ 'length' => 4 ] );
+	$rule = self::$golem->textRule( [ 'length' => 4 ] );
 	$rule->maxLength( 3 );
 }
 
@@ -228,12 +228,12 @@ function	testOptionLengthBiggerThanMaxLength2()
 public
 function testTypeValidation()
 {
-	$rule = self::$golem->stringRule( [ 'type' => 'string' ] );
+	$rule = self::$golem->textRule( [ 'type' => 'string' ] );
 	$this->assertEquals( 'string', $rule->type() );
 
 
-	$rule = self::$golem->stringRule( [ 'type' => 'Golem\Data\String' ] );
-	$this->assertEquals( 'Golem\Data\String', $rule->type() );
+	$rule = self::$golem->textRule( [ 'type' => 'Golem\Data\Text' ] );
+	$this->assertEquals( 'Golem\Data\Text', $rule->type() );
 }
 
 
@@ -245,7 +245,7 @@ function testTypeValidation()
 public
 function	testInvalidOptionType( $type )
 {
-	$rule = self::$golem->stringRule( [ 'type' => $type ] );
+	$rule = self::$golem->textRule( [ 'type' => $type ] );
 }
 
 
@@ -260,7 +260,7 @@ function invalidTypeOptions()
 		, [ 3.4                 ]
 		, [ '12'                ]
 		, [ 'integer'           ]
-		, [ 'String'            ]
+		, [ 'Text'            ]
 		, [ 'Golem\Data\string' ]
 		, [ []                  ]
 		, [ new stdClass        ]
@@ -272,17 +272,17 @@ function invalidTypeOptions()
 public
 function testEncodingOptionValidation()
 {
-	$rule = self::$golem->stringRule( [ 'encoding' => 'UTF-8' ] );
+	$rule = self::$golem->textRule( [ 'encoding' => 'UTF-8' ] );
 	$this->assertEquals( 'UTF-8', $rule->encoding() );
 
 
-	$rule = self::$golem->stringRule( [ 'encoding' => 'ASCII' ] );
+	$rule = self::$golem->textRule( [ 'encoding' => 'ASCII' ] );
 	$this->assertEquals( 'ASCII', $rule->encoding() );
 
 
-	// Send in encoding as Golem\Data\String
+	// Send in encoding as Golem\Data\Text
 	//
-	$rule = self::$golem->stringRule( [ 'encoding' => self::$golem->string( 'EUC-JP', self::$cfgEnc )->encoding( 'UTF-32' ) ] );
+	$rule = self::$golem->textRule( [ 'encoding' => self::$golem->text( 'EUC-JP', self::$cfgEnc )->encoding( 'UTF-32' ) ] );
 
 	$this->assertEquals      ( 'EUC-JP', $rule->encoding() );
 	$this->assertInternalType( 'string', $rule->encoding() );
@@ -296,7 +296,7 @@ function testEncodingOptionValidation()
 public
 function	testInvalidOptionEncoding( $type )
 {
-	$rule = self::$golem->stringRule( [ 'type' => $type ] );
+	$rule = self::$golem->textRule( [ 'type' => $type ] );
 }
 
 
@@ -311,7 +311,7 @@ function invalidEncodings()
 		, [ 3.4                 ]
 		, [ '12'                ]
 		, [ 'integer'           ]
-		, [ 'String'            ]
+		, [ 'Text'            ]
 		, [ 'Golem\Data\string' ]
 		, [ []                  ]
 		, [ new stdClass        ]
@@ -324,7 +324,7 @@ function testTypeSanitation()
 {
 	// Ask 'string' and send in 'string'
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'string' ] );
+	$rule   = self::$golem->textRule( [ 'type' => 'string' ] );
 	$result = $rule->sanitize( 'test', 'testType' );
 
 	$this->assertEquals      ( 'test'  , $result       );
@@ -332,36 +332,36 @@ function testTypeSanitation()
 	$this->assertInternalType( 'string', $result       );
 
 
-	// Ask Golem\Data\String and send in string
+	// Ask Golem\Data\Text and send in string
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'Golem\Data\String' ] );
+	$rule   = self::$golem->textRule( [ 'type' => 'Golem\Data\Text' ] );
 	$result = $rule->sanitize( 'test', 'testType2' );
 
 	$this->assertEquals    ( 'test'             , $result       );
-	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
-	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+	$this->assertEquals    ( 'Golem\Data\Text', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\Text', $result       );
 
 
-	// Ask 'string' and send in Golem\Data\String
-	// Also send in the type parameter itself as a Golem String
+	// Ask 'string' and send in Golem\Data\Text
+	// Also send in the type parameter itself as a Golem Text
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => self::$golem->string( 'string', self::$cfgEnc ) ] );
-	$result = $rule->sanitize( self::$golem->string( 'test', self::$cfgEnc ), 'testType' );
+	$rule   = self::$golem->textRule( [ 'type' => self::$golem->text( 'string', self::$cfgEnc ) ] );
+	$result = $rule->sanitize( self::$golem->text( 'test', self::$cfgEnc ), 'testType' );
 
 	$this->assertEquals      ( 'test'  , $result       );
 	$this->assertEquals      ( 'string', $rule->type() );
 	$this->assertInternalType( 'string', $result       );
 
 
-	// Ask Golem\Data\String and send in Golem\Data\String
-	// Also send in the type parameter itself as a Golem String
+	// Ask Golem\Data\Text and send in Golem\Data\Text
+	// Also send in the type parameter itself as a Golem Text
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => self::$golem->string( 'Golem\Data\String', self::$cfgEnc ) ] );
-	$result = $rule->sanitize( self::$golem->string( 'test', self::$cfgEnc ), 'testType2' );
+	$rule   = self::$golem->textRule( [ 'type' => self::$golem->text( 'Golem\Data\Text', self::$cfgEnc ) ] );
+	$result = $rule->sanitize( self::$golem->text( 'test', self::$cfgEnc ), 'testType2' );
 
 	$this->assertEquals    ( 'test'             , $result       );
-	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
-	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+	$this->assertEquals    ( 'Golem\Data\Text', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\Text', $result       );
 }
 
 
@@ -370,7 +370,7 @@ function testSanitationTypeReuseRule()
 {
 	// Ask 'string' and send in 'string'
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'string' ] );
+	$rule   = self::$golem->textRule( [ 'type' => 'string' ] );
 	$result = $rule->sanitize( 'test', 'testType' );
 
 	$this->assertEquals      ( 'test'  , $result       );
@@ -378,34 +378,34 @@ function testSanitationTypeReuseRule()
 	$this->assertInternalType( 'string', $result       );
 
 
-	// Ask Golem\Data\String and send in string
+	// Ask Golem\Data\Text and send in string
 	//
-	$rule->type( 'Golem\Data\String' );
+	$rule->type( 'Golem\Data\Text' );
 	$result = $rule->sanitize( 'test', 'testType2' );
 
 	$this->assertEquals    ( 'test'             , $result       );
-	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
-	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+	$this->assertEquals    ( 'Golem\Data\Text', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\Text', $result       );
 
 
-	// Ask 'string' and send in Golem\Data\String
+	// Ask 'string' and send in Golem\Data\Text
 	//
 	$rule->type( 'string' );
-	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType' );
+	$result = $rule->sanitize( self::$golem->text( 'test' ), 'testType' );
 
 	$this->assertEquals      ( 'test'  , $result       );
 	$this->assertEquals      ( 'string', $rule->type() );
 	$this->assertInternalType( 'string', $result       );
 
 
-	// Ask Golem\Data\String and send in Golem\Data\String
+	// Ask Golem\Data\Text and send in Golem\Data\Text
 	//
-	$rule->type( 'Golem\Data\String' );
-	$result = $rule->sanitize( self::$golem->string( 'test' ), 'testType2' );
+	$rule->type( 'Golem\Data\Text' );
+	$result = $rule->sanitize( self::$golem->text( 'test' ), 'testType2' );
 
 	$this->assertEquals    ( 'test'             , $result       );
-	$this->assertEquals    ( 'Golem\Data\String', $rule->type() );
-	$this->assertInstanceOf( 'Golem\Data\String', $result       );
+	$this->assertEquals    ( 'Golem\Data\Text', $rule->type() );
+	$this->assertInstanceOf( 'Golem\Data\Text', $result       );
 }
 
 
@@ -420,7 +420,7 @@ function	testInvalidTypesSanitation( $input )
 {
 	// Ask 'string'
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'string' ] );
+	$rule   = self::$golem->textRule( [ 'type' => 'string' ] );
 	$result = $rule->sanitize( $input, 'testInvalidTypesSanitation' );
 }
 
@@ -451,7 +451,7 @@ function	testInvalidTypesValidation( $input )
 {
 	// Ask 'string'
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'string' ] );
+	$rule   = self::$golem->textRule( [ 'type' => 'string' ] );
 	$result = $rule->validate( $input, 'testInvalidTypesValidation' );
 }
 
@@ -466,8 +466,8 @@ function	testInvalidTypesValidationNativeString()
 {
 	// Ask 'string'
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'string' ] );
-	$result = $rule->validate( self::$golem->string( 'test', self::$cfgEnc ), 'testInvalidTypesValidation' );
+	$rule   = self::$golem->textRule( [ 'type' => 'string' ] );
+	$result = $rule->validate( self::$golem->text( 'test', self::$cfgEnc ), 'testInvalidTypesValidation' );
 }
 
 
@@ -479,9 +479,9 @@ function	testInvalidTypesValidationNativeString()
 public
 function	testInvalidTypesValidationGolemString()
 {
-	// Ask 'Golem\Data\String'
+	// Ask 'Golem\Data\Text'
 	//
-	$rule   = self::$golem->stringRule( [ 'type' => 'Golem\Data\String' ] );
+	$rule   = self::$golem->textRule( [ 'type' => 'Golem\Data\Text' ] );
 	$result = $rule->validate( 'test', 'testInvalidTypesValidation' );
 }
 
@@ -498,7 +498,7 @@ function	prepareInvalidTypesValidationGolemStringReuse()
 {
 	// Ask 'string'
 	//
-	$this->typeValidationReuseRule = self::$golem->stringRule( [ 'type' => 'string' ] );
+	$this->typeValidationReuseRule = self::$golem->textRule( [ 'type' => 'string' ] );
 	$result = $this->typeValidationReuseRule->validate( 'test', 'testInvalidTypesValidation' );
 }
 
@@ -512,9 +512,9 @@ function	prepareInvalidTypesValidationGolemStringReuse()
 public
 function	testInvalidTypesValidationGolemStringReuse()
 {
-	// Ask 'Golem\Data\String'
+	// Ask 'Golem\Data\Text'
 	//
-	$this->typeValidationReuseRule->type( 'Golem\Data\String' );
+	$this->typeValidationReuseRule->type( 'Golem\Data\Text' );
 	$result = $this->typeValidationReuseRule->validate( 'test', 'testInvalidTypesValidationGolemStringReuse' );
 }
 
@@ -525,7 +525,7 @@ function testLengthSanitation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 0 ] );
 	$result = $rule->sanitize( '', 'testLengthSanitation' );
 
 	$this->assertEquals( '', $result );
@@ -533,7 +533,7 @@ function testLengthSanitation()
 
 	// send in a correct length
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 4 ] );
 	$result = $rule->sanitize( 'test', 'testLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -541,7 +541,7 @@ function testLengthSanitation()
 
 	// send in unicode
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 5 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 5 ] );
 	$result = $rule->sanitize( 'ｳﾞｶｷｸ', 'testLengthSanitation' );
 
 	$this->assertEquals( 'ｳﾞｶｷｸ', $result );
@@ -549,7 +549,7 @@ function testLengthSanitation()
 
 	// test truncate
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 4 ] );
 	$result = $rule->sanitize( 'tester', 'testLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -564,7 +564,7 @@ function testLengthSanitation()
 
 	// test default value
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 4, 'defaultValue' => 'test' ] );
+	$rule   = self::$golem->textRule( [ 'length' => 4, 'defaultValue' => 'test' ] );
 	$result = $rule->sanitize( 't', 'testLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -581,7 +581,7 @@ function	testLengthSanitationToShortNoDefaultValue()
 {
 	// test short string without default Value
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 4 ] );
 	$result = $rule->sanitize( 'te', 'testLengthSanitationToShortNoDefaultValue' );
 }
 
@@ -592,7 +592,7 @@ function testLengthValidation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 0 ] );
 	$result = $rule->validate( '', 'testLengthValidation' );
 
 	$this->assertEquals( '', $result );
@@ -600,7 +600,7 @@ function testLengthValidation()
 
 	// send in a correct length
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 4 ] );
 	$result = $rule->validate( 'test', 'testLengthValidation' );
 
 	$this->assertEquals( 'test', $result );
@@ -625,7 +625,7 @@ function	testLengthValidationToShort()
 {
 	// test short string without default Value
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 4 ] );
 	$result = $rule->validate( 'te', 'testLengthValidationToShort' );
 }
 
@@ -640,7 +640,7 @@ function	testLengthValidationToLong()
 {
 	// test short string without default Value
 	//
-	$rule   = self::$golem->stringRule( [ 'length' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'length' => 0 ] );
 	$result = $rule->validate( 'te', 'testLengthValidationToLong' );
 }
 
@@ -651,7 +651,7 @@ function testMinLengthSanitation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 0 ] );
 	$result = $rule->sanitize( '', 'testMinLengthSanitation' );
 
 	$this->assertEquals( '', $result );
@@ -659,7 +659,7 @@ function testMinLengthSanitation()
 
 	// send in a correct minLength
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 4 ] );
 	$result = $rule->sanitize( 'test', 'testMinLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -667,7 +667,7 @@ function testMinLengthSanitation()
 
 	// send in a string longer than minLength
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 4 ] );
 	$result = $rule->sanitize( 'tester', 'testMinLengthSanitation' );
 
 	$this->assertEquals( 'tester', $result );
@@ -683,7 +683,7 @@ function testMinLengthSanitation()
 
 	// test default value
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 4, 'defaultValue' => 'test' ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 4, 'defaultValue' => 'test' ] );
 	$result = $rule->sanitize( 't', 'testMinLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -700,7 +700,7 @@ function	testMinLengthSanitationToShortNoDefaultValue()
 {
 	// test short string without default Value
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 4 ] );
 	$result = $rule->sanitize( 'te', 'testMinLengthSanitationToShortNoDefaultValue' );
 }
 
@@ -711,7 +711,7 @@ function testMinLengthValidation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 0 ] );
 	$result = $rule->validate( '', 'testMinLengthValidation' );
 
 	$this->assertEquals( '', $result );
@@ -719,7 +719,7 @@ function testMinLengthValidation()
 
 	// send in a correct minLength
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 4 ] );
 	$result = $rule->validate( 'tester', 'testMinLengthValidation' );
 
 	$this->assertEquals( 'tester', $result );
@@ -744,7 +744,7 @@ function	testMinLengthValidationToShort()
 {
 	// test short string without default Value
 	//
-	$rule   = self::$golem->stringRule( [ 'minLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'minLength' => 4 ] );
 	$result = $rule->validate( 'te', 'testMinLengthValidationToShort' );
 }
 
@@ -755,7 +755,7 @@ function testMaxLengthSanitation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 0 ] );
 	$result = $rule->sanitize( '', 'testMaxLengthSanitation' );
 
 	$this->assertEquals( '', $result );
@@ -763,7 +763,7 @@ function testMaxLengthSanitation()
 
 	// send in a correct maxLength
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 4 ] );
 	$result = $rule->sanitize( 'test', 'testMaxLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -771,7 +771,7 @@ function testMaxLengthSanitation()
 
 	// send in a string shorter than maxLength
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 8 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 8 ] );
 	$result = $rule->sanitize( 'tester', 'testMaxLengthSanitation' );
 
 	$this->assertEquals( 'tester', $result );
@@ -787,7 +787,7 @@ function testMaxLengthSanitation()
 
 	// test truncate
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 4 ] );
 	$result = $rule->sanitize( 'tester', 'testMaxLengthSanitation' );
 
 	$this->assertEquals( 'test', $result );
@@ -800,7 +800,7 @@ function testMaxLengthValidation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 0 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 0 ] );
 	$result = $rule->validate( '', 'testMaxLengthValidation' );
 
 	$this->assertEquals( '', $result );
@@ -808,7 +808,7 @@ function testMaxLengthValidation()
 
 	// send in a correct maxLength
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 9 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 9 ] );
 	$result = $rule->validate( 'tester', 'testMaxLengthValidation' );
 
 	$this->assertEquals( 'tester', $result );
@@ -833,7 +833,7 @@ function	testMaxLengthValidationToLong()
 {
 	// test short string without default Value
 	//
-	$rule   = self::$golem->stringRule( [ 'maxLength' => 4 ] );
+	$rule   = self::$golem->textRule( [ 'maxLength' => 4 ] );
 	$result = $rule->validate( 'tester', 'testMaxLengthValidationToShort' );
 }
 
@@ -844,8 +844,8 @@ function testEncodingSanitation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => self::$cfgEnc ] );
-	$result = $rule->sanitize( self::$golem->string( '', self::$cfgEnc ), 'testEncodingSanitation' );
+	$rule   = self::$golem->textRule( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->sanitize( self::$golem->text( '', self::$cfgEnc ), 'testEncodingSanitation' );
 
 	$this->assertEquals( self::$cfgEnc, $result->encoding() );
 	$this->assertEquals( ''           , $result()           );
@@ -853,8 +853,8 @@ function testEncodingSanitation()
 
 	// send in a correct encoding
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => self::$cfgEnc ] );
-	$result = $rule->sanitize( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
+	$rule   = self::$golem->textRule( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->sanitize( self::$golem->text( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
 
 	$this->assertEquals( self::$cfgEnc, $result->encoding() );
 	$this->assertEquals( 'ｳﾞｶｷｸ'      , $result()           );
@@ -862,8 +862,8 @@ function testEncodingSanitation()
 
 	// send in a different encoding
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => 'UTF-32' ] );
-	$result = $rule->sanitize( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
+	$rule   = self::$golem->textRule( [ 'encoding' => 'UTF-32' ] );
+	$result = $rule->sanitize( self::$golem->text( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
 
 	$this->assertEquals( 'UTF-32', $result->encoding() );
 	$this->assertEquals( mb_convert_encoding( 'ｳﾞｶｷｸ', 'UTF-32', self::$cfgEnc ), $result() );
@@ -872,7 +872,7 @@ function testEncodingSanitation()
 	// test rule reuse
 	//
 	$rule->encoding( 'UTF-16BE' );
-	$result = $rule->sanitize( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
+	$result = $rule->sanitize( self::$golem->text( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingSanitation' );
 
 	$this->assertEquals( 'UTF-16BE', $result->encoding() );
 	$this->assertEquals( mb_convert_encoding( 'ｳﾞｶｷｸ', 'UTF-16BE', self::$cfgEnc ), $result() );
@@ -885,7 +885,7 @@ function testEncodingValidation()
 {
 	// send in an empty string
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => self::$cfgEnc ] );
+	$rule   = self::$golem->textRule( [ 'encoding' => self::$cfgEnc ] );
 	$result = $rule->validate( '', 'testEncodingValidation' );
 
 	$this->assertEquals( '', $result );
@@ -893,15 +893,15 @@ function testEncodingValidation()
 
 	// send in a correct encoding
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => self::$cfgEnc ] );
-	$result = $rule->validate( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingValidation' );
+	$rule   = self::$golem->textRule( [ 'encoding' => self::$cfgEnc ] );
+	$result = $rule->validate( self::$golem->text( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingValidation' );
 
 	$this->assertEquals( 'ｳﾞｶｷｸ', $result() );
 
 
 	// test rule reuse
 	//
-	$string =  self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc )->encoding( 'UTF-32' );
+	$string =  self::$golem->text( 'ｳﾞｶｷｸ', self::$cfgEnc )->encoding( 'UTF-32' );
 
 	$rule->encoding( 'UTF-32' );
 	$result = $rule->validate( $string, 'testEncodingValidation' );
@@ -920,8 +920,8 @@ function	testEncodingValidationWrong()
 {
 	// send in a wrong encoding
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => 'UTF-16' ] );
-	$result = $rule->validate( self::$golem->string( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingValidationWrong' );
+	$rule   = self::$golem->textRule( [ 'encoding' => 'UTF-16' ] );
+	$result = $rule->validate( self::$golem->text( 'ｳﾞｶｷｸ', self::$cfgEnc ), 'testEncodingValidationWrong' );
 
 	$this->assertEquals( 'ｳﾞｶｷｸ', $result() );
 }
@@ -937,7 +937,7 @@ function	testEncodingValidationWrongNativeString()
 {
 	// send in a wrong encoding
 	//
-	$rule   = self::$golem->stringRule( [ 'encoding' => 'UTF-16' ] );
+	$rule   = self::$golem->textRule( [ 'encoding' => 'UTF-16' ] );
 	$result = $rule->validate( 'ｳﾞｶｷｸ', 'testEncodingValidationWrongNativeString' );
 
 	$this->assertEquals( 'ｳﾞｶｷｸ', $result );

@@ -13,7 +13,7 @@ use
 
 	, Golem\iFace\ValidationRule
 
-	, Golem\Data\String
+	, Golem\Data\Text
 	, Golem\Validation\BaseRule
 
 	, Golem\Util
@@ -23,7 +23,7 @@ use
  * The basic string rule.
  *
  */
-class      StringRule
+class      TextRule
 extends    BaseRule
 {
 
@@ -41,7 +41,7 @@ function __construct( Golem $golem, array $options = [] )
 	// Thus, $options will be empty unless this is this is the last subclass and the user
 	// sets options through the constructor.
 	//
-	$this->setupOptions( $golem->options( 'Validation', 'StringRule' ), $options );
+	$this->setupOptions( $golem->options( 'Validation', 'TextRule' ), $options );
 
 
 	// This shouldn't be done in superclasses, because it needs to be done
@@ -81,21 +81,21 @@ function validateOptions()
 protected
 function validateOptionEncoding( $o )
 {
-	if( ! String::canBeString( $o ) )
+	if( ! Text::canBeString( $o ) )
 
 		$this->log->invalidArgumentException
 		(
-			"Option [encoding] should be given as a php native string or a Golem\Data\String. Got: " . Util::getType( $o )
+			"Option [encoding] should be given as a php native string or a Golem\Data\Text. Got: " . Util::getType( $o )
 		)
 	;
 
 
-	if( $o instanceof String )
+	if( $o instanceof Text )
 
 		$o = $o->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 
 
-	if( ! String::encodingSupported( $o ) )
+	if( ! Text::encodingSupported( $o ) )
 
 		$this->log->invalidArgumentException( "Encoding passed in not supported by the mbstring extension: [$o]" );
 
@@ -144,7 +144,7 @@ function compareLengths()
 
 		$this->log->invalidArgumentException
 		(
-			"StringRule misconfiguration - expected maxLength to be bigger than minLength [$min]. Got: $min"
+			"TextRule misconfiguration - expected maxLength to be bigger than minLength [$min]. Got: $min"
 		)
 	;
 
@@ -155,7 +155,7 @@ function compareLengths()
 
 		$this->log->invalidArgumentException
 		(
-			"StringRule misconfiguration - expected length to be bigger than minLength [$min]. Got: $len"
+			"TextRule misconfiguration - expected length to be bigger than minLength [$min]. Got: $len"
 		)
 	;
 
@@ -166,7 +166,7 @@ function compareLengths()
 
 		$this->log->invalidArgumentException
 		(
-			"StringRule misconfiguration - expected length to be smaller or equal than maxLength [$max}. Got: $len"
+			"TextRule misconfiguration - expected length to be smaller or equal than maxLength [$max}. Got: $len"
 		)
 	;
 }
@@ -176,25 +176,25 @@ function compareLengths()
 protected
 function validateOptionType( $o )
 {
-	if( ! String::canBeString( $o ) )
+	if( ! Text::canBeString( $o ) )
 
 		$this->log->invalidArgumentException
 		(
-			"Option [type] should be given as a php native string or a Golem\Data\String. Got: " . Util::getType( $o )
+			"Option [type] should be given as a php native string or a Golem\Data\Text. Got: " . Util::getType( $o )
 		)
 	;
 
 
-	if( $o instanceof String )
+	if( $o instanceof Text )
 
 		$o = $o->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
 
 
-	if( ! in_array( $o, [ 'string', 'Golem\Data\String' ] ) )
+	if( ! in_array( $o, [ 'string', 'Golem\Data\Text' ] ) )
 
 		$this->log->invalidArgumentException
 		(
-			"Unsupported type [$o]. Should be one of: 'string', 'Golem\Data\String'."
+			"Unsupported type [$o]. Should be one of: 'string', 'Golem\Data\Text'."
 		)
 	;
 
@@ -207,7 +207,7 @@ function validateOptionType( $o )
 protected
 function ensureType( $string, $context )
 {
-	if( ! String::canBeString( $string ) )
+	if( ! Text::canBeString( $string ) )
 
 		$this->log->validationException
 		(
@@ -217,9 +217,9 @@ function ensureType( $string, $context )
 	;
 
 
-	if( ! $string instanceof String )
+	if( ! $string instanceof Text )
 	{
-		$string = $this->golem->string( $string, $this->golem->options( 'String', 'encoding' ) );
+		$string = $this->golem->text( $string, $this->golem->options( 'Text', 'encoding' ) );
 		$this->encodingUsed = true;
 	}
 
@@ -553,7 +553,7 @@ function isValidMaxLength( $input )
 
 /**
  * Type validation
- * Most of this is dealt with by BaseRule, but since we internally convert all strings to Golem\Data\String,
+ * Most of this is dealt with by BaseRule, but since we internally convert all strings to Golem\Data\Text,
  * we should we make sure both native php strings and Golem Strings pass sanitation.
  *
  */
@@ -563,7 +563,7 @@ public
 function sanitizeType( $input, $context )
 {
 
-	if( $this->inputType === 'string'  ||  $this->inputType === 'Golem\Data\String' )
+	if( $this->inputType === 'string'  ||  $this->inputType === 'Golem\Data\Text' )
 	{
 		// Prevent the validation after sanitation to throw because the inputType is not the correct one.
 		//

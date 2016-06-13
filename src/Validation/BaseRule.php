@@ -17,7 +17,7 @@ use
 	, Golem\Traits\HasOptions
 	, Golem\Traits\HasLog
 
-	, Golem\Data\String
+	, Golem\Data\Text
 
 	, Golem\Util
 ;
@@ -134,14 +134,14 @@ function validateOptionAllowNull( $o )
 protected
 function validateOptionType( $o )
 {
-	if( is_string( $o ) || $o instanceof String )
+	if( is_string( $o ) || $o instanceof Text )
 
 		return $o;
 
 
 	$this->log->invalidArgumentException
 	(
-		  "Option 'type' should be an a string or a Golem\Data\String. Got: "
+		  "Option 'type' should be an a string or a Golem\Data\Text. Got: "
 		. var_export( $o, /* return = */ true )
 	);
 }

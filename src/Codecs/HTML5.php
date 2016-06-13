@@ -13,7 +13,7 @@ use
 	, Golem\Encoder
 	, Golem\Unicode
 
-	, Golem\Data\String
+	, Golem\Data\Text
 
 ;
 
@@ -60,7 +60,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	// Parameter Validation
 	//
-	$this->options[ 'context' ] = $context	= $this->golem->stringRule()
+	$this->options[ 'context' ] = $context	= $this->golem->textRule()
 
 		->encoding( $this->cfgEnc                   )
 		->in      ( 'text'  , 'attribute'           )
@@ -78,7 +78,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	$this->options[ 'immune' ] =
 
-		array_merge( $this->golem->string( $immune, $this->cfgEnc )->split( 1, /* raw = */ true ), Codec::$ALPHANUMERICS )
+		array_merge( $this->golem->text( $immune, $this->cfgEnc )->split( 1, /* raw = */ true ), Codec::$ALPHANUMERICS )
 	;
 }
 
@@ -99,11 +99,11 @@ public function __construct( Golem $golem, $context, array $options = [] )
  *
  */
 public
-function encodeCharacter( String $c )
+function encodeCharacter( Text $c )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->stringRule()
+	$c = $this->golem->textRule()
 
 		->length  ( 1                  )
 		->validate( $c, 'parameter $c' )
@@ -130,7 +130,7 @@ function encodeCharacter( String $c )
 
 		return
 
-			$this->golem->string( $this->options( 'substitute' ), $this->cfgEnc )
+			$this->golem->text( $this->options( 'substitute' ), $this->cfgEnc )
 		;
 
 
@@ -140,12 +140,12 @@ function encodeCharacter( String $c )
 
 	if( $named !== false )
 
-		return $this->golem->string( '&' . $named , $this->cfgEnc );
+		return $this->golem->text( '&' . $named , $this->cfgEnc );
 
 
 	// Else return a hex entity of the unicode code point
 	//
-	return $this->golem->string( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc );
+	return $this->golem->text( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc );
 }
 
 
@@ -194,7 +194,7 @@ function allowedInEntity( $codePoint )
  * {@inheritdoc}
  */
 public
-function decodeCharacter( String $input )
+function decodeCharacter( Text $input )
 {
 	$decoded = $this->decodeNumericEntity( $input, 'hex' );
 
@@ -236,11 +236,11 @@ function decodeCharacter( String $input )
  *               found to be malformed
  */
 private
-function decodeNumericEntity( String $input, $type = 'dec' )
+function decodeNumericEntity( Text $input, $type = 'dec' )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->stringRule()
+	$c = $this->golem->textRule()
 
 		->encoding( $this->cfgEnc             )
 		->in      ( 'hex', 'dec'              )
@@ -277,7 +277,7 @@ function decodeNumericEntity( String $input, $type = 'dec' )
 		return null;
 
 
-	$number = $this->golem->string( '', $this->cfgEnc );
+	$number = $this->golem->text( '', $this->cfgEnc );
 
 
 	while( $inputCfgEnc->length() )
@@ -312,7 +312,7 @@ function decodeNumericEntity( String $input, $type = 'dec' )
 
 	$input->shift( $startLength + $number->length() + $semicolon );
 
-	return String::fromUniCodePoint( $this->golem, $codePoint, $input->encoding() );
+	return Text::fromUniCodePoint( $this->golem, $codePoint, $input->encoding() );
 }
 
 
@@ -346,7 +346,7 @@ function decodeNumericEntity( String $input, $type = 'dec' )
  *               if no decoding is possible. 'encodedString' => the string that
  *               was decoded or found to be malformed
  */
-private function decodeNamedEntity( String $input )
+private function decodeNamedEntity( Text $input )
 {
 
 	// get a config encoded string to compare to hard coded values
@@ -359,7 +359,7 @@ private function decodeNamedEntity( String $input )
 		return null;
 
 
-	$name = $this->golem->string( '', $this->cfgEnc );
+	$name = $this->golem->text( '', $this->cfgEnc );
 
 
 	while( $inputCfgEnc->length() )
@@ -398,7 +398,7 @@ private function decodeNamedEntity( String $input )
 
 	$input->shift( 1 + $name->length() );
 
-	$result = String::fromUniCodePoint( $this->golem, HTML5_ENTITY_MAP[ $name->raw() ], $this->cfgEnc );
+	$result = Text::fromUniCodePoint( $this->golem, HTML5_ENTITY_MAP[ $name->raw() ], $this->cfgEnc );
 
 	return $result->encoding( $input->encoding() );
 }

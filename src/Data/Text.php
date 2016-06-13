@@ -31,7 +31,7 @@ use
  * Object oriented strings. Provide encoding safety.
  *
  */
-class      String
+class      Text
 implements Iterator, ArrayAccess, Countable
 {
 
@@ -65,7 +65,7 @@ function __construct( Golem $golem, $content = '', array $options = [] )
 	;
 
 
-	$this->setupOptions( $this->golem->options( 'String' ), $options );
+	$this->setupOptions( $this->golem->options( 'Text' ), $options );
 	$this->setupLog();
 
 	self::ensureValidEncoding( $this->golem, $this->options( 'encoding' ) );
@@ -84,7 +84,7 @@ function fromUniCodePoint( Golem $golem, $codePoint, $encoding = null )
 
 		, $encoding === null ?
 
-		      $golem->options( 'String', 'encoding' )
+		      $golem->options( 'Text', 'encoding' )
 		    : $encoding
 	);
 
@@ -117,10 +117,10 @@ function copy()
 
 /**
  * Get the raw php string, or set the content of the string. When setting, if content is not valid in the
- * encoding of the String object, it will be modified to be valid. Wrong characters will be replaced with the
+ * encoding of the Text object, it will be modified to be valid. Wrong characters will be replaced with the
  * substitue character.
  *
- * As an alias for this method you can just invoke the String object:
+ * As an alias for this method you can just invoke the Text object:
  * '$myString()'              is equivalent to '$myString->raw()'
  * '$myString( 'new value' )' is equivalent to '$myString->raw( 'new value' )'
  *
@@ -150,7 +150,7 @@ function raw( $value = null )
 
 		$this->log->warning
 		(
-			  'Passing non string value to String::raw(). Trying implicit cast to string. Got: '
+			  'Passing non string value to Text::raw(). Trying implicit cast to string. Got: '
 			. var_export( $value, /* return = */ true  )
 		)
 	;
@@ -195,8 +195,8 @@ function encoding( $toEncoding = null )
 
 
 /**
- * Safely convert a string from one encoding to another. We cannot use StringRule to validate parameters
- * because this is used in String construction, leading to an endless loop.
+ * Safely convert a string from one encoding to another. We cannot use TextRule to validate parameters
+ * because this is used in Text construction, leading to an endless loop.
  *
  */
 protected
@@ -264,7 +264,7 @@ function sanitizeSubstitute()
 /**
  * Checks whether a certain encoding is supported by this class.
  *
- * @param  string|Golem\Data\String $encoding The encoding to check.
+ * @param  string|Golem\Data\Text $encoding The encoding to check.
  *
  * @return bool Whether it's supported
  *
@@ -336,7 +336,7 @@ function count()
  * Splits a string into an array of characters. See also str_split()
  *
  * @param integer $chunksize The size of the chunks in characters.
- * @param string  $raw       Whether to return raw php strings instead of String objects (default false).
+ * @param string  $raw       Whether to return raw php strings instead of Text objects (default false).
  *
  * @return array $result An array containing one element per character in the string.
  *
@@ -374,7 +374,7 @@ function split( $chunksize = 1, $raw = false )
  *
  * @param int $amount The number of characters to pop. If amount is bigger than $this->length(), the whole string is popped.
  *
- * @return String $result A new String consisting of just the popped characters of the original string.
+ * @return Text $result A new Text consisting of just the popped characters of the original string.
  *
  */
 public
@@ -404,7 +404,7 @@ function pop( $amount = 1 )
  *
  * @param int $amount The number of characters to shift.
  *
- * @return String $result A new String consisting of just the shifted characters of the original string.
+ * @return Text $result A new Text consisting of just the shifted characters of the original string.
  *
  */
 public
@@ -433,13 +433,13 @@ function shift( $amount = 1 )
 /**
  * Pushes a character onto the end of a string.
  *
- * @param String $new The string to append to the string.
+ * @param Text $new The string to append to the string.
  *
- * @return String $this
+ * @return Text $this
  *
  */
 public
-function append( String $new )
+function append( Text $new )
 {
 	$this->raw( $this->raw() . $new->copy()->encoding( $this->encoding() )->raw() );
 
@@ -451,13 +451,13 @@ function append( String $new )
 /**
  * Pushes a character onto the end of a string.
  *
- * @param String $new The string to append to the string.
+ * @param Text $new The string to append to the string.
  *
- * @return String $this
+ * @return Text $this
  *
  */
 public
-function prepend( String $new )
+function prepend( Text $new )
 {
 	$this->raw( $new->copy()->encoding( $this->encoding() )->raw() . $this->raw() );
 
@@ -483,7 +483,7 @@ function uniCodePoint()
 
 
 public
-function equals( String $input )
+function equals( Text $input )
 {
 	if( $input->encoding() !== $this->encoding() )
 
@@ -592,9 +592,9 @@ function offsetSet( $index , $value )
 	;
 
 
-	$value = $this->golem->stringRule()
+	$value = $this->golem->textRule()
 
-		-> type  ( 'Golem\Data\String' )
+		-> type  ( 'Golem\Data\Text' )
 		-> length( 1      )
 
 		-> validate( $index, 'Parameter $value' )
@@ -638,7 +638,7 @@ public function offsetUnset( $index )
  *
  */
 public
-function splice( $offset, $amount, String $replacement = null )
+function splice( $offset, $amount, Text $replacement = null )
 {
 	$amount = $this->posIntRule->validate( $amount, 'Parameter $amount' );
 
@@ -669,7 +669,7 @@ function splice( $offset, $amount, String $replacement = null )
  *
  */
 public
-function insert( $offset, String $replacement )
+function insert( $offset, Text $replacement )
 {
 	$this->splice( $offset, 0, $replacement );
 }
@@ -755,7 +755,7 @@ function __toString()
 
 
 /**
- * Alias for String::raw()
+ * Alias for Text::raw()
  *
  */
 public

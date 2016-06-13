@@ -17,14 +17,14 @@ Golem:
    # encoding. It has the following consequences:
    # - all values string values read from configuration files will be interpreted as being encoded with this encoding
    # - all literal strings in the php files of Golem will be considered to be in this encoding
-   # - the Golem\String class method __toString() will return strings in this encoding
+   # - the Golem\Text class method __toString() will return strings in this encoding
    #
    configEncoding: 'UTF-8'
 
 
-String:
+Text:
 
-   # The default encoding for strings throughout Golem. You can instantiate Golem\Data\String objects
+   # The default encoding for strings throughout Golem. You can instantiate Golem\Data\Text objects
    # with other encodings, or convert existing strings, but whenever you don't specify, golem will assume it's
    # this encoding. Recommended: utf-8.
    #
@@ -128,12 +128,12 @@ Validation:
       # in: [ 'hi', 'hello' ]
 
 
-   StringRule:
+   TextRule:
 
-      # Any php strings passed to the StringRule object will be assumed and sanitized to be of this encoding
-      # Any Golem\Data\String objects passed in will be converted to this encoding. It can no longer be
+      # Any php strings passed to the TextRule object will be assumed and sanitized to be of this encoding
+      # Any Golem\Data\Text objects passed in will be converted to this encoding. It can no longer be
       # changed once any string have been passed to the object.
-      # Validated and sanitized strings returned from the StringRule will be in this encoding.
+      # Validated and sanitized strings returned from the TextRule will be in this encoding.
       #
       encoding : *globalEncoding
 
@@ -164,7 +164,7 @@ Validation:
 
       # The type of the variable. Sanitation will return your value as this type. Validation will throw an
       # exception if your value is not of the correct type. The option itself should be passed in as a php native string.
-      # Possible values are 'Golem\Data\String' or 'string' for native php strings. If not set, the type of the input will be
+      # Possible values are 'Golem\Data\Text' or 'string' for native php strings. If not set, the type of the input will be
       # assumed to be the desired type.
       #
       # type:

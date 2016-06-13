@@ -4,14 +4,14 @@ namespace Golem\Test;
 use
 
 	  Golem\Golem
-	, Golem\Data\String
+	, Golem\Data\Text
 
 	, stdClass
 
 ;
 
 
-class   StringTest
+class   TextTest
 extends \PHPUnit_Framework_TestCase
 {
 private static $golem;
@@ -38,7 +38,7 @@ function	testConstructor()
 
 	// Create empty string
 	//
-	$s = new String( self::$golem, '', self::$enc );
+	$s = new Text( self::$golem, '', self::$enc );
 
 	$this->assertEquals( ''           , $s->raw     () );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
@@ -46,7 +46,7 @@ function	testConstructor()
 
 	// Create valid string
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 
 	$this->assertEquals( 'κόσμε'      , $s->raw     () );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
@@ -54,12 +54,12 @@ function	testConstructor()
 
 	// Send in invalidly encoded string
 	//
-	$golemSub = self::$golem->options( 'String', 'substitute' );
+	$golemSub = self::$golem->options( 'Text', 'substitute' );
 
 
 	// A byte sequence which is not valid UTF-32
 	//
-	$s = new String( self::$golem, 'hiii', [ 'encoding' => 'UTF-32' ] );
+	$s = new Text( self::$golem, 'hiii', [ 'encoding' => 'UTF-32' ] );
 
 	$uCP = $s->uniCodePoint();
 	$this->assertEquals( 'UTF-32'  , $s->encoding() );
@@ -69,7 +69,7 @@ function	testConstructor()
 
 	// Invalid utf-8 data
 	//
-	$s = new String( self::$golem, file_get_contents( __DIR__ . '/../TestData/UTF-8-test.txt' ), [ 'encoding' => 'UTF-8' ] );
+	$s = new Text( self::$golem, file_get_contents( __DIR__ . '/../TestData/UTF-8-test.txt' ), [ 'encoding' => 'UTF-8' ] );
 
 	$this->assertEquals( file_get_contents( __DIR__ . '/../TestData/UTF-8-test-processed.txt' ), $s->raw()        );
 
@@ -79,7 +79,7 @@ function	testConstructor()
 	//
 	// Number
 	//
-	$s = new String( self::$golem, 53, self::$enc );
+	$s = new Text( self::$golem, 53, self::$enc );
 
 	$this->assertEquals( '53'      , $s->raw     () );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
@@ -87,7 +87,7 @@ function	testConstructor()
 
 	// null
 	//
-	$s = new String( self::$golem, null, self::$enc );
+	$s = new Text( self::$golem, null, self::$enc );
 
 	$this->assertEquals( null      , $s->raw     () );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
@@ -95,17 +95,17 @@ function	testConstructor()
 
 	// boolean
 	//
-	$s = new String( self::$golem, true, self::$enc );
+	$s = new Text( self::$golem, true, self::$enc );
 
 	$this->assertEquals( 1            , $s->raw     () );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
 
 
-	// Send in a String Object
+	// Send in a Text Object
 	//
-	$s = new String( self::$golem, new String( self::$golem, 'testｶｷｸ', self::$enc ), self::$enc );
+	$s = new Text( self::$golem, new Text( self::$golem, 'testｶｷｸ', self::$enc ), self::$enc );
 
-	$this->assertEquals( 'testｶｷｸ'    , $s->raw     () );
+	$this->assertEquals( 'testｶｷｸ'   , $s->raw     () );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
 }
 
@@ -119,7 +119,7 @@ function	testConstructor()
 public
 function	testContructorParamArray()
 {
-	$s = new String( self::$golem, [], self::$enc );
+	$s = new Text( self::$golem, [], self::$enc );
 }
 
 
@@ -132,7 +132,7 @@ function	testContructorParamArray()
 public
 function	testContructorParamObj()
 {
-	$s = new String( self::$golem, new stdClass, self::$enc );
+	$s = new Text( self::$golem, new stdClass, self::$enc );
 }
 
 
@@ -148,7 +148,7 @@ function	testFromUniCodePoint()
 	// nul byte
 	//
 	$cp = 0;
-	$s  = String::fromUniCodePoint( $g, $cp );
+	$s  = Text::fromUniCodePoint( $g, $cp );
 	$this->assertEquals( $cp, $s->uniCodePoint()[ 0 ] );
 	$this->assertEquals( "\0", $s->raw() );
 
@@ -156,7 +156,7 @@ function	testFromUniCodePoint()
 	// U+10330 gothic letter ahsa
 	//
 	$cp = 0x10330;
-	$s  = String::fromUniCodePoint( $g, $cp );
+	$s  = Text::fromUniCodePoint( $g, $cp );
 	$this->assertEquals( $cp, $s->uniCodePoint()[ 0 ] );
 	$this->assertEquals( '𐌰', $s->raw() );
 
@@ -164,14 +164,14 @@ function	testFromUniCodePoint()
 	// U+20FFFF Point beyond unicode standard
 	//
 	$cp = 0x20FFFF;
-	$s  = String::fromUniCodePoint( $g, $cp );
-	$this->assertEquals( $g->options( 'String', 'substitute' ), $s->uniCodePoint()[ 0 ] );
+	$s  = Text::fromUniCodePoint( $g, $cp );
+	$this->assertEquals( $g->options( 'Text', 'substitute' ), $s->uniCodePoint()[ 0 ] );
 
 
 	// U+10330 gothic letter ahsa, try to get ascii
 	//
 	$cp = 0x10330;
-	$s  = String::fromUniCodePoint( $g, $cp, 'ASCII' );
+	$s  = Text::fromUniCodePoint( $g, $cp, 'ASCII' );
 	$this->assertEquals( '?', $s->raw() );
 
 
@@ -185,7 +185,7 @@ function	testCopy()
 {
 	// Verify copy returns a different object
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$sc = $s->copy();
 
 	$this->assertNotSame( $s, $sc );
@@ -200,11 +200,11 @@ function	testCopy()
 
 	// Verify returned copy is not sealed
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$s->seal();
 
 	$sc = $s->copy();
-	$this->assertFalse( $sc->sealed(), 'Verify String copy isn\'t sealed.' );
+	$this->assertFalse( $sc->sealed(), 'Verify Text copy isn\'t sealed.' );
 
 	$this->markTestIncomplete();
 }
@@ -216,13 +216,13 @@ function	testRaw()
 {
 	// Test getter functionality (is_string)
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$this->assertInternalType( 'string', $s->raw() );
 
 
 	// Test on empty strings
 	//
-	$s = new String( self::$golem, '', self::$enc );
+	$s = new Text( self::$golem, '', self::$enc );
 	$this->assertInternalType( 'string', $s->raw() );
 
 
@@ -230,8 +230,8 @@ function	testRaw()
 	// Test Parameter validation (type and content)
 	// Should return $this, not a new string object
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
-	$r = new String( self::$golem, 'ｶｷｸ'  , self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
+	$r = new Text( self::$golem, 'ｶｷｸ'  , self::$enc );
 
 	$this->assertEquals( 'ｶｷｸ'  , $s->raw( $r      )->raw() );
 	$this->assertEquals( 'κόσμε', $s->raw( 'κόσμε' )->raw() );
@@ -249,13 +249,13 @@ function	testEncoding()
 {
 	// Test it returns a the same encoding as set in constructor
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$this->assertEquals( self::$cfgEnc, $s->encoding() );
 
 
 	// Test it returns a valid encoding on an empty string
 	//
-	$s = new String( self::$golem, '', [ 'encoding' => 'UTF-8' ] );
+	$s = new Text( self::$golem, '', [ 'encoding' => 'UTF-8' ] );
 	$this->assertEquals( 'UTF-8', $s->encoding() );
 
 
@@ -266,7 +266,7 @@ function	testEncoding()
 
 	// Check encoding gets set to the new encoding
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$this->assertFalse( mb_check_encoding( $s->raw(), 'UTF-16' ) );
 
 	$s->encoding( 'UTF-16' );
@@ -277,7 +277,7 @@ function	testEncoding()
 	$this->assertTrue  ( mb_check_encoding( $s->raw(), 'UTF-16'                 ) );
 
 
-	// Make sure conversion is in place (no new String object should be created)
+	// Make sure conversion is in place (no new Text object should be created)
 	//
 	$this->assertSame( $s, $s->encoding( 'UTF-8' ) );
 
@@ -285,7 +285,7 @@ function	testEncoding()
 	// Test return types
 	//
 	$this->assertInternalType( 'string'           , $s->encoding()           );
-	$this->assertInstanceOf  ( 'Golem\Data\String', $s->encoding( 'UTF-32' ) );
+	$this->assertInstanceOf  ( 'Golem\Data\Text', $s->encoding( 'UTF-32' ) );
 
 
 	// Test actual conversion
@@ -303,7 +303,7 @@ function testSetEncodingOnSealed()
 {
 	// Test different chunk sizes (0)
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$s->seal();
 
 	$s->encoding( 'UTF-32' );
@@ -316,25 +316,25 @@ function	testHex()
 {
 	// Test hex values for empty string, and some different encodings
 	//
-	$s = new String( self::$golem, '', self::$enc );
+	$s = new Text( self::$golem, '', self::$enc );
 	$this->assertEquals( '', $s->hex() );
 
 
 	// Test valid strings
 	//
-	$s = new String( self::$golem, "\x0", self::$enc );
+	$s = new Text( self::$golem, "\x0", self::$enc );
 	$this->assertEquals( '00', $s->hex() );
 
-	$s = new String( self::$golem, "\x58", self::$enc );
+	$s = new Text( self::$golem, "\x58", self::$enc );
 	$this->assertEquals( '58', $s->hex() );
 
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$this->assertEquals( 'cebae1bdb9cf83cebcceb5', $s->hex() );
 
 
 	// Test prettify
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$this->assertEquals( 'ce ba e1 bd b9 cf 83 ce bc ce b5', $s->hex( true ) );
 }
 
@@ -345,13 +345,13 @@ function	testLength()
 {
 	// Test empty string
 	//
-	$s = new String( self::$golem, '', self::$enc );
+	$s = new Text( self::$golem, '', self::$enc );
 	$this->assertEquals( 0, $s->length() );
 
 
 	// Test a utf-8 string
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$this->assertEquals( 5, $s->length() );
 
 
@@ -370,21 +370,21 @@ function	testSplit()
 
 	// Test empty string
 	//
-	$s = new String( self::$golem, '', self::$enc );
+	$s = new Text( self::$golem, '', self::$enc );
 	$this->assertEquals( [], $s->split() );
 
 
 	// Test simple string (raw)
 	//
 	$control = [ 'κ', 'ό', 'σ', 'μ', 'ε' ];
-	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+	$s       = new Text( self::$golem, 'κόσμε', self::$enc );
 
 	$this->assertEquals( $control, $s->split( 1, true ) );
 
 
 	// Test simple string
 	//
-	$s     = new String( self::$golem, 'κόσμε', self::$enc );
+	$s     = new Text( self::$golem, 'κόσμε', self::$enc );
 	$split = $s->split();
 
 	for( $i = 0; $i < count( $split ); ++$i )
@@ -397,7 +397,7 @@ function	testSplit()
 	// Test different chunk sizes (2)
 	//
 	$control = [ 'κό', 'σμ', 'ε' ];
-	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+	$s       = new Text( self::$golem, 'κόσμε', self::$enc );
 
 	$this->assertEquals( $control, $s->split( 2, true ) );
 
@@ -405,7 +405,7 @@ function	testSplit()
 	// Test different chunk sizes (string length)
 	//
 	$control = [ 'κόσμε' ];
-	$s       = new String( self::$golem, 'κόσμε', self::$enc );
+	$s       = new Text( self::$golem, 'κόσμε', self::$enc );
 
 	$this->assertEquals( $control, $s->split( 5, true ) );
 
@@ -425,7 +425,7 @@ function testSplitInvalidParam()
 {
 	// Test different chunk sizes (0)
 	//
-	$s = new String( self::$golem, 'κόσμε', self::$enc );
+	$s = new Text( self::$golem, 'κόσμε', self::$enc );
 	$s->split( 0 );
 }
 
@@ -436,7 +436,7 @@ function	testUniCodePoint()
 {
 	// Test empty string
 	//
-	$s = new String( self::$golem, '', self::$enc );
+	$s = new Text( self::$golem, '', self::$enc );
 	$cp = $s->uniCodePoint();
 
 	$this->assertInternalType( 'array', $cp          );
@@ -445,7 +445,7 @@ function	testUniCodePoint()
 
 	// Test utf-8 character
 	//
-	$s = new String( self::$golem, 'ê', self::$enc );
+	$s = new Text( self::$golem, 'ê', self::$enc );
 	$cp = $s->uniCodePoint();
 
 	$this->assertInternalType( 'array', $cp          );
@@ -468,7 +468,7 @@ function	testPop()
 
 	// Test Parameter validation (type and content)
 	// Test right amount of characters popped
-	// Result type should be a new String object
+	// Result type should be a new Text object
 	// Popped characters should be removed from original string
 }
 
@@ -481,7 +481,7 @@ function	testShift()
 
 	// Test Parameter validation (type and content)
 	// Test right amount of characters shifted
-	// Result type should be a new String object
+	// Result type should be a new Text object
 	// Shifted characters should be removed from original string
 }
 
@@ -495,8 +495,8 @@ function	testAppend()
 
 	// Add to empty string
 	//
-	$s  = new String( self::$golem, ''   , self::$enc );
-	$a  = new String( self::$golem, 'def', self::$enc );
+	$s  = new Text( self::$golem, ''   , self::$enc );
+	$a  = new Text( self::$golem, 'def', self::$enc );
 
 	$t = $s->append( $a );
 
@@ -507,8 +507,8 @@ function	testAppend()
 
 	// Add empty string
 	//
-	$s  = new String( self::$golem, 'abc', self::$enc );
-	$a  = new String( self::$golem, '', self::$enc );
+	$s  = new Text( self::$golem, 'abc', self::$enc );
+	$a  = new Text( self::$golem, '', self::$enc );
 
 	$t = $s->append( $a );
 
@@ -519,8 +519,8 @@ function	testAppend()
 
 	// Standard usage
 	//
-	$s  = new String( self::$golem, 'abc', self::$enc );
-	$a  = new String( self::$golem, 'def', self::$enc );
+	$s  = new Text( self::$golem, 'abc', self::$enc );
+	$a  = new Text( self::$golem, 'def', self::$enc );
 
 	$t = $s->append( $a );
 
@@ -531,8 +531,8 @@ function	testAppend()
 
 	// Combine unicode with ascii
 	//
-	$s  = new String( self::$golem, 'abc', [ 'encoding' => 'ASCII' ] );
-	$a  = new String( self::$golem, 'ｶｷｸ', self::$enc                );
+	$s  = new Text( self::$golem, 'abc', [ 'encoding' => 'ASCII' ] );
+	$a  = new Text( self::$golem, 'ｶｷｸ', self::$enc                );
 
 	$t = $s->append( $a );
 
@@ -546,8 +546,8 @@ function	testAppend()
 	// Combine UTF-8 with UTF-32
 	// Kind of assumes that the config encoding is UTF-8 because we compare to hardcoded values
 	//
-	$s  = new String( self::$golem, 'abc', self::$enc );
-	$a  = new String( self::$golem, 'ｶｷｸ', self::$enc );
+	$s  = new Text( self::$golem, 'abc', self::$enc );
+	$a  = new Text( self::$golem, 'ｶｷｸ', self::$enc );
 
 	$s->encoding( 'UTF-8'  );
 	$a->encoding( 'UTF-32' );
@@ -574,8 +574,8 @@ function	testPrepend()
 
 	// Add to empty string
 	//
-	$s  = new String( self::$golem, ''   , self::$enc );
-	$a  = new String( self::$golem, 'def', self::$enc );
+	$s  = new Text( self::$golem, ''   , self::$enc );
+	$a  = new Text( self::$golem, 'def', self::$enc );
 
 	$t = $s->prepend( $a );
 
@@ -586,8 +586,8 @@ function	testPrepend()
 
 	// Add empty string
 	//
-	$s  = new String( self::$golem, 'abc', self::$enc );
-	$a  = new String( self::$golem, '', self::$enc );
+	$s  = new Text( self::$golem, 'abc', self::$enc );
+	$a  = new Text( self::$golem, '', self::$enc );
 
 	$t = $s->prepend( $a );
 
@@ -598,8 +598,8 @@ function	testPrepend()
 
 	// Standard usage
 	//
-	$s  = new String( self::$golem, 'abc', self::$enc );
-	$a  = new String( self::$golem, 'def', self::$enc );
+	$s  = new Text( self::$golem, 'abc', self::$enc );
+	$a  = new Text( self::$golem, 'def', self::$enc );
 
 	$t = $s->prepend( $a );
 
@@ -610,8 +610,8 @@ function	testPrepend()
 
 	// Combine unicode with ascii
 	//
-	$s  = new String( self::$golem, 'abc', [ 'encoding' => 'ASCII' ] );
-	$a  = new String( self::$golem, 'ｶｷｸ', self::$enc                );
+	$s  = new Text( self::$golem, 'abc', [ 'encoding' => 'ASCII' ] );
+	$a  = new Text( self::$golem, 'ｶｷｸ', self::$enc                );
 
 	$t = $s->prepend( $a );
 
@@ -623,8 +623,8 @@ function	testPrepend()
 	// Combine UTF-8 with UTF-32
 	// Kind of assumes that the config encoding is UTF-8 because we compare to hardcoded values
 	//
-	$s  = new String( self::$golem, 'abc', self::$enc );
-	$a  = new String( self::$golem, 'ｶｷｸ', self::$enc );
+	$s  = new Text( self::$golem, 'abc', self::$enc );
+	$a  = new Text( self::$golem, 'ｶｷｸ', self::$enc );
 
 	$s->encoding( 'UTF-8'  );
 	$a->encoding( 'UTF-32' );
@@ -718,13 +718,13 @@ function	testOffsetUnset()
 public
 function	testSubstr()
 {
-	// Make sure that return value is a new String object
+	// Make sure that return value is a new Text object
 	// $this->assertFalse ( $s === $ss     );
 
 
 	// Create empty string
 	//
-	$s  = new String( self::$golem, '', self::$enc );
+	$s  = new Text( self::$golem, '', self::$enc );
 	$ss = $s->substr( 0, 0 );
 
 	$this->assertEquals( '', $s ->raw() );
@@ -734,7 +734,7 @@ function	testSubstr()
 
 	// Test $offset only, should grab until end of string (from beginning)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 0 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -744,7 +744,7 @@ function	testSubstr()
 
 	// Test $offset only, should grab until end of string (from middle)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 2 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -754,7 +754,7 @@ function	testSubstr()
 
 	// Test $offset only, should grab until end of string (from end)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 5 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -764,7 +764,7 @@ function	testSubstr()
 
 	// Test $length (0)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 0, 0 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -774,7 +774,7 @@ function	testSubstr()
 
 	// Test $length (0)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 2, 0 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -784,7 +784,7 @@ function	testSubstr()
 
 	// Test $length (1)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 0, 1 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -794,7 +794,7 @@ function	testSubstr()
 
 	// Test $length (1)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 2, 1 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -804,7 +804,7 @@ function	testSubstr()
 
 	// Test $length (1)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 5, 1 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -814,7 +814,7 @@ function	testSubstr()
 
 	// Test $length (3)
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$ss = $s->substr( 2, 3 );
 
 	$this->assertEquals( 'κόσμε', $s ->raw() );
@@ -836,7 +836,7 @@ function	testSplice()
 
 	// Deleting characters
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
 	$s1 = $s->splice( 0, 1 );
 	$s2 = $s->splice( 0, 2 );
 	$s3 = $s->splice( 2, 1 );
@@ -852,8 +852,8 @@ function	testSplice()
 
 	// Inserting characters
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
-	$i  = new String( self::$golem, 'ｶｷｸ'  , self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
+	$i  = new Text( self::$golem, 'ｶｷｸ'  , self::$enc );
 	$s1 = $s->splice( 0, 0, $i );
 	$s2 = $s->splice( 2, 0, $i );
 	$s3 = $s->splice( 5, 0, $i );
@@ -868,8 +868,8 @@ function	testSplice()
 
 	// Inserting and deleting characters
 	//
-	$s  = new String( self::$golem, 'κόσμε', self::$enc );
-	$i  = new String( self::$golem, 'ｶｷｸ'  , self::$enc );
+	$s  = new Text( self::$golem, 'κόσμε', self::$enc );
+	$i  = new Text( self::$golem, 'ｶｷｸ'  , self::$enc );
 	$s1 = $s->splice( 0, 1, $i );
 	$s2 = $s->splice( 2, 1, $i );
 	$s3 = $s->splice( 2, 3, $i );

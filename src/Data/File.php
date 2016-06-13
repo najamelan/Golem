@@ -10,7 +10,7 @@ namespace Golem\Data;
 use
 
 	  Golem\Golem
-	, Golem\Data\String
+	, Golem\Data\Text
 
 	, Golem\iFace\Data\Driver as iFileDriver
 
@@ -145,7 +145,7 @@ function __toString()
 /**
  * Getter/Setter for the mime type of the file.
  *
- * @param  string|Golem\Data\String $mime The mime type to set.
+ * @param  string|Golem\Data\Text $mime The mime type to set.
  * @return string|Golem\Data\File The mime as a string or $this.
  *
  * @throws Exception if the input parameter isn't valid.
@@ -181,7 +181,7 @@ function mime( $mime = null )
 
 	// setter
 	//
-	$this->mime = $this->golem->stringRule()
+	$this->mime = $this->golem->textRule()
 
 		->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )
 		->type    ( 'string'                                           )

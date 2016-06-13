@@ -15,7 +15,7 @@ use
 	, Golem\Traits\HasOptions
 	, Golem\Traits\HasLog
 
-	, Golem\Data\String
+	, Golem\Data\Text
 
 	, Golem\Util
 ;
@@ -164,8 +164,8 @@ public function encode( $input )
 
 	// TODO: Make sure character encoding is valid
 	//
-	$input  = $this->golem->string( $input );
-	$output = $this->golem->string( ''     );
+	$input  = $this->golem->text( $input );
+	$output = $this->golem->text( ''     );
 
 
 	while( $input->length() )
@@ -194,8 +194,8 @@ public function decode( $input )
 
 	// TODO: Make sure character encoding is valid
 	//
-	$input  = $this->golem->string( $input );
-	$output = $this->golem->string( ''     );
+	$input  = $this->golem->text( $input );
+	$output = $this->golem->text( ''     );
 
 
 	while( $input->length() )

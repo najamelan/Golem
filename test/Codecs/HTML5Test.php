@@ -34,7 +34,7 @@ extends \PHPUnit_Framework_TestCase
    	self::$immuneAttribute = self::$golem->options( 'Codec' , 'HTML5', 'immuneAttribute' );
    	self::$htmlSubstitute  = self::$golem->options( 'Codec' , 'HTML5', 'substitute'      );
 
-   	self::$encSubstitute   = '&#x' . dechex( self::$golem->options( 'String', 'substitute' ) ) . ';';
+   	self::$encSubstitute   = '&#x' . dechex( self::$golem->options( 'Text', 'substitute' ) ) . ';';
    }
 
 

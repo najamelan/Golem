@@ -80,7 +80,7 @@ function metadata( File $file )
 
 	exec( $this->options( 'binary' ) . ' --display ' . escapeshellarg( $file->path() ), $output, $status );
 
-	return $this->golem->string( join( $output, PHP_EOL ) );
+	return $this->golem->text( join( $output, PHP_EOL ) );
 }
 
 

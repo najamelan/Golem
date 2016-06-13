@@ -23,13 +23,13 @@ use
 
    , Golem\Codecs\ParseYAML
 
-   , Golem\Validation\StringRule
+   , Golem\Validation\TextRule
    , Golem\Validation\NumberRule
    , Golem\Validation\FileRule
    , Golem\Validation\BooleanRule
 
    , Golem\Data\File
-   , Golem\Data\String
+   , Golem\Data\Text
 
    , Golem\Traits\Seal
    , Golem\Traits\HasOptions
@@ -216,22 +216,22 @@ class Golem
 
 
 	/**
-	 * Get a \Golem\Data\String.
+	 * Get a \Golem\Data\Text.
 	 *
-	 * @return \Golem\Data\String
+	 * @return \Golem\Data\Text
 	 *
 	 * @api
 	 *
 	 */
 	public
-	function string( $content, $encoding = null )
+	function text( $content, $encoding = null )
 	{
 		if( $encoding === null )
 
-			$encoding = $this->options( 'String', 'encoding' );
+			$encoding = $this->options( 'Text', 'encoding' );
 
 
-		return new String( $this, $content, [ 'encoding' => $encoding ] );
+		return new Text( $this, $content, [ 'encoding' => $encoding ] );
 	}
 
 
@@ -251,7 +251,7 @@ class Golem
 	}
 
 
-	public function stringRule ( array $options = [] ){ return new StringRule ( $this, $options ); }
+	public function textRule ( array $options = [] ){ return new TextRule ( $this, $options ); }
 	public function booleanRule( array $options = [] ){ return new booleanRule( $this, $options ); }
 	public function fileRule   ( array $options = [] ){ return new FileRule   ( $this, $options ); }
 	public function numberRule ( array $options = [] ){ return new NumberRule ( $this, $options ); }
