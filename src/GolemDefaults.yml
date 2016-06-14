@@ -73,6 +73,10 @@ Logger:
    name        : Golem
    prefix      : Golem
 
+   # TODO: Whether to print a stack trace with exceptions
+   #
+   # stacktrace: false
+
 
 Codec:
 

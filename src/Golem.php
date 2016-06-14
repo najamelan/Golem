@@ -251,7 +251,7 @@ class Golem
 	}
 
 
-	public function textRule ( array $options = [] ){ return new TextRule ( $this, $options ); }
+	public function textRule   ( array $options = [] ){ return new TextRule   ( $this, $options ); }
 	public function booleanRule( array $options = [] ){ return new booleanRule( $this, $options ); }
 	public function fileRule   ( array $options = [] ){ return new FileRule   ( $this, $options ); }
 	public function numberRule ( array $options = [] ){ return new NumberRule ( $this, $options ); }

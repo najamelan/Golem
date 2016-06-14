@@ -8,6 +8,7 @@ The only features provided right now are:
 - Output escaping
 - Meta data cleaning for uploaded files (for privacy)
 - String class which will make encoding nightmares unexistant
+- Randomizer
 - A wordpress plugin to allow people to use Golem in wordpress easily
 
 ## Design
