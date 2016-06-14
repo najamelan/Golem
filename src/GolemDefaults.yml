@@ -197,7 +197,7 @@ Validation:
    #
    FileRule: []
 
-      # Whether it's an existing file (when sanitizing will be created if not existing)
+      # Whether it's an existing file (when sanitizing will be created if not existing or deleted if exists: false)
       #
       # exists: true/false
       #

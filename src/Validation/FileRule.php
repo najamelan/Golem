@@ -67,12 +67,13 @@ function validateOptions()
 	$o = &$this->options;
 
 	isset( $o[ 'exists' ] )  &&  $o[ 'exists' ] = $this->validateOptionExists( $o[ 'exists' ] );
+	isset( $o[ 'isDir'  ] )  &&  $o[ 'isDir'  ] = $this->validateOptionIsDir ( $o[ 'isDir'  ] );
 }
 
 
 
 protected
-function validateOptionExists( $o, $param = 'exists' )
+function validateOptionExists( $o )
 {
 	if( ! is_bool( $o ) )
 
@@ -81,6 +82,48 @@ function validateOptionExists( $o, $param = 'exists' )
 			"Option [exists] should be a boolean. Got: " . Util::getType( $o )
 		)
 	;
+
+
+	// For now we haven't dealt with unsetting options, but in any case don't allow setting
+	// exists to false when other options that require it are active
+	//
+	if( !$o )
+	{
+		if
+		(
+			$this->isDir()
+		)
+		{
+			$this->log->invalidArgumentException
+			(
+				  "Option [exists] cannot be set to false when one of the following is set to true:\n"
+				. " - isDir\n"
+			);
+		}
+	}
+
+
+	return $o;
+}
+
+
+
+protected
+function validateOptionIsDir( $o )
+{
+	if( ! is_bool( $o ) )
+
+		$this->log->invalidArgumentException
+		(
+			"Option [isDir] should be a boolean. Got: " . Util::getType( $o )
+		)
+	;
+
+
+	// it doesn't make sense unless the file has to exist
+	//
+	$this->exists( true );
+
 
 	return $o;
 }
@@ -116,9 +159,10 @@ function sanitize( $input, $context )
 		return null;
 
 
-	$input   = parent::sanitize        ( $input, $context );
+	$input   = parent::sanitize( $input, $context );
 
-	$input   = $this->sanitizeExists   ( $input, $context );
+	if( $this->options( 'exists' ) !== null ) $input = $this->sanitizeExists( $input, $context );
+	if( $this->options( 'isDir'  ) !== null ) $input = $this->sanitizeIsDir ( $input, $context );
 
 	return $this->_validate( $input, $context );
 }
@@ -148,9 +192,10 @@ function _validate( $input, $context )
 		return null;
 
 
-	$input   = parent::_validate       ( $input, $context );
+	$input   = parent::_validate( $input, $context );
 
-	$input   = $this->validateExists   ( $input, $context );
+	if( $this->options( 'exists' ) !== null ) $input = $this->validateExists( $input, $context );
+	if( $this->options( 'isDir'  ) !== null ) $input = $this->validateIsDir ( $input, $context );
 
 
 	if( __CLASS__ === get_class( $this ) )
@@ -190,12 +235,12 @@ function exists( $exists = null )
 	//
 	if( $exists === null )
 
-		return $this->options[ 'exists' ];
+		return $this->options( 'exists' );
 
 
 	// setter
 	//
-	$this->setOpt( 'exists', $this->validateOptionexists( $exists ) );
+	$this->setOpt( 'exists', $this->validateOptionExists( $exists ) );
 
 	return $this;
 }
@@ -205,19 +250,28 @@ function exists( $exists = null )
 protected
 function sanitizeExists( $input, $context )
 {
-	if( ! $this->isValidExists( $input ) )
+	if( $this->isValidExists( $input ) )
+
+		return $input;
+
+
+	// we need to sanitize it
+	//
+	if( $this->options( 'exists' ) === true )
 	{
+		if( $this->options( 'isDir' ) )
 
-		if( $this->options( 'exists' ) )
-
-			$input->touch();
-
+			$input->mkdir();
 
 		else
 
-			$input->rm();
-
+			$input->touch();
 	}
+
+
+	else
+
+		$input->rm();
 
 
 	return $input;
@@ -236,7 +290,7 @@ function validateExists( $input, $context )
 	$error = $this->options( 'exists' ) ?
 
 		  "$context: File [$input] does not exist."
-		: "$context: File [$input] exist but it shouldn't."
+		: "$context: File [$input] exists but it shouldn't."
 	;
 
 
@@ -248,11 +302,92 @@ function validateExists( $input, $context )
 public
 function isValidExists( $input )
 {
-	if
-	(
-		   isset( $this->options[ 'exists' ] )
-		&& $input->exists() === $this->options[ 'exists' ]
-	)
+	if( $input->exists() === $this->options( 'exists' ) )
+
+		return true;
+
+
+	return false;
+}
+
+
+
+/**
+ * IsDir validation
+ *
+ */
+
+public
+function isDir( $isDir = null )
+{
+	// getter
+	//
+	if( $isDir === null )
+
+		return $this->options( 'isDir' );
+
+
+	// setter
+	//
+	$this->setOpt( 'isDir', $this->validateOptionIsDir( $isDir ) );
+
+	return $this;
+}
+
+
+
+protected
+function sanitizeIsDir( $input, $context )
+{
+	if( $this->isValidIsDir( $input ) )
+
+		return $input;
+
+
+	// Creation should already be taken care of by 'exists', but if it exists and is not the right type
+	// we should sanitize it here.
+	//
+	$input->rm();
+
+
+	if( $this->options( 'isDir' ) )
+
+		$input->mkdir();
+
+	else
+
+		$input->touch();
+
+
+	return $input;
+}
+
+
+
+protected
+function validateIsDir( $input, $context )
+{
+	if( $this->isValidExists( $input ) )
+
+		return $input;
+
+
+	$error = $this->options( 'isDir' ) ?
+
+		  "$context: File [$input] exists but is not a directory."
+		: "$context: File [$input] is a directory but it shouldn't be."
+	;
+
+
+	$this->log->validationException( $error );
+}
+
+
+
+public
+function isValidIsDir( $input )
+{
+	if( $input->isDir() === $this->options( 'isDir' ) )
 
 		return true;
 

@@ -111,6 +111,46 @@ function exists()
 
 
 /**
+ * Returns whether the file is a directory.
+ *
+ * @return bool Whether the file is a directory
+ *
+ * @api
+ *
+ */
+public
+function isDir()
+{
+	// file_exists caches it's results
+	//
+	clearstatcache( /*clear_realpath_cache = */ true, $this->path );
+
+	return $this->info->isDir();
+}
+
+
+
+/**
+ * Returns whether the file is a symbolic link.
+ *
+ * @return bool Whether the file is a symbolic link
+ *
+ * @api
+ *
+ */
+public
+function isLink()
+{
+	// file_exists caches it's results
+	//
+	clearstatcache( /*clear_realpath_cache = */ true, $this->path );
+
+	return is_link( $this->path );
+}
+
+
+
+/**
  * Returns the absolute path to the file.
  *
  * @return string Absolute path including filename
@@ -325,6 +365,7 @@ function parse()
 
 /**
  * Creates a file or changes the timestamp on it.
+ * See the php function touch for parameter description.
  *
  */
 public
@@ -345,7 +386,29 @@ function touch( $time = null, $atime = null )
 
 
 /**
- * Removes a file.
+ * Creates a directory.
+ * See the php function mkdir for parameter description.
+ *
+ */
+public
+function mkdir( $mode = null, $recursive = null, $context = null )
+{
+	$args = func_get_args();
+	array_unshift( $args, $this->path );
+
+
+	if( ! call_user_func_array( 'mkdir', $args ) )
+
+		$this->log->exception( new RuntimeException( 'Mkdir failed on ' . $this->path ) );
+
+
+	return $this;
+}
+
+
+
+/**
+ * Removes a file or directory. Will delete recursively.
  *
  */
 public
@@ -356,12 +419,47 @@ function rm()
 		return $this;
 
 
-	if( ! unlink( $this->path ) )
 
-		$this->log->exception( new RuntimeException( 'unlink failed on ' . $this->path ) );
+	if( $this->isDir()  &&  !$this->isLink() )
+	{
+		if( ! self::delTree( $this->path ) )
+
+			$this->log->runtimeException( 'delTree failed on ' . $this->path );
+	}
+
+	elseif( ! unlink( $this->path ) )
+
+		$this->log->runtimeException( 'unlink failed on ' . $this->path );
 
 
 	return $this;
+}
+
+
+
+public
+static
+function delTree( $dir )
+{
+	if( ! file_exists( $dir ) )
+
+		return true;
+
+
+	$files = array_diff( scandir( $dir ), [ '.', '..' ] );
+
+
+	foreach( $files as $file )
+	{
+		is_dir( "$dir/$file" )  &&  !is_link( $dir )  ?
+
+			  self::delTree( "$dir/$file" )
+			: unlink       ( "$dir/$file" )
+		;
+	}
+
+
+	return rmdir( $dir );
 }
 
 

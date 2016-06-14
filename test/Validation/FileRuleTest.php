@@ -16,16 +16,29 @@ class   FileRuleTest
 extends \PHPUnit_Framework_TestCase
 {
 
-private static $golem ;
+private static $golem;
+private static $testDir;
 
 
 public
 static
 function setUpBeforeClass()
 {
-	self::$golem = new Golem;
+	self::$golem   = new Golem;
+	self::$testDir = self::$golem->file( __DIR__ . '/../TestData/FileRuleTests' );
+
+	self::$testDir->rm();
+	self::$testDir->mkdir();
 }
 
+
+
+public
+static
+function tearDownAfterClass()
+{
+	self::$testDir->rm();
+}
 
 
 /**
@@ -37,8 +50,10 @@ function	testConstructor()
 {
 	$rule = self::$golem->fileRule();
 
-	$this->assertFalse ( isset( $rule->options()[ 'exists' ] ) );
-	$this->assertEquals( false, $rule->options( 'allowNull' )  );
+	$this->assertNull ( $rule->options( 'exists'    ) );
+	$this->assertNull ( $rule->options( 'isDir'     ) );
+
+	$this->assertFalse( $rule->options( 'allowNull' ) );
 }
 
 
@@ -49,17 +64,28 @@ function	testConstructor()
 public
 function	testValidateOptionExists()
 {
-	$rule = self::$golem->fileRule( [ 'exists' => true ] );
-	$this->assertEquals( true, $rule->exists() );
+	$rule = self::$golem->fileRule( [ 'exists' => true  ] );
+	$this->assertTrue( $rule->exists() );
 
 	$rule = self::$golem->fileRule( [ 'exists' => false ] );
-	$this->assertEquals( false, $rule->exists() );
+	$this->assertFalse( $rule->exists() );
 }
 
 
 
+public
+function	testValidateOptionIsDir()
+{
+	$rule = self::$golem->fileRule( [ 'isDir' => true  ] );
+	$this->assertTrue( $rule->isDir() );
+
+	$rule = self::$golem->fileRule( [ 'isDir' => false ] );
+	$this->assertFalse( $rule->isDir() );
+}
+
+
 /**
- * @dataProvider      invalidExists
+ * @dataProvider      invalidBools
  * @expectedException InvalidArgumentException
  */
 public
@@ -69,9 +95,20 @@ function	testInvalidOptionExists( $exists )
 }
 
 
+/**
+ * @dataProvider      invalidBools
+ * @expectedException InvalidArgumentException
+ */
+public
+function	testInvalidOptionIsDir( $isDir )
+{
+	$rule = self::$golem->fileRule( [ 'isDir' => $isDir ] );
+}
+
+
 
 public
-function invalidExists()
+function invalidBools()
 {
 	return
 	[
@@ -82,6 +119,36 @@ function invalidExists()
 		, [ []           ]
 		, [ new stdClass ]
 	];
+}
+
+
+/**
+ * Test Getter/setters
+ */
+public
+function testGetterExists()
+{
+	$rule = self::$golem->fileRule();
+
+	$this->assertNull( $rule->exists() );
+
+	$rule->exists( true );
+
+	$this->assertTrue( $rule->exists() );
+}
+
+
+
+public
+function testGetterIsDir()
+{
+	$rule = self::$golem->fileRule();
+
+	$this->assertNull( $rule->isDir() );
+
+	$rule->isDir( true );
+
+	$this->assertTrue( $rule->isDir() );
 }
 
 
@@ -110,7 +177,7 @@ function	testUnexistingFileValidate()
 	$this->assertInstanceOf
 	(
 		  'Golem\Data\File'
-		, $rule->validate( self::$golem->file( 'doesnotexists' ), 'Unit Testing' )
+		, $rule->validate( self::$golem->file( self::$testDir . '/doesnotexists' ), 'Unit Testing' )
 	);
 }
 
@@ -124,7 +191,7 @@ function	testExistingFileInvalidate()
 {
 	$rule = self::$golem->fileRule( [ 'exists' => false ] );
 
-	$rule->validate( self::$golem->file( __DIR__ . '/../TestData/someData' ), 'Unit Testing' );
+	$rule->validate( self::$golem->file( self::$testDir . '/../someData' ), 'Unit Testing' );
 }
 
 
@@ -140,7 +207,7 @@ function	testExistingFileValidate()
 	$this->assertInstanceOf
 	(
 		  'Golem\Data\File'
-		, $rule->validate( self::$golem->file( __DIR__ . '/../TestData/someData' ), 'Unit Testing' )
+		, $rule->validate( self::$golem->file( self::$testDir . '/../someData' ), 'Unit Testing' )
 	);
 }
 
@@ -150,70 +217,117 @@ function	testExistingFileValidate()
 
 
 /**
+ * Test sanitizing files
+ *
+ * - creating and deleting
  *
  */
 public
 function	testUnexistingFileSanitizeCreate()
 {
-	$rule = self::$golem->fileRule( [ 'exists' => true ] );
-	$file = $rule->sanitize( self::$golem->file( 'doesnotexists' ), 'Unit Testing' );
+	$file = self::$golem->file( self::$testDir . '/doesNotExistCreateFile' );
+
+	$file = self::$golem->fileRule()
+
+		->exists  ( true                  )
+		->sanitize( $file, 'Unit Testing' )
+	;
 
 	$this->assertInstanceOf( 'Golem\Data\File', $file );
 	$this->assertTrue      ( $file->exists()          );
 
-	$file->rm();
+	return $file;
 }
 
 
 
 /**
+ * @depends testUnexistingFileSanitizeCreate
+ */
+public
+function	testExistingFileSanitize( File $file )
+{
+	$file = self::$golem->fileRule()
+
+		->exists  ( true                  )
+		->sanitize( $file, 'Unit Testing' )
+	;
+
+	$this->assertInstanceOf( 'Golem\Data\File', $file );
+	$this->assertTrue      ( $file->exists()          );
+	$this->assertFalse     ( $file->isDir ()          );
+
+	return $file;
+}
+
+
+
+/**
+ * @depends testExistingFileSanitize
  *
+ */
+public
+function	testExistingFileSanitizeDelete( File $file )
+{
+	$file = self::$golem->fileRule()
+
+		->exists  ( false                 )
+		->sanitize( $file, 'Unit Testing' )
+	;
+
+	$this->assertInstanceOf( 'Golem\Data\File', $file );
+	$this->assertFalse     ( $file->exists()          );
+	$this->assertFalse     ( $file->isDir ()          );
+}
+
+
+
+/**
+ * Test passing sanitation on an unexisting file.
+ * It shouldn't exist afterwards, instanceof should be Golem\File
  */
 public
 function	testUnexistingFileSanitize()
 {
-	$rule = self::$golem->fileRule( [ 'exists' => false ] );
+	$file = self::$golem->file( self::$testDir . '/doesNotExist' );
+	$this->assertFalse( $file->exists() );
 
-	$this->assertInstanceOf
-	(
-		  'Golem\Data\File'
-		, $rule->sanitize( self::$golem->file( 'doesnotexists' ), 'Unit Testing' )
-	);
+
+		$file = self::$golem->fileRule()
+
+			->exists  ( false                 )
+			->sanitize( $file, 'Unit Testing' )
+		;
+
+
+	$this->assertInstanceOf( 'Golem\Data\File', $file );
+	$this->assertFalse     ( $file->exists()          );
+	$this->assertFalse     ( $file->isDir ()          );
 }
 
 
 
-/**
- *
- */
 public
-function	testExistingFileSanitizeDelete()
+function	testUnexistingFileSanitizeCreateDir()
 {
-	$rule = self::$golem->fileRule( [ 'exists' => false ] );
-	$file = self::$golem->file    ( __DIR__ . '/newFile'  );
 
-	$file->touch();
+	$dir = self::$golem->file( self::$testDir . '/doesNotExistCreateDirectory' );
 
-	$rule->sanitize   ( $file, 'Unit Testing' );
-	$this->assertFalse( $file->exists()       );
+	$dir = self::$golem->fileRule()
 
+		->exists( true )
+		->isDir ( true )
+
+		->sanitize( $dir, 'Unit Testing' )
+	;
+
+
+	$this->assertInstanceOf( 'Golem\Data\File', $dir );
+	$this->assertTrue      ( $dir->exists()          );
+	$this->assertTrue      ( $dir->isDir ()          );
 }
 
 
 
-/**
- *
- */
-public
-function	testExistingFileSanitize()
-{
-	$rule = self::$golem->fileRule( [ 'exists' => true ] );
-
-	$this->assertInstanceOf
-	(
-		  'Golem\Data\File'
-		, $rule->sanitize( self::$golem->file( __DIR__ . '/../TestData/someData' ), 'Unit Testing' )
-	);
-}
 
 }
