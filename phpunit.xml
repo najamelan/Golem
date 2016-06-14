@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="test/TestData/bootstrap.php" colors="true">
+<phpunit
+	bootstrap                               = "test/TestData/bootstrap.php"
+	colors                                  = "true"
+	beStrictAboutTestsThatDoNotTestAnything = "true"
+	beStrictAboutCoversAnnotation           = "true"
+	beStrictAboutOutputDuringTests          = "true"
+	beStrictAboutChangesToGlobalState       = "true"
+>
 
 	<testsuites>
 
