@@ -30,6 +30,9 @@ use
  *
  * Does smart parsing of text formats based on mime type and extension.
  *
+ * TODO: when creating a file object for a file that is yet to be created, path might not be canonical.
+ * it is probably a good idea to make it canonical when we create the file with touch or mkdir.
+ *
  */
 class File
 //implements \Golem\iFace\Data\File
@@ -41,6 +44,7 @@ private $g;
 
 private $info;
 private $path;
+private $inputPath;
 private $driver;
 private $mime;
 
@@ -49,11 +53,30 @@ private $mime;
 public
 function __construct( Golem $g, $path )
 {
-	$this->path  = $path ;
-	$this->info  = new SplFileInfo( $path );
-
 	$this->g = $g;
 	$this->setupLog();
+
+
+	if( ! $path instanceof Text )
+
+		$path = $g->text( $path );
+
+
+	// If it exists, get the real path
+	// getRealPath returns false if the file does not exist
+	//
+	$this->inputPath = $path;
+	$this->info      = new SplFileInfo( $path->raw() );
+	$this->path      = $this->info->getRealPath();
+
+
+	if( $this->path )
+
+		$this->path = $g->text( $this->path );
+
+	else
+
+		$this->path = $path;
 }
 
 
@@ -85,6 +108,11 @@ function name()
 public
 function extension()
 {
+	if( $this->isDir() )
+
+		return null;
+
+
 	return $this->info->getExtension();
 }
 
@@ -177,7 +205,7 @@ function path()
 public
 function __toString()
 {
-	return $this->path;
+	return $this->path()->raw();
 }
 
 
@@ -414,6 +442,11 @@ function mkdir( $mode = null, $recursive = null, $context = null )
 public
 function rm()
 {
+	// error_log( print_r( "exists: "  . $this->exists(), true ) );
+	// error_log( print_r( "isdir: "   . $this->isDir() , true ) );
+	// error_log( print_r( "is link: " . $this->isLink(), true ) );
+
+
 	if( ! $this->exists() )
 
 		return $this;
