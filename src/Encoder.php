@@ -64,7 +64,7 @@ private $_auditor;
  */
 public function __construct( Golem $golem, array $options = [] )
 {
-	$this->golem = $golem;
+	$this->g = $golem;
 
 	$this->setupOptions( $golem->options( 'Encoder' ), $options );
 }
@@ -90,7 +90,7 @@ public function htmlText( $input )
 {
 	if( ! $this->htmlTextCodec )
 
-		$this->htmlTextCodec = new HTML5( $this->golem, /* $context = */ 'text' );
+		$this->htmlTextCodec = new HTML5( $this->g, /* $context = */ 'text' );
 
 
 	return $this->htmlTextCodec->encode( $input );
@@ -103,7 +103,7 @@ public function htmlAttr( $input )
 {
 	if( ! $this->htmlAttrCodec )
 
-		$this->htmlAttrCodec = new HTML5( $this->golem, /* $context = */ 'attribute' );
+		$this->htmlAttrCodec = new HTML5( $this->g, /* $context = */ 'attribute' );
 
 
 	return $this->htmlAttrCodec->encode( $input );

@@ -37,7 +37,7 @@ class File
 
 use HasLog;
 
-private $golem;
+private $g;
 
 private $info;
 private $path;
@@ -47,12 +47,12 @@ private $mime;
 
 
 public
-function __construct( Golem $golem, $path )
+function __construct( Golem $g, $path )
 {
-	$this->golem = $golem;
 	$this->path  = $path ;
 	$this->info  = new SplFileInfo( $path );
 
+	$this->g = $g;
 	$this->setupLog();
 }
 
@@ -221,9 +221,9 @@ function mime( $mime = null )
 
 	// setter
 	//
-	$this->mime = $this->golem->textRule()
+	$this->mime = $this->g->textRule()
 
-		->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )
+		->encoding( $this->g->options( 'Golem', 'configEncoding' ) )
 		->type    ( 'string'                                           )
 		->sanitize( $mime, 'parameter: $mime'                          )
 	;
@@ -278,8 +278,8 @@ function driver( iFileDriver $driver = null )
 	$mime = $this->mime();
 	switch( $mime )
 	{
-		case 'text/x-yaml': return $this->driver = new YamlDriver( $this->golem, $this );
-		case 'image/jpeg' : return $this->driver = new JpgDriver ( $this->golem, $this );
+		case 'text/x-yaml': return $this->driver = new YamlDriver( $this->g, $this );
+		case 'image/jpeg' : return $this->driver = new JpgDriver ( $this->g, $this );
 
 		default: $this->log->runtimeException( "Unsupported mime type of file: '{$this->path}'. Detected type: '$mime'." );
 	}

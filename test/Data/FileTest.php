@@ -101,13 +101,13 @@ public
 function	testCreateFile()
 {
 	$file = self::$golem->file( self::$testDir . '/createFile' );
-	$this->assertFileNotExists( $file->path() );
+	$this->assertFileNotExists( $file->path()->raw() );
 
 		$file->touch();
 
-	$this->assertFileExists( $file->path()   );
-	$this->assertFalse     ( $file->isDir()  );
-	$this->assertFalse     ( $file->isLink() );
+	$this->assertFileExists( $file->path  ()->raw() );
+	$this->assertFalse     ( $file->isDir ()        );
+	$this->assertFalse     ( $file->isLink()        );
 
 	return $file;
 }
@@ -118,13 +118,13 @@ public
 function	testCreateDirectory()
 {
 	$dir = self::$golem->file( self::$testDir . '/createDirectory' );
-	$this->assertFileNotExists( $dir->path() );
+	$this->assertFileNotExists( $dir->path()->raw() );
 
 		$dir->mkdir();
 
-	$this->assertFileExists( $dir->path()   );
-	$this->assertTrue      ( $dir->isDir()  );
-	$this->assertFalse     ( $dir->isLink() );
+	$this->assertFileExists( $dir->path  ()->raw() );
+	$this->assertTrue      ( $dir->isDir ()        );
+	$this->assertFalse     ( $dir->isLink()        );
 
 	return $dir;
 }
@@ -142,7 +142,7 @@ function	testDeleteFile( File $file )
 {
 	$file->rm();
 
-	$this->assertFileNotExists( $file->path() );
+	$this->assertFileNotExists( $file->path()->raw() );
 }
 
 
@@ -158,7 +158,7 @@ function	testDeleteDirectory( File $dir )
 {
 	$dir->rm();
 
-	$this->assertFileNotExists( $dir->path() );
+	$this->assertFileNotExists( $dir->path()->raw() );
 }
 
 
@@ -182,26 +182,26 @@ function	testDeleteFullDirectory()
 	$file1   ->touch();
 	$file2   ->touch();
 
-	$this->assertFileExists( $dir     ->path()   );
-	$this->assertTrue      ( $dir     ->isDir()  );
-	$this->assertFalse     ( $dir     ->isLink() );
+	$this->assertFileExists( $dir     ->path  ()->raw() );
+	$this->assertTrue      ( $dir     ->isDir ()        );
+	$this->assertFalse     ( $dir     ->isLink()        );
 
-	$this->assertFileExists( $childDir->path()   );
-	$this->assertTrue      ( $childDir->isDir()  );
-	$this->assertFalse     ( $childDir->isLink() );
+	$this->assertFileExists( $childDir->path  ()->raw() );
+	$this->assertTrue      ( $childDir->isDir ()        );
+	$this->assertFalse     ( $childDir->isLink()        );
 
-	$this->assertFileExists( $file1->path()   );
-	$this->assertFalse     ( $file1->isDir()  );
-	$this->assertFalse     ( $file1->isLink() );
+	$this->assertFileExists( $file1   ->path  ()->raw() );
+	$this->assertFalse     ( $file1   ->isDir ()        );
+	$this->assertFalse     ( $file1   ->isLink()        );
 
-	$this->assertFileExists( $file2->path()   );
-	$this->assertFalse     ( $file2->isDir()  );
-	$this->assertFalse     ( $file2->isLink() );
+	$this->assertFileExists( $file2   ->path  ()->raw() );
+	$this->assertFalse     ( $file2   ->isDir ()        );
+	$this->assertFalse     ( $file2   ->isLink()        );
 
 
 	$dir->rm();
 
-	$this->assertFileNotExists( $dir->path() );
+	$this->assertFileNotExists( $dir->path()->raw() );
 }
 
 

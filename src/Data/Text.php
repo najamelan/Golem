@@ -54,10 +54,10 @@ private $posIntRule;
 public
 function __construct( Golem $golem, $content = '', array $options = [] )
 {
-	$this->golem = $golem;
+	$this->g = $golem;
 
 
-	$this->posIntRule = $this->golem->numberRule()
+	$this->posIntRule = $this->g->numberRule()
 
 		-> type( 'integer' )
 		-> min ( 0         )
@@ -65,10 +65,10 @@ function __construct( Golem $golem, $content = '', array $options = [] )
 	;
 
 
-	$this->setupOptions( $this->golem->options( 'Text' ), $options );
+	$this->setupOptions( $this->g->options( 'Text' ), $options );
 	$this->setupLog();
 
-	self::ensureValidEncoding( $this->golem, $this->options( 'encoding' ) );
+	self::ensureValidEncoding( $this->g, $this->options( 'encoding' ) );
 	$this->raw               ( $content );
 }
 
@@ -180,7 +180,7 @@ function encoding( $toEncoding = null )
 		return $this;
 
 
-	self::ensureValidEncoding( $this->golem, $toEncoding );
+	self::ensureValidEncoding( $this->g, $toEncoding );
 
 	$oldEncoding = $this->encoding();
 
@@ -344,7 +344,7 @@ function count()
 public
 function split( $chunksize = 1, $raw = false )
 {
-	$chunksize = $this->golem->numberRule()
+	$chunksize = $this->g->numberRule()
 
 		-> type    ( 'integer' )
 		-> min     ( 1         )
@@ -353,7 +353,7 @@ function split( $chunksize = 1, $raw = false )
 	;
 
 
-	$raw = $this->golem->booleanRule()->validate( $raw, 'Split: parameter $raw' );
+	$raw = $this->g->booleanRule()->validate( $raw, 'Split: parameter $raw' );
 
 
 	for( $i = 0, $result = []; $i < $this->length(); $i += $chunksize )
@@ -380,7 +380,7 @@ function split( $chunksize = 1, $raw = false )
 public
 function pop( $amount = 1 )
 {
-	$amount = $this->golem->numberRule()
+	$amount = $this->g->numberRule()
 
 		-> type    ( 'integer' )
 		-> min     ( 1         )
@@ -410,7 +410,7 @@ function pop( $amount = 1 )
 public
 function shift( $amount = 1 )
 {
-	$amount = $this->golem->numberRule()
+	$amount = $this->g->numberRule()
 
 		-> type    ( 'integer' )
 		-> min     ( 1         )
@@ -592,7 +592,7 @@ function offsetSet( $index , $value )
 	;
 
 
-	$value = $this->golem->textRule()
+	$value = $this->g->textRule()
 
 		-> type  ( 'Golem\Data\Text' )
 		-> length( 1      )
@@ -749,7 +749,7 @@ function canBeString( $value )
 public
 function __toString()
 {
-	return $this->copy()->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
+	return $this->copy()->encoding( $this->g->options( 'Golem', 'configEncoding' ) )->raw();
 }
 
 

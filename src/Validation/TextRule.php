@@ -92,7 +92,7 @@ function validateOptionEncoding( $o )
 
 	if( $o instanceof Text )
 
-		$o = $o->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
+		$o = $o->encoding( $this->g->options( 'Golem', 'configEncoding' ) )->raw();
 
 
 	if( ! Text::encodingSupported( $o ) )
@@ -187,7 +187,7 @@ function validateOptionType( $o )
 
 	if( $o instanceof Text )
 
-		$o = $o->encoding( $this->golem->options( 'Golem', 'configEncoding' ) )->raw();
+		$o = $o->encoding( $this->g->options( 'Golem', 'configEncoding' ) )->raw();
 
 
 	if( ! in_array( $o, [ 'string', 'Golem\Data\Text' ] ) )
@@ -219,7 +219,7 @@ function ensureType( $string, $context )
 
 	if( ! $string instanceof Text )
 	{
-		$string = $this->golem->text( $string, $this->golem->options( 'Text', 'encoding' ) );
+		$string = $this->g->text( $string, $this->g->options( 'Text', 'encoding' ) );
 		$this->encodingUsed = true;
 	}
 

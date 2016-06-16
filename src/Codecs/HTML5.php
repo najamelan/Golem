@@ -60,7 +60,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	// Parameter Validation
 	//
-	$this->options[ 'context' ] = $context	= $this->golem->textRule()
+	$this->options[ 'context' ] = $context	= $this->g->textRule()
 
 		->encoding( $this->cfgEnc                   )
 		->in      ( 'text'  , 'attribute'           )
@@ -78,7 +78,7 @@ public function __construct( Golem $golem, $context, array $options = [] )
 
 	$this->options[ 'immune' ] =
 
-		array_merge( $this->golem->text( $immune, $this->cfgEnc )->split( 1, /* raw = */ true ), Codec::$ALPHANUMERICS )
+		array_merge( $this->g->text( $immune, $this->cfgEnc )->split( 1, /* raw = */ true ), Codec::$ALPHANUMERICS )
 	;
 }
 
@@ -103,7 +103,7 @@ function encodeCharacter( Text $c )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->textRule()
+	$c = $this->g->textRule()
 
 		->length  ( 1                  )
 		->validate( $c, 'parameter $c' )
@@ -130,7 +130,7 @@ function encodeCharacter( Text $c )
 
 		return
 
-			$this->golem->text( $this->options( 'substitute' ), $this->cfgEnc )
+			$this->g->text( $this->options( 'substitute' ), $this->cfgEnc )
 		;
 
 
@@ -140,12 +140,12 @@ function encodeCharacter( Text $c )
 
 	if( $named !== false )
 
-		return $this->golem->text( '&' . $named , $this->cfgEnc );
+		return $this->g->text( '&' . $named , $this->cfgEnc );
 
 
 	// Else return a hex entity of the unicode code point
 	//
-	return $this->golem->text( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc );
+	return $this->g->text( '&#x' . dechex( $codePoint ) . ';' , $this->cfgEnc );
 }
 
 
@@ -161,7 +161,7 @@ function allowedInEntity( $codePoint )
 
 	// Parameter Validation
 	//
-	$codePoint = $this->golem->numberRule()
+	$codePoint = $this->g->numberRule()
 
 		->type    ( 'integer'                           )
 		->validate( $codePoint, 'parameter: $codePoint' )
@@ -240,7 +240,7 @@ function decodeNumericEntity( Text $input, $type = 'dec' )
 {
 	// Parameter Validation
 	//
-	$c = $this->golem->textRule()
+	$c = $this->g->textRule()
 
 		->encoding( $this->cfgEnc             )
 		->in      ( 'hex', 'dec'              )
@@ -277,7 +277,7 @@ function decodeNumericEntity( Text $input, $type = 'dec' )
 		return null;
 
 
-	$number = $this->golem->text( '', $this->cfgEnc );
+	$number = $this->g->text( '', $this->cfgEnc );
 
 
 	while( $inputCfgEnc->length() )
@@ -312,7 +312,7 @@ function decodeNumericEntity( Text $input, $type = 'dec' )
 
 	$input->shift( $startLength + $number->length() + $semicolon );
 
-	return Text::fromUniCodePoint( $this->golem, $codePoint, $input->encoding() );
+	return Text::fromUniCodePoint( $this->g, $codePoint, $input->encoding() );
 }
 
 
@@ -359,7 +359,7 @@ private function decodeNamedEntity( Text $input )
 		return null;
 
 
-	$name = $this->golem->text( '', $this->cfgEnc );
+	$name = $this->g->text( '', $this->cfgEnc );
 
 
 	while( $inputCfgEnc->length() )
@@ -398,7 +398,7 @@ private function decodeNamedEntity( Text $input )
 
 	$input->shift( 1 + $name->length() );
 
-	$result = Text::fromUniCodePoint( $this->golem, HTML5_ENTITY_MAP[ $name->raw() ], $this->cfgEnc );
+	$result = Text::fromUniCodePoint( $this->g, HTML5_ENTITY_MAP[ $name->raw() ], $this->cfgEnc );
 
 	return $result->encoding( $input->encoding() );
 }

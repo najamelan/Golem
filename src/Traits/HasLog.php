@@ -43,7 +43,7 @@ function setupLog( $name = null, array $options = [], $golem = null )
 
 	if( ! $golem )
 
-		$golem = $this->golem;
+		$golem = $this->g;
 
 
 	$this->log = $golem->logger( $name, $options );

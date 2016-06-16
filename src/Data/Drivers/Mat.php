@@ -33,13 +33,13 @@ protected $golem ;
 public
 function __construct( Golem $golem, array $options = [] )
 {
-	$this->golem = $golem;
+	$this->g = $golem;
 
 	$this->setupOptions( $golem->options( 'Mat' ), $options );
 	$this->setupLog();
 
 
-	// $this->golem->fileRule()
+	// $this->g->fileRule()
 
 	// 	->executable()
 	// 	->validate( $this->options( 'binary' ), 'Mat: option binary' )
@@ -80,7 +80,7 @@ function metadata( File $file )
 
 	exec( $this->options( 'binary' ) . ' --display ' . escapeshellarg( $file->path() ), $output, $status );
 
-	return $this->golem->text( join( $output, PHP_EOL ) );
+	return $this->g->text( join( $output, PHP_EOL ) );
 }
 
 

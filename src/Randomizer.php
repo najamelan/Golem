@@ -26,7 +26,7 @@ private $golem;
 public
 function __construct( Golem $golem )
 {
-	$this->golem = $golem;
+	$this->g = $golem;
 	$this->setupLog();
 }
 

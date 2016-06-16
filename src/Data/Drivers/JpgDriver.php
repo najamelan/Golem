@@ -62,7 +62,7 @@ function __construct( Golem $golem, File $file, $options = [] )
 public
 function can( $capability )
 {
-	$this->golem->validator()->string()
+	$this->g->validator()->string()
 
 		->encoding( $this->cfgEnc                             )
 		->in      ( iFileDriver::CAPABILITIES                 )

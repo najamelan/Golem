@@ -41,7 +41,7 @@ protected $golem ;
 public
 function __construct( Golem $golem, array $options = [] )
 {
-	$this->golem = $golem;
+	$this->g = $golem;
 
 	$this->setupOptions( $golem->options( 'Driver', 'BaseDriver' ), $options );
 	$this->setupLog();

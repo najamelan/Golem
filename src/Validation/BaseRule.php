@@ -49,7 +49,7 @@ abstract protected function ensureType( $value, $context );
 public
 function __construct( Golem $golem, array $options = [] )
 {
-	$this->golem = $golem;
+	$this->g = $golem;
 
 	$this->setupOptions( $golem->options( 'Validation', 'BaseRule' ), $options );
 	$this->setupLog();

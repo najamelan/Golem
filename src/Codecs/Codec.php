@@ -89,7 +89,7 @@ protected $golem;
 protected
 function __construct( Golem $golem, array $defaults = [], array $options = [] )
 {
-	$this->golem  = $golem;
+	$this->g  = $golem;
 	$this->cfgEnc = $golem->options( 'Golem', 'configEncoding' );
 
 	$this->setupOptions( $defaults, $options );
@@ -164,8 +164,8 @@ public function encode( $input )
 
 	// TODO: Make sure character encoding is valid
 	//
-	$input  = $this->golem->text( $input );
-	$output = $this->golem->text( ''     );
+	$input  = $this->g->text( $input );
+	$output = $this->g->text( ''     );
 
 
 	while( $input->length() )
@@ -194,8 +194,8 @@ public function decode( $input )
 
 	// TODO: Make sure character encoding is valid
 	//
-	$input  = $this->golem->text( $input );
-	$output = $this->golem->text( ''     );
+	$input  = $this->g->text( $input );
+	$output = $this->g->text( ''     );
 
 
 	while( $input->length() )
